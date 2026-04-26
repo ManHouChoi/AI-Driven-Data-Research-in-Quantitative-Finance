@@ -1,0 +1,47 @@
+
+
+# Core data processing
+numpy>=1.24
+pandas>=2.0
+scipy>=1.10
+scikit-learn>=1.3
+statsmodels>=0.14
+
+# Financial data and market data access
+yfinance>=0.2.40
+pandas-datareader>=0.10
+requests>=2.31
+beautifulsoup4>=4.12
+lxml>=4.9
+html5lib>=1.1
+
+# NLP, embeddings, clustering, and taxonomy construction
+sentence-transformers>=2.2
+transformers>=4.35
+torch>=2.0
+tqdm>=4.66
+umap-learn>=0.5
+hdbscan>=0.8
+openai>=1.0
+
+# Graph neural networks
+# Install torch-geometric according to your local PyTorch/CUDA version if pip cannot resolve it automatically.
+torch-geometric>=2.4
+networkx>=3.0
+
+# Hyperparameter optimization
+optuna>=3.4
+
+# Econometrics and volatility modeling
+arch>=6.3
+linearmodels>=5.0
+
+# Portfolio analytics and plotting
+matplotlib>=3.7
+seaborn>=0.13
+plotly>=5.18
+
+# Utilities
+python-dotenv>=1.0
+joblib>=1.3
+pyyaml>=6.0

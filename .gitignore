@@ -1,0 +1,177 @@
+
+
+# ============================================================
+# Python
+# ============================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+.python-version
+pip-wheel-metadata/
+*.egg-info/
+dist/
+build/
+
+# ============================================================
+# Jupyter / notebooks
+# ============================================================
+.ipynb_checkpoints/
+
+# ============================================================
+# OS / editor files
+# ============================================================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ============================================================
+# Secrets / credentials
+# ============================================================
+.env
+.env.*
+*.env
+secrets/
+credentials/
+*.key
+*.pem
+*.pkl.secret
+
+# ============================================================
+# Raw and intermediate data
+# Keep folder structure with .gitkeep if needed.
+# ============================================================
+data/raw/*
+data/interim/*
+data/cache/*
+data/tmp/*
+data/processed/*
+!data/raw/.gitkeep
+!data/interim/.gitkeep
+!data/cache/.gitkeep
+!data/tmp/.gitkeep
+!data/processed/.gitkeep
+
+# Large local data files anywhere in the repo
+*.csv
+*.tsv
+*.xlsx
+*.xls
+*.parquet
+*.feather
+*.h5
+*.hdf5
+*.db
+*.sqlite
+*.sqlite3
+*.jsonl
+
+# Allow small documentation tables only if intentionally placed here
+!outputs/tables/*.md
+!outputs/tables/*.tex
+
+# ============================================================
+# SEC filing downloads / extracted HTML
+# ============================================================
+*.html
+*.htm
+sec_filings/
+filings/
+edgar_downloads/
+html_cache/
+
+# ============================================================
+# Model artifacts / checkpoints
+# ============================================================
+*.pt
+*.pth
+*.ckpt
+*.joblib
+*.pickle
+*.pkl
+checkpoints/
+models/
+model_artifacts/
+optuna_studies/
+*.db-journal
+
+# ============================================================
+# Generated outputs
+# Commit selected final report figures manually only if needed.
+# ============================================================
+outputs/gat/*
+outputs/portfolio/*
+outputs/econometrics/*
+outputs/figures/*
+!outputs/gat/.gitkeep
+!outputs/portfolio/.gitkeep
+!outputs/econometrics/.gitkeep
+!outputs/figures/.gitkeep
+!outputs/figures/README.md
+
+# Common project-specific generated folders
+GAT_output_macro/
+GAT_output_meso/
+GAT_portfolio_output/
+portfolio_output/
+figure_output/
+results/
+logs/
+
+# ============================================================
+# LaTeX build artifacts
+# Keep final PDFs in report/ if intentionally committed.
+# ============================================================
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.xdv
+*.nav
+*.snm
+*.vrb
+*.synctex(busy)
+
+# Ignore temporary report builds, but allow final report PDFs in report/
+*.pdf
+!report/*.pdf
+
+# ============================================================
+# Testing / coverage
+# ============================================================
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# ============================================================
+# Miscellaneous temporary files
+# ============================================================
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+*.zip
+*.tar
+*.tar.gz
+*.7z
+*.rar
