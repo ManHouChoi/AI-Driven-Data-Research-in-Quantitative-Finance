@@ -319,8 +319,8 @@ The report documents the full methodology, including dynamic taxonomy constructi
 
 ## Authors
 
-- CHAN Ho Lam
-- CHOI Man Hou
-- TSOI Ching Yi
+- CHAN Ho Lam hlmchan@connect.ust.hk
+- CHOI Man Hou mhchoiaf@connect.ust.hk
+- TSOI Ching Yi cytsoiaa@connect.ust.hk
 
 Dual Degree Program in Technology and Management, HKUST.
