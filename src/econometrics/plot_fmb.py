@@ -1,9 +1,10 @@
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+from pathlib import Path
 
 # ================= CONFIGURATION =================
-PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", os.getcwd())
+PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", str(Path(__file__).resolve().parents[2]))
 FMB_OUTPUT_DIR = os.getenv(
     "FYP_FMB_OUTPUT_DIR",
     os.path.join(PROJECT_ROOT, "outputs", "econometrics", "fmb_benchmark_analysis"),
@@ -24,6 +25,9 @@ def main():
         return
         
     df = pd.read_csv(CSV_PATH)
+    if df.empty:
+        print(f"FMB result file is empty; no plot generated: {CSV_PATH}")
+        return
     
     # Take the top 10 most significant factors (lowest p-value / highest absolute t-stat)
     top_10 = df.head(10).copy()

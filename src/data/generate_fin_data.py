@@ -2,6 +2,7 @@
 import os
 import warnings
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
@@ -329,24 +330,24 @@ class FinancialDataEngineer:
 
 
 if __name__ == "__main__":
-    PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", os.getcwd())
+    PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", str(Path(__file__).resolve().parents[2]))
 
     RISK_CSV = os.getenv(
         "FYP_RISK_SCORES_MACRO_CSV",
-        os.path.join(PROJECT_ROOT, "data", "processed", "risk_scores_macro_annual.csv"),
+        os.path.join(PROJECT_ROOT, "data", "interim", "scoring_outputs", "risk_scores_macro_annual.csv"),
     )
     OUTPUT_CSV = os.getenv(
         "FYP_FIN_MATRIX_ENHANCED_CSV",
-        os.path.join(PROJECT_ROOT, "data", "processed", "fin_data_matrix_enhanced.csv"),
+        os.path.join(PROJECT_ROOT, "data", "interim", "scoring_outputs", "fin_data_matrix_enhanced.csv"),
     )
     DROP_LOG_CSV = os.getenv(
         "FYP_FIN_MATRIX_DROP_LOG_CSV",
-        os.path.join(PROJECT_ROOT, "outputs", "tables", "fin_data_matrix_enhanced_drop_log.csv"),
+        os.path.join(PROJECT_ROOT, "data", "interim", "scoring_outputs", "fin_data_matrix_enhanced_drop_log.csv"),
     )
 
     if not os.path.exists(RISK_CSV):
         print(f"Error: Could not locate {RISK_CSV}")
-        print("Set FYP_RISK_SCORES_MACRO_CSV or place the file under data/processed/.")
+        print("Set FYP_RISK_SCORES_MACRO_CSV or place the file under data/interim/scoring_outputs/.")
     else:
         os.makedirs(os.path.dirname(OUTPUT_CSV), exist_ok=True)
         os.makedirs(os.path.dirname(DROP_LOG_CSV), exist_ok=True)

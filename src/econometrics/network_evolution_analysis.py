@@ -4,15 +4,16 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+from pathlib import Path
 from scipy.spatial.distance import pdist, squareform
 
 # ==========================================
 # 1. CONFIGURATION
 # ==========================================
-PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", os.getcwd())
+PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", str(Path(__file__).resolve().parents[2]))
 RISK_CSV_PATH = os.getenv(
     "FYP_RISK_SCORES_MACRO_CSV",
-    os.path.join(PROJECT_ROOT, "data", "processed", "risk_scores_macro_annual.csv"),
+    os.path.join(PROJECT_ROOT, "data", "interim", "scoring_outputs", "risk_scores_macro_annual.csv"),
 )
 OUTPUT_DIR = os.getenv(
     "FYP_NETWORK_OUTPUT_DIR",
@@ -129,7 +130,7 @@ def main():
     if not os.path.exists(RISK_CSV_PATH):
         raise FileNotFoundError(
             f"Risk score file not found: {RISK_CSV_PATH}. "
-            "Set FYP_RISK_SCORES_MACRO_CSV or place the file under data/processed/."
+            "Set FYP_RISK_SCORES_MACRO_CSV or place the file under data/interim/scoring_outputs/."
         )
     df = pd.read_csv(RISK_CSV_PATH)
     

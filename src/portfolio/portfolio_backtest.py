@@ -4,6 +4,7 @@
 import os
 import warnings
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import matplotlib.pyplot as plt
@@ -15,19 +16,20 @@ import yfinance as yf
 
 warnings.filterwarnings("ignore")
 
+PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", str(Path(__file__).resolve().parents[2]))
 
 CONFIG = {
     # Primary signal source: use the meso topology-only ST-GAT output by default.
     "signal_csv": os.getenv(
         "FYP_GAT_MESO_PANEL_CSV",
         os.path.join(
-            os.getenv("FYP_GAT_MESO_OUTPUT_DIR", os.path.join(os.getenv("FYP_PROJECT_ROOT", os.getcwd()), "outputs", "gat", "meso")),
+            os.getenv("FYP_GAT_MESO_OUTPUT_DIR", os.path.join(PROJECT_ROOT, "outputs", "gat", "GAT_output_meso")),
             "ST_GAT_vs_Baseline_Panel_meso.csv",
         ),
     ),
     "output_dir": os.getenv(
         "FYP_PORTFOLIO_OUTPUT_DIR",
-        os.path.join(os.getenv("FYP_PROJECT_ROOT", os.getcwd()), "outputs", "portfolio"),
+        os.path.join(PROJECT_ROOT, "outputs", "portfolio", "GAT_portfolio_output"),
     ),
     "benchmark_ticker": "SPY",
     "price_start": "2021-07-01",

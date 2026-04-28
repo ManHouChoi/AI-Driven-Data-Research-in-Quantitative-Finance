@@ -15,6 +15,7 @@ import time
 import re
 import os
 import openai
+from pathlib import Path
 from sentence_transformers import SentenceTransformer
 from sklearn.cluster import KMeans
 
@@ -22,18 +23,18 @@ from sklearn.cluster import KMeans
 # 1. CONFIGURATION
 # ==========================================
 
-PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", os.getcwd())
+PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", str(Path(__file__).resolve().parents[2]))
 INPUT_FILE = os.getenv(
     "FYP_MASTER_RISK_CSV",
-    os.path.join(PROJECT_ROOT, "data", "processed", "all_risk_factors_master.csv"),
+    os.path.join(PROJECT_ROOT, "data", "interim", "model_input", "all_risk_factors_master.csv"),
 )
 OUTPUT_JSON = os.getenv(
     "FYP_TAXONOMY_JSON",
-    os.path.join(PROJECT_ROOT, "data", "processed", "taxonomy_base.json"),
+    os.path.join(PROJECT_ROOT, "data", "interim", "taxonomy", "taxonomy_base.json"),
 )
 OUTPUT_CSV = os.getenv(
     "FYP_TAXONOMY_CSV",
-    os.path.join(PROJECT_ROOT, "outputs", "tables", "hierarchical_risk_categories.csv"),
+    os.path.join(PROJECT_ROOT, "data", "interim", "taxonomy", "hierarchical_risk_categories.csv"),
 )
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
 

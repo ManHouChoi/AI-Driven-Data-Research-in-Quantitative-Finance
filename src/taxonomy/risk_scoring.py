@@ -12,16 +12,17 @@ import os
 import glob
 import numpy as np
 import re
+from pathlib import Path
 
 # ----- CONFIG -----
-PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", os.getcwd())
+PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", str(Path(__file__).resolve().parents[2]))
 INPUT_DIR = os.getenv(
     "FYP_CLASSIFICATION_OUTPUT_DIR",
-    os.path.join(PROJECT_ROOT, "data", "interim", "classification_outputs"),
+    os.path.join(PROJECT_ROOT, "data", "interim", "processed", "classification_outputs"),
 )
 OUTPUT_DIR = os.getenv(
     "FYP_SCORING_OUTPUT_DIR",
-    os.path.join(PROJECT_ROOT, "data", "processed"),
+    os.path.join(PROJECT_ROOT, "data", "interim", "scoring_outputs"),
 )
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 # ------------------

@@ -1,150 +1,245 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
 
-# IEDA4920 FYP reproducible pipeline runner
-# Run from the repository root:
-#   bash scripts/run_pipeline.sh --smoke
-#   bash scripts/run_pipeline.sh --full
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PYTHON_BIN="${PYTHON:-python}"
+LOG_DIR="${FYP_LOG_DIR:-${ROOT_DIR}/logs}"
+mkdir -p "${LOG_DIR}"
 
-MODE="${1:---smoke}"
+export FYP_PROJECT_ROOT="${FYP_PROJECT_ROOT:-${ROOT_DIR}}"
+export PYTHONPATH="${ROOT_DIR}/src/gat:${ROOT_DIR}/src/data:${ROOT_DIR}/src/taxonomy:${ROOT_DIR}/src/portfolio:${ROOT_DIR}/src/econometrics:${ROOT_DIR}:${PYTHONPATH:-}"
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$PROJECT_ROOT"
+# Canonical repository-local paths. Individual environment variables may still
+# override these when a reviewer wants to run against another artifact set.
+export FYP_RISK_HTML_DIR="${FYP_RISK_HTML_DIR:-${ROOT_DIR}/data/raw/risk_factors_output}"
+export FYP_MASTER_RISK_CSV="${FYP_MASTER_RISK_CSV:-${ROOT_DIR}/data/interim/model_input/all_risk_factors_master.csv}"
+export FYP_TAXONOMY_JSON="${FYP_TAXONOMY_JSON:-${ROOT_DIR}/data/interim/taxonomy/taxonomy_base.json}"
+export FYP_TAXONOMY_CSV="${FYP_TAXONOMY_CSV:-${ROOT_DIR}/data/interim/taxonomy/hierarchical_risk_categories.csv}"
+export FYP_CLASSIFICATION_OUTPUT_DIR="${FYP_CLASSIFICATION_OUTPUT_DIR:-${ROOT_DIR}/data/interim/processed/classification_outputs}"
+export FYP_SCORING_OUTPUT_DIR="${FYP_SCORING_OUTPUT_DIR:-${ROOT_DIR}/data/interim/scoring_outputs}"
+export FYP_RISK_SCORES_MACRO_CSV="${FYP_RISK_SCORES_MACRO_CSV:-${FYP_SCORING_OUTPUT_DIR}/risk_scores_macro_annual.csv}"
+export FYP_RISK_SCORES_MESO_CSV="${FYP_RISK_SCORES_MESO_CSV:-${FYP_SCORING_OUTPUT_DIR}/risk_scores_meso_annual.csv}"
+export FYP_FIN_MATRIX_CSV="${FYP_FIN_MATRIX_CSV:-${FYP_SCORING_OUTPUT_DIR}/fin_data_matrix.csv}"
+export FYP_FIN_MATRIX_ENHANCED_CSV="${FYP_FIN_MATRIX_ENHANCED_CSV:-${FYP_SCORING_OUTPUT_DIR}/fin_data_matrix_enhanced.csv}"
+export FYP_FIN_MATRIX_DROP_LOG_CSV="${FYP_FIN_MATRIX_DROP_LOG_CSV:-${FYP_SCORING_OUTPUT_DIR}/fin_data_matrix_enhanced_drop_log.csv}"
+export FYP_GAT_MACRO_OUTPUT_DIR="${FYP_GAT_MACRO_OUTPUT_DIR:-${ROOT_DIR}/outputs/gat/GAT_output_macro}"
+export FYP_GAT_MESO_OUTPUT_DIR="${FYP_GAT_MESO_OUTPUT_DIR:-${ROOT_DIR}/outputs/gat/GAT_output_meso}"
+export FYP_GAT_MESO_PANEL_CSV="${FYP_GAT_MESO_PANEL_CSV:-${FYP_GAT_MESO_OUTPUT_DIR}/ST_GAT_vs_Baseline_Panel_meso.csv}"
+export FYP_PORTFOLIO_OUTPUT_DIR="${FYP_PORTFOLIO_OUTPUT_DIR:-${ROOT_DIR}/outputs/portfolio/GAT_portfolio_output}"
+export FYP_DAV_OUTPUT_DIR="${FYP_DAV_OUTPUT_DIR:-${ROOT_DIR}/outputs/econometrics/dav_benchmark_analysis}"
+export FYP_FMB_OUTPUT_DIR="${FYP_FMB_OUTPUT_DIR:-${ROOT_DIR}/outputs/econometrics/fmb_benchmark_analysis}"
+export FYP_NETWORK_OUTPUT_DIR="${FYP_NETWORK_OUTPUT_DIR:-${ROOT_DIR}/outputs/econometrics/network_evolution}"
 
-export PYTHONPATH="$PROJECT_ROOT/src:${PYTHONPATH:-}"
+usage() {
+  cat <<'USAGE'
+Usage:
+  bash scripts/run_pipeline.sh <stage>
 
-if command -v python3 >/dev/null 2>&1; then
-  PYTHON_BIN="$(command -v python3)"
-elif command -v python >/dev/null 2>&1; then
-  PYTHON_BIN="$(command -v python)"
-else
-  echo "[ERROR] Neither python3 nor python was found on PATH."
-  echo "Create/activate a virtual environment first, for example:"
-  echo "  python3 -m venv .venv"
-  echo "  source .venv/bin/activate"
-  echo "  python3 -m pip install -r requirements.txt"
-  exit 1
-fi
+Stages:
+  validate          Run lightweight artifact and leakage/timing validation.
+  github-check      Check Git upload candidates for size and secret hygiene.
+  sec-download      Download/extract SEC Item 1A HTML using src/data/data_pipeline.py.
+  master-csv        Build all_risk_factors_master.csv from extracted Item 1A HTML.
+  taxonomy          Rebuild the base taxonomy JSON/CSV. Requires DEEPSEEK_API_KEY.
+  classify          Classify risk paragraphs using the taxonomy centroids.
+  risk-scoring      Aggregate classified paragraphs into macro/meso exposures.
+  financial         Rebuild the enhanced financial feature/target matrix.
+  gat-objective     Run Macro and Meso Optuna searches.
+  gat-forecast      Run Macro and Meso ST-GAT forecasts with fixed best params.
+  multi-seed        Run final ST-GAT forecasts across seeds into outputs/gat/multi_seed.
+  portfolio         Run the monthly portfolio backtest from Meso ST-GAT signals.
+  econometrics      Run Fama-MacBeth, DAV/EGARCH-X, and network diagnostics.
+  dav-peak-summary  Summarize figure-only DAV peak diagnostics into CSV/Markdown.
+  robust-eval       Run robust OOS and portfolio inference addenda.
+  report-figures    Generate report-local figures from current CSV outputs.
+  full              Run all stages above in research-pipeline order.
 
-log_step() {
+Useful environment variables:
+  PYTHON=/path/to/python
+  DRY_RUN=1
+  FYP_AS_OF_DATE=2026-04-27
+  SEC_CONTACT_EMAIL=your.name@example.com
+
+Examples:
+  bash scripts/run_pipeline.sh validate
+  DRY_RUN=1 bash scripts/run_pipeline.sh full
+  PYTHON=.venv/bin/python bash scripts/run_pipeline.sh gat-forecast
+USAGE
+}
+
+run_cmd() {
+  local name="$1"
+  shift
+  local timestamp
+  timestamp="$(date +%Y%m%d_%H%M%S)"
+  local log_file="${LOG_DIR}/${timestamp}_${name}.log"
+
   echo
-  echo "============================================================"
-  echo "$1"
-  echo "============================================================"
-}
+  echo "==> ${name}"
+  printf '    '
+  printf '%q ' "$@"
+  echo
+  echo "    log: ${log_file}"
 
-run_if_exists() {
-  local script_path="$1"
-  local description="$2"
-
-  if [[ -f "$script_path" ]]; then
-    log_step "$description"
-    "$PYTHON_BIN" "$script_path"
-  else
-    echo "[SKIP] $script_path not found"
+  if [[ "${DRY_RUN:-0}" == "1" ]]; then
+    return 0
   fi
+
+  "$@" 2>&1 | tee "${log_file}"
 }
 
-check_file() {
-  local path="$1"
-  local description="$2"
-
-  if [[ -f "$path" ]]; then
-    echo "[OK] $description: $path"
-  else
-    echo "[MISSING] $description: $path"
-  fi
+run_python() {
+  local name="$1"
+  local script="$2"
+  shift 2
+  run_cmd "${name}" "${PYTHON_BIN}" "${ROOT_DIR}/${script}" "$@"
 }
 
-check_dir() {
-  local path="$1"
-  local description="$2"
-
-  if [[ -d "$path" ]]; then
-    echo "[OK] $description: $path"
-  else
-    echo "[MISSING] $description: $path"
-  fi
+validate() {
+  run_python "validate_pipeline" "scripts/validate_pipeline.py" --as-of "${FYP_AS_OF_DATE:-$(date +%Y-%m-%d)}"
 }
 
-run_smoke() {
-  log_step "Smoke check: repository structure"
-  echo "Project root: $PROJECT_ROOT"
-  echo "Python: $($PYTHON_BIN -c 'import sys; print(sys.executable)')"
-  echo "Python version: $($PYTHON_BIN --version)"
-
-  check_dir "src/data" "data source folder"
-  check_dir "src/taxonomy" "taxonomy source folder"
-  check_dir "src/gat" "ST-GAT source folder"
-  check_dir "src/econometrics" "econometrics source folder"
-  check_dir "src/portfolio" "portfolio source folder"
-  check_dir "data/processed" "processed data folder"
-  check_dir "outputs" "outputs folder"
-  check_dir "report" "report folder"
-
-  check_file "src/data/build_master_csv.py" "master CSV builder"
-  check_file "src/data/generate_fin_data.py" "financial data generator"
-  check_file "src/data/build_enhanced_macro_data.py" "enhanced macro data builder"
-  check_file "src/taxonomy/base_year_taxonomy.py" "base taxonomy builder"
-  check_file "src/taxonomy/classification.py" "semantic classifier"
-  check_file "src/taxonomy/risk_scoring.py" "risk scoring script"
-  check_file "src/gat/GAT_data_pipeline.py" "GAT data pipeline"
-  check_file "src/gat/GAT_models.py" "GAT models"
-  check_file "src/gat/GAT_objective_macro.py" "macro GAT objective"
-  check_file "src/gat/GAT_objective_meso.py" "meso GAT objective"
-  check_file "src/gat/GAT_forecast_macro.py" "macro GAT forecast"
-  check_file "src/gat/GAT_forecast_meso.py" "meso GAT forecast"
-  check_file "src/econometrics/fmb_risk_premium.py" "Fama-MacBeth validation"
-  check_file "src/econometrics/st_gcn_volatility.py" "volatility validation"
-  check_file "src/econometrics/network_evolution_analysis.py" "network evolution analysis"
-  check_file "src/portfolio/portfolio_backtest.py" "portfolio backtest"
-
-  log_step "Smoke check: Python syntax"
-  "$PYTHON_BIN" -m compileall -q src
-  echo "[OK] Python files compiled successfully."
-
-  log_step "Smoke check finished"
-  echo "Use 'bash scripts/run_pipeline.sh --full' only after required data files are available."
+github_check() {
+  run_python "github_ready" "scripts/check_github_ready.py"
 }
 
-run_full() {
-  log_step "Starting full IEDA4920 FYP pipeline"
-  echo "Project root: $PROJECT_ROOT"
-  echo "Python: $($PYTHON_BIN -c 'import sys; print(sys.executable)')"
-  echo "Python version: $($PYTHON_BIN --version)"
-
-  run_if_exists "src/data/build_master_csv.py" "Step 1A: Build master risk-disclosure CSV"
-  run_if_exists "src/data/generate_fin_data.py" "Step 1B: Generate financial feature data"
-  run_if_exists "src/data/build_enhanced_macro_data.py" "Step 1C: Build enhanced macro-financial data"
-
-  run_if_exists "src/taxonomy/base_year_taxonomy.py" "Step 2A: Build base-year taxonomy"
-  run_if_exists "src/taxonomy/classification.py" "Step 2B: Classify risk paragraphs"
-  run_if_exists "src/taxonomy/risk_scoring.py" "Step 2C: Generate firm-year risk scores"
-
-  run_if_exists "src/gat/GAT_objective_macro.py" "Step 3A: Optimize Macro ST-GAT"
-  run_if_exists "src/gat/GAT_objective_meso.py" "Step 3B: Optimize Meso ST-GAT"
-  run_if_exists "src/gat/GAT_forecast_macro.py" "Step 3C: Forecast with Macro ST-GAT"
-  run_if_exists "src/gat/GAT_forecast_meso.py" "Step 3D: Forecast with Meso ST-GAT"
-
-  run_if_exists "src/econometrics/fmb_risk_premium.py" "Step 4A: Run Fama-MacBeth risk-premium validation"
-  run_if_exists "src/econometrics/st_gcn_volatility.py" "Step 4B: Run volatility validation model"
-  run_if_exists "src/econometrics/network_evolution_analysis.py" "Step 4C: Run risk-contagion network analysis"
-  run_if_exists "src/econometrics/plot_fmb.py" "Step 4D: Plot Fama-MacBeth outputs"
-
-  run_if_exists "src/portfolio/portfolio_backtest.py" "Step 5: Run portfolio backtest"
-
-  log_step "Full pipeline finished"
+sec_download() {
+  run_python "sec_download" "src/data/data_pipeline.py"
 }
 
-case "$MODE" in
-  --smoke)
-    run_smoke
+master_csv() {
+  run_python "master_csv" "src/data/build_master_csv.py"
+}
+
+taxonomy() {
+  run_python "taxonomy" "src/taxonomy/base_year_taxonomy.py"
+}
+
+classify() {
+  run_python "classify" "src/taxonomy/classification.py"
+}
+
+risk_scoring() {
+  run_python "risk_scoring" "src/taxonomy/risk_scoring.py"
+}
+
+financial() {
+  run_python "financial_matrix" "src/data/generate_fin_data.py"
+}
+
+gat_objective() {
+  run_python "gat_objective_macro" "src/gat/GAT_objective_macro.py"
+  run_python "gat_objective_meso" "src/gat/GAT_objective_meso.py"
+}
+
+gat_forecast() {
+  run_python "gat_forecast_macro" "src/gat/GAT_forecast_macro.py"
+  run_python "gat_forecast_meso" "src/gat/GAT_forecast_meso.py"
+}
+
+multi_seed() {
+  run_python "multi_seed_forecasts" "scripts/run_multi_seed_forecasts.py" ${FYP_MULTI_SEED_ARGS:-}
+}
+
+portfolio() {
+  run_python "portfolio_backtest" "src/portfolio/portfolio_backtest.py"
+}
+
+econometrics() {
+  run_python "fama_macbeth" "src/econometrics/fmb_risk_premium.py"
+  run_python "dav_egarch_x" "src/econometrics/volatility_model.py"
+  run_python "network_evolution" "src/econometrics/network_evolution_analysis.py"
+}
+
+dav_peak_summary() {
+  run_python "dav_peak_summary" "scripts/summarize_dav_peak_analysis.py"
+}
+
+robust_eval() {
+  run_python "robust_oos_evaluation" "scripts/evaluate_oos_robustness.py"
+  run_python "portfolio_inference" "scripts/evaluate_portfolio_inference.py"
+}
+
+report_figures() {
+  run_python "report_figures" "scripts/generate_report_figures.py"
+}
+
+full() {
+  sec_download
+  master_csv
+  taxonomy
+  classify
+  risk_scoring
+  financial
+  gat_objective
+  gat_forecast
+  portfolio
+  econometrics
+  dav_peak_summary
+  robust_eval
+  report_figures
+  validate
+}
+
+stage="${1:-help}"
+case "${stage}" in
+  help|--help|-h)
+    usage
     ;;
-  --full)
-    run_full
+  validate)
+    validate
+    ;;
+  github-check)
+    github_check
+    ;;
+  sec-download)
+    sec_download
+    ;;
+  master-csv)
+    master_csv
+    ;;
+  taxonomy)
+    taxonomy
+    ;;
+  classify)
+    classify
+    ;;
+  risk-scoring)
+    risk_scoring
+    ;;
+  financial)
+    financial
+    ;;
+  gat-objective)
+    gat_objective
+    ;;
+  gat-forecast)
+    gat_forecast
+    ;;
+  multi-seed)
+    multi_seed
+    ;;
+  portfolio)
+    portfolio
+    ;;
+  econometrics)
+    econometrics
+    ;;
+  dav-peak-summary)
+    dav_peak_summary
+    ;;
+  robust-eval)
+    robust_eval
+    ;;
+  report-figures)
+    report_figures
+    ;;
+  full)
+    full
     ;;
   *)
-    echo "Usage: bash scripts/run_pipeline.sh [--smoke|--full]"
-    exit 1
+    echo "Unknown stage: ${stage}" >&2
+    usage >&2
+    exit 2
     ;;
 esac

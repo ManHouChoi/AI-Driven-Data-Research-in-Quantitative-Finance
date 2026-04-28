@@ -3,6 +3,8 @@ import os
 import random
 import copy
 import warnings
+import json
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -17,31 +19,65 @@ from GAT_models import ST_GAT_Forecaster
 
 warnings.filterwarnings("ignore")
 
+PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", str(Path(__file__).resolve().parents[2]))
+
+
+def env_int(name: str, default: int) -> int:
+    return int(os.getenv(name, str(default)))
+
 
 CONFIG = {
     "level": "macro",
     "output_dir": os.getenv(
         "FYP_GAT_MACRO_OUTPUT_DIR",
-        os.path.join(os.getenv("FYP_PROJECT_ROOT", os.getcwd()), "outputs", "gat", "macro"),
+        os.path.join(PROJECT_ROOT, "outputs", "gat", "GAT_output_macro"),
+    ),
+    "best_params_path": os.getenv(
+        "FYP_GAT_MACRO_PARAMS_JSON",
+        os.path.join(
+            os.getenv("FYP_GAT_MACRO_OUTPUT_DIR", os.path.join(PROJECT_ROOT, "outputs", "gat", "GAT_output_macro")),
+            "optuna_best_params_macro.json",
+        ),
     ),
     "tau": 0.8127797829415244,
     "heads": 1,
     "dropout": 0.36878822920584453,
     "lr": 0.006694123858161636,
     "spatial_dim": 16,
-    "max_epochs": 300,
-    "patience": 40,
+    "max_epochs": env_int("FYP_GAT_MAX_EPOCHS", 300),
+    "patience": env_int("FYP_GAT_PATIENCE", 40),
     "min_delta": 1e-6,
     "weight_decay": 1.9762569165678324e-05,
     "grad_clip": 1.0,
-    "seed": 42,
-    "train_end_year": 2016,
-    "val_end_year": 2020,
+    "seed": env_int("FYP_GAT_SEED", 42),
+    "train_end_year": env_int("FYP_TRAIN_END_YEAR", 2016),
+    "val_end_year": env_int("FYP_VALIDATION_END_YEAR", 2020),
     "use_edge_attr": False,
     "edge_weight_mode": "cosine",
     "include_self_loops": True,
     "self_loop_weight": 1.0,
 }
+
+
+def load_best_params_if_available() -> None:
+    """Keep forecast settings synchronized with the latest Optuna output."""
+    params_path = CONFIG["best_params_path"]
+    if not os.path.exists(params_path):
+        print(f"Best-parameter file not found; using CONFIG defaults: {params_path}")
+        return
+
+    try:
+        with open(params_path, "r", encoding="utf-8") as handle:
+            payload = json.load(handle)
+        best_params = payload.get("best_params", {})
+    except Exception as exc:
+        print(f"Warning: could not read {params_path}; using CONFIG defaults. Error: {exc}")
+        return
+
+    for key in ("tau", "heads", "dropout", "lr", "spatial_dim", "weight_decay"):
+        if key in best_params:
+            CONFIG[key] = best_params[key]
+    print(f"Loaded Macro Optuna best parameters from {params_path}.")
 
 
 def set_seed(seed: int) -> None:
@@ -103,6 +139,7 @@ def train_and_extract(risk_csv_path: str, fin_csv_path: str):
     level = CONFIG["level"]
     output_dir = CONFIG["output_dir"]
     os.makedirs(output_dir, exist_ok=True)
+    load_best_params_if_available()
 
     print(f"Initializing {level.upper()} ST-GAT forecasting pipeline...")
     risk_df = pd.read_csv(risk_csv_path)
@@ -331,14 +368,13 @@ def train_and_extract(risk_csv_path: str, fin_csv_path: str):
 
 
 if __name__ == "__main__":
-    PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", os.getcwd())
     MACRO_CSV = os.getenv(
         "FYP_RISK_SCORES_MACRO_CSV",
-        os.path.join(PROJECT_ROOT, "data", "processed", "risk_scores_macro_annual.csv"),
+        os.path.join(PROJECT_ROOT, "data", "interim", "scoring_outputs", "risk_scores_macro_annual.csv"),
     )
     FIN_CSV = os.getenv(
         "FYP_FIN_MATRIX_ENHANCED_CSV",
-        os.path.join(PROJECT_ROOT, "data", "processed", "fin_data_matrix_enhanced.csv"),
+        os.path.join(PROJECT_ROOT, "data", "interim", "scoring_outputs", "fin_data_matrix_enhanced.csv"),
     )
 
     train_and_extract(MACRO_CSV, FIN_CSV)

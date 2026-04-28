@@ -4,12 +4,13 @@ import re
 from bs4 import BeautifulSoup
 import requests
 import pandas as pd
+from pathlib import Path
 
 # ================= CONFIGURATION =================
-PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", os.getcwd())
+PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", str(Path(__file__).resolve().parents[2]))
 OUTPUT_DIR = os.getenv(
     "FYP_RISK_HTML_DIR",
-    os.path.join(PROJECT_ROOT, "data", "interim", "risk_factors_output"),
+    os.path.join(PROJECT_ROOT, "data", "raw", "risk_factors_output"),
 )
 # Ensure the directory exists immediately
 os.makedirs(OUTPUT_DIR, exist_ok=True)

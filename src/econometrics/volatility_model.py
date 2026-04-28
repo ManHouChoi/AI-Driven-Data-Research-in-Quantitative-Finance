@@ -19,17 +19,18 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.optimize import minimize
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Dict
 
 warnings.filterwarnings("ignore")
 
 # ================= CONFIGURATION =================
-PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", os.getcwd())
+PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", str(Path(__file__).resolve().parents[2]))
 START_DATE = os.getenv("FYP_DAV_START_DATE", "2020-01-01")
 END_DATE = os.getenv("FYP_DAV_END_DATE", "2025-12-31")
 RISK_SCORES_PATH = os.getenv(
     "FYP_RISK_SCORES_MESO_CSV",
-    os.path.join(PROJECT_ROOT, "data", "processed", "risk_scores_meso_annual.csv"),
+    os.path.join(PROJECT_ROOT, "data", "interim", "scoring_outputs", "risk_scores_meso_annual.csv"),
 )
 OUTDIR = os.getenv(
     "FYP_DAV_OUTPUT_DIR",
@@ -42,7 +43,7 @@ os.makedirs(OUTDIR, exist_ok=True)
 def load_risk_matrix_annual(path):
     if not os.path.exists(path):
         print(f"❌ Risk matrix not found: {path}")
-        print("   Set FYP_RISK_SCORES_MESO_CSV or place the file under data/processed/.")
+        print("   Set FYP_RISK_SCORES_MESO_CSV or place the file under data/interim/scoring_outputs/.")
         return pd.DataFrame()
     df = pd.read_csv(path, index_col=['Ticker', 'Year'])
     print(f"   Loaded Annual Risk Scores for {len(df.index.levels[0])} companies.")
@@ -356,9 +357,19 @@ def main():
             plt.close()
 
     os.makedirs(OUTDIR, exist_ok=True)
-    pd.DataFrame(all_results).to_csv(os.path.join(OUTDIR, "benchmark_metrics.csv"), index=False)
-    generate_report(all_results)
-    print(f"\n✅ Benchmark Complete. Report: {os.path.join(OUTDIR, 'benchmark_report.html')}")
+    result_columns = [
+        "Ticker", "Risk", "Safe_Name", "GARCH_BIC", "GARCH_MSE", "EGARCH_BIC",
+        "EGARCH_MSE", "DAV_BIC", "DAV_MSE", "DAV_BIC_Imp", "Interpretation", "Params",
+    ]
+    pd.DataFrame(all_results, columns=result_columns).to_csv(
+        os.path.join(OUTDIR, "benchmark_metrics.csv"),
+        index=False,
+    )
+    if all_results:
+        generate_report(all_results)
+        print(f"\n✅ Benchmark Complete. Report: {os.path.join(OUTDIR, 'benchmark_report.html')}")
+    else:
+        print("No DAV benchmark fits completed; wrote an empty benchmark_metrics.csv with schema.")
 
 if __name__ == "__main__":
     main()

@@ -13,22 +13,23 @@ import pandas as pd
 import numpy as np
 import json
 import os
+from pathlib import Path
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
 # ================= CONFIGURATION =================
-PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", os.getcwd())
+PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", str(Path(__file__).resolve().parents[2]))
 TAXONOMY_PATH = os.getenv(
     "FYP_TAXONOMY_JSON",
-    os.path.join(PROJECT_ROOT, "data", "processed", "taxonomy_base.json"),
+    os.path.join(PROJECT_ROOT, "data", "interim", "taxonomy", "taxonomy_base.json"),
 )
 MASTER_CSV = os.getenv(
     "FYP_MASTER_RISK_CSV",
-    os.path.join(PROJECT_ROOT, "data", "processed", "all_risk_factors_master.csv"),
+    os.path.join(PROJECT_ROOT, "data", "interim", "model_input", "all_risk_factors_master.csv"),
 )
 OUTPUT_DIR = os.getenv(
     "FYP_CLASSIFICATION_OUTPUT_DIR",
-    os.path.join(PROJECT_ROOT, "data", "interim", "classification_outputs"),
+    os.path.join(PROJECT_ROOT, "data", "interim", "processed", "classification_outputs"),
 )
 # =================================================
 

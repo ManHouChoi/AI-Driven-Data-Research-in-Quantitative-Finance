@@ -1,0 +1,18 @@
+* text=auto
+
+# Binary report and figure artifacts
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+
+# Binary model/data artifacts should normally be ignored, but mark them binary
+# in case a small fixture is intentionally committed later.
+*.pt binary
+*.pth binary
+*.ckpt binary
+*.pkl binary
+*.pickle binary
+*.parquet binary
+*.feather binary

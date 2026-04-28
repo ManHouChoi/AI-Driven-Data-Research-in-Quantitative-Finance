@@ -3,6 +3,7 @@ import yfinance as yf
 import pandas_datareader.data as web
 import datetime
 import os
+from pathlib import Path
 
 def fetch_macro_data(start_year=2006, end_year=2024):
     print("Downloading Macroeconomic Data from FRED and Yahoo Finance...")
@@ -69,16 +70,16 @@ def merge_with_fin_data(original_fin_csv_path, output_csv_path):
     print(macro_df.columns.tolist())
 
 if __name__ == "__main__":
-    PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", os.getcwd())
+    PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", str(Path(__file__).resolve().parents[2]))
 
     INPUT_CSV = os.getenv(
         "FYP_FIN_MATRIX_CSV",
-        os.path.join(PROJECT_ROOT, "data", "processed", "fin_data_matrix.csv"),
+        os.path.join(PROJECT_ROOT, "data", "interim", "scoring_outputs", "fin_data_matrix.csv"),
     )
 
     OUTPUT_CSV = os.getenv(
         "FYP_FIN_MATRIX_ENHANCED_CSV",
-        os.path.join(PROJECT_ROOT, "data", "processed", "fin_data_matrix_enhanced.csv"),
+        os.path.join(PROJECT_ROOT, "data", "interim", "scoring_outputs", "fin_data_matrix_enhanced.csv"),
     )
 
     merge_with_fin_data(INPUT_CSV, OUTPUT_CSV)

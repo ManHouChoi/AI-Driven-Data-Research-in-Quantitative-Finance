@@ -12,9 +12,12 @@ from sklearn.manifold import TSNE
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 import seaborn as sns
+from pathlib import Path
 from typing import Tuple, List
 
 warnings.filterwarnings("ignore")
+
+PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", str(Path(__file__).resolve().parents[2]))
 
 # ==========================================
 # 1. REAL MARKET DATA ENGINE
@@ -248,7 +251,7 @@ def visualize_risk_clusters(model: nn.Module, X_tensor: torch.Tensor, edge_index
     
     output_dir = os.getenv(
         "FYP_ST_GCN_OUTPUT_DIR",
-        os.path.join(os.getenv("FYP_PROJECT_ROOT", os.getcwd()), "outputs", "econometrics", "st_gcn_volatility"),
+        os.path.join(PROJECT_ROOT, "outputs", "econometrics", "st_gcn_volatility"),
     )
     os.makedirs(output_dir, exist_ok=True)
     output_filename = os.path.join(output_dir, "st_gcn_risk_clusters.png")
@@ -282,9 +285,8 @@ def run_empirical_pipeline(risk_csv_path: str):
     visualize_risk_clusters(model, X_tensor, edge_index, edge_weight, valid_tickers)
 
 if __name__ == "__main__":
-    PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", os.getcwd())
     MACRO_CSV = os.getenv(
         "FYP_RISK_SCORES_MACRO_CSV",
-        os.path.join(PROJECT_ROOT, "data", "processed", "risk_scores_macro_annual.csv"),
+        os.path.join(PROJECT_ROOT, "data", "interim", "scoring_outputs", "risk_scores_macro_annual.csv"),
     )
     run_empirical_pipeline(MACRO_CSV)

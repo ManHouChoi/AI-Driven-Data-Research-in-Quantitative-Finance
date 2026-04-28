@@ -5,16 +5,17 @@ from bs4 import BeautifulSoup
 import numpy as np
 import re
 import gc # Added for memory management
+from pathlib import Path
 
 # ================= CONFIGURATION =================
-PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", os.getcwd())
+PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", str(Path(__file__).resolve().parents[2]))
 INPUT_DIR = os.getenv(
     "FYP_RISK_HTML_DIR",
-    os.path.join(PROJECT_ROOT, "data", "interim", "risk_factors_output"),
+    os.path.join(PROJECT_ROOT, "data", "raw", "risk_factors_output"),
 )
 OUTPUT_FILE = os.getenv(
     "FYP_MASTER_RISK_CSV",
-    os.path.join(PROJECT_ROOT, "data", "processed", "all_risk_factors_master.csv"),
+    os.path.join(PROJECT_ROOT, "data", "interim", "model_input", "all_risk_factors_master.csv"),
 )
 # =================================================
 
@@ -156,6 +157,7 @@ def main():
         if not year: continue
         if i % 10 == 0: print(f"   Processing {ticker} {year} ({i}/{len(html_files)})...")
         
+        rows = []
         try:
             # 1. Parse just one file
             rows = parse_heuristic_two_pass(file_path)
@@ -187,7 +189,7 @@ def main():
             print(f"    ❌ Error on {filename}: {e}")
             
         # MEMORY FIX 2: Force Python to empty the trash
-        del rows
+        rows.clear()
         gc.collect()
 
     print(f"\n✅ Master CSV Build Complete! Saved to: {OUTPUT_FILE} (Approx {total_rows} rows)")

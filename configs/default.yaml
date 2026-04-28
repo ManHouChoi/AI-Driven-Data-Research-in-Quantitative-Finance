@@ -1,0 +1,67 @@
+# Canonical local configuration for the IEDA4920 FYP research pipeline.
+# Paths are repository-relative unless explicitly documented otherwise.
+
+project:
+  title: "AI-Driven Data Research in Quantitative Finance"
+  timezone: "Asia/Hong_Kong"
+  base_seed: 42
+
+splits:
+  train_end_year: 2016
+  validation_end_year: 2020
+  test_start_year: 2021
+  test_end_year: 2024
+  feature_window: "July t through June t+1"
+  target_window: "July t+1 through June t+2"
+
+paths:
+  raw_item1a_html_dir: "data/raw/risk_factors_output"
+  raw_10k_html_dir: "data/raw/10k-html"
+  master_risk_csv: "data/interim/model_input/all_risk_factors_master.csv"
+  taxonomy_json: "data/interim/taxonomy/taxonomy_base.json"
+  taxonomy_csv: "data/interim/taxonomy/hierarchical_risk_categories.csv"
+  classification_output_dir: "data/interim/processed/classification_outputs"
+  scoring_output_dir: "data/interim/scoring_outputs"
+  risk_scores_macro_csv: "data/interim/scoring_outputs/risk_scores_macro_annual.csv"
+  risk_scores_meso_csv: "data/interim/scoring_outputs/risk_scores_meso_annual.csv"
+  financial_matrix_csv: "data/interim/scoring_outputs/fin_data_matrix.csv"
+  financial_matrix_enhanced_csv: "data/interim/scoring_outputs/fin_data_matrix_enhanced.csv"
+  financial_matrix_drop_log_csv: "data/interim/scoring_outputs/fin_data_matrix_enhanced_drop_log.csv"
+  gat_macro_output_dir: "outputs/gat/GAT_output_macro"
+  gat_meso_output_dir: "outputs/gat/GAT_output_meso"
+  portfolio_output_dir: "outputs/portfolio/GAT_portfolio_output"
+  dav_output_dir: "outputs/econometrics/dav_benchmark_analysis"
+  fmb_output_dir: "outputs/econometrics/fmb_benchmark_analysis"
+  network_output_dir: "outputs/econometrics/network_evolution"
+
+gat:
+  graph:
+    edge_weight_mode: "cosine"
+    include_self_loops: true
+    self_loop_weight: 1.0
+    topology_only: true
+  optuna:
+    n_trials: 50
+    max_epochs: 200
+    patience: 25
+  forecast:
+    max_epochs: 300
+    patience: 40
+
+portfolio:
+  benchmark_ticker: "SPY"
+  price_start: "2021-07-01"
+  price_end: "2025-07-01"
+  score_methods:
+    - "return_only"
+    - "return_over_vol"
+    - "composite_z"
+  top_quantile: 0.20
+  bottom_quantile: 0.20
+  transaction_cost_bps: 10.0
+  slippage_bps: 5.0
+
+validation:
+  default_as_of_date: "2026-04-27"
+  known_warnings:
+    - "The Year 2024 forward target window closes on 2026-06-30, so realized 2024 target claims require caveats before that date."

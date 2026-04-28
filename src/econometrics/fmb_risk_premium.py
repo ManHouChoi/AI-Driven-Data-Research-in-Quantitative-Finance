@@ -4,16 +4,17 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 from scipy import stats
+from pathlib import Path
 
 warnings.filterwarnings("ignore")
 
 # ================= CONFIGURATION =================
 START_DATE = "2020-01-01"
 END_DATE   = "2025-12-31"
-PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", os.getcwd())
+PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", str(Path(__file__).resolve().parents[2]))
 RISK_SCORES_PATH = os.getenv(
     "FYP_RISK_SCORES_MESO_CSV",
-    os.path.join(PROJECT_ROOT, "data", "processed", "risk_scores_meso_annual.csv"),
+    os.path.join(PROJECT_ROOT, "data", "interim", "scoring_outputs", "risk_scores_meso_annual.csv"),
 )
 OUTDIR = os.getenv(
     "FYP_FMB_OUTPUT_DIR",
@@ -129,6 +130,11 @@ def main():
     fmb_results = univariate_fama_macbeth(panel_df)
     
     if fmb_results.empty:
+        empty_cols = ["Risk Factor", "Risk Premium", "Std Err", "t-stat", "p-value"]
+        pd.DataFrame(columns=empty_cols).to_csv(
+            os.path.join(OUTDIR, "fmb_results_summary.csv"),
+            index=False,
+        )
         return
         
     print("\n" + "="*90)

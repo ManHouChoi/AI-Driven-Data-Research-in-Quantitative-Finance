@@ -4,6 +4,7 @@ import json
 import os
 import random
 import warnings
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,20 +19,21 @@ from GAT_models import ST_GAT_Forecaster
 
 warnings.filterwarnings("ignore")
 
+PROJECT_ROOT = os.getenv("FYP_PROJECT_ROOT", str(Path(__file__).resolve().parents[2]))
 
 CONFIG = {
     "level": "macro",
     "risk_csv": os.getenv(
         "FYP_RISK_SCORES_MACRO_CSV",
-        os.path.join(os.getenv("FYP_PROJECT_ROOT", os.getcwd()), "data", "processed", "risk_scores_macro_annual.csv"),
+        os.path.join(PROJECT_ROOT, "data", "interim", "scoring_outputs", "risk_scores_macro_annual.csv"),
     ),
     "fin_csv": os.getenv(
         "FYP_FIN_MATRIX_ENHANCED_CSV",
-        os.path.join(os.getenv("FYP_PROJECT_ROOT", os.getcwd()), "data", "processed", "fin_data_matrix_enhanced.csv"),
+        os.path.join(PROJECT_ROOT, "data", "interim", "scoring_outputs", "fin_data_matrix_enhanced.csv"),
     ),
     "output_dir": os.getenv(
         "FYP_GAT_MACRO_OUTPUT_DIR",
-        os.path.join(os.getenv("FYP_PROJECT_ROOT", os.getcwd()), "outputs", "gat", "macro"),
+        os.path.join(PROJECT_ROOT, "outputs", "gat", "GAT_output_macro"),
     ),
     "n_trials": 50,
     "max_epochs": 200,
@@ -228,12 +230,12 @@ def main() -> None:
     if not os.path.exists(CONFIG["risk_csv"]):
         raise FileNotFoundError(
             f"Macro risk score file not found: {CONFIG['risk_csv']}. "
-            "Set FYP_RISK_SCORES_MACRO_CSV or place the file under data/processed/."
+            "Set FYP_RISK_SCORES_MACRO_CSV or place the file under data/interim/scoring_outputs/."
         )
     if not os.path.exists(CONFIG["fin_csv"]):
         raise FileNotFoundError(
             f"Enhanced financial matrix not found: {CONFIG['fin_csv']}. "
-            "Set FYP_FIN_MATRIX_ENHANCED_CSV or place the file under data/processed/."
+            "Set FYP_FIN_MATRIX_ENHANCED_CSV or place the file under data/interim/scoring_outputs/."
         )
     risk_df = pd.read_csv(CONFIG["risk_csv"])
     fin_df = pd.read_csv(CONFIG["fin_csv"])
