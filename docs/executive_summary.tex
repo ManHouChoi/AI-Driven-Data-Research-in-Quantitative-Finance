@@ -1,0 +1,178 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{geometry}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\geometry{margin=1in}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=blue
+}
+\setlength{\parskip}{0.65em}
+\setlength{\parindent}{0pt}
+
+\title{\textbf{Executive Summary}\\
+\large AI-Driven Data Research in Quantitative Finance}
+\author{
+CHAN Ho Lam \quad CHOI Man Hou \quad TSOI Ching Yi\\
+\small IEDA4920 Final Year Project \\
+\small HKUST \quad WorldQuant Consulting (Beijing) Co., Ltd.
+}
+\date{Final review-submission package}
+
+\begin{document}
+\maketitle
+
+\section*{Project Overview}
+
+This repository contains the final review-submission package for the IEDA4920
+Final Year Project, \textit{AI-Driven Data Research in Quantitative Finance}.
+The project develops an end-to-end framework that converts SEC Item 1A
+\textit{Risk Factors} disclosures into hierarchical textual-risk exposures,
+semantic peer networks, topology-only ST-GAT forecasts, econometric diagnostics,
+and academic portfolio-backtesting outputs.
+
+Annual 10-K risk paragraphs are extracted from EDGAR filings, mapped into a
+dynamic macro-meso taxonomy, aggregated into firm-year exposure vectors, and
+converted into annual semantic peer graphs. These graphs are used to test
+whether disclosure-implied peer topology improves one-year-ahead return and
+volatility forecasts beyond each firm's own financial and market features.
+
+\section*{Core Research Contribution}
+
+The central modeling contribution is a strict graph-topology ablation. The full
+ST-GAT model uses
+\[
+    A_t = I + A_{risk,t},
+\]
+while the identity baseline uses
+\[
+    A_t = I.
+\]
+This design isolates the incremental value of textual-risk peer topology. If
+the full graph improves over the identity baseline, the gain is attributable to
+semantic peer links rather than to a different feature set or a weaker model
+family.
+
+\section*{Empirical Design}
+
+The forecasting panel covers risk years 2006--2024. The chronological split is:
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Stage & Years & Role \\
+\midrule
+Training & 2006--2016 & Model fitting, feature scaling, and imputation statistics \\
+Validation & 2017--2020 & Hyperparameter selection and early-stopping signal \\
+OOS review panel & 2021--2024 & Final forecast and portfolio diagnostics \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Each firm-year node uses 12 backward-looking financial and market features,
+standardized using training-year statistics only. Features and risk topology
+are aligned to the July-to-June feature window, while forward return and
+volatility targets are measured over the following July-to-June window.
+
+\section*{Main Verified Results}
+
+The finalized report emphasizes the Meso-level graph as the strongest verified
+specification. On the exported 2021--2024 OOS review panel, Meso ST-GAT improves
+the identity baseline as follows:
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Metric & Identity baseline & Meso ST-GAT \\
+\midrule
+Averaged RMSE & 0.3345 & 0.3001 \\
+Averaged MAE & 0.2314 & 0.1991 \\
+Averaged Spearman rank & -0.0139 & 0.1701 \\
+Volatility RMSE & 0.2240 & 0.1565 \\
+Volatility Spearman rank & -0.1351 & 0.1770 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The clearest improvement is in volatility forecasting, where granular textual
+risk topology substantially reduces forecast error and reverses the rank
+correlation from negative to positive.
+
+\section*{Graph Interpretation}
+
+Graph-density diagnostics support the interpretation that semantic resolution
+matters. During the OOS period, the Macro graph retains roughly 3,900--4,460
+off-diagonal directed edges per year, with density around 5.1\%--5.5\%. The
+Meso graph retains only 38--118 off-diagonal directed edges per year, with
+active-node density below 0.14\%.
+
+The report therefore frames the Meso result as evidence that granular risk
+categories create sparse, high-confidence semantic peer links, rather than
+merely smoothing information through a dense network.
+
+\section*{Portfolio Validation}
+
+The portfolio extension is presented as academic validation, not as live-trading
+evidence. Annual Meso ST-GAT forecasts are held fixed over their July-to-June
+forecast window, while portfolios are rebalanced monthly with 10 bps transaction
+costs, 5 bps slippage, and SPY as benchmark.
+
+The strongest return-only long-short strategy reports:
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Measure & Value \\
+\midrule
+Annualized return & 7.93\% \\
+Annualized volatility & 7.47\% \\
+Sharpe ratio & 1.06 \\
+Sortino ratio & 2.01 \\
+Maximum drawdown & -6.90\% \\
+Beta versus SPY & 0.24 \\
+Top-minus-bottom spread & 17.69\% annualized \\
+Nominal spread p-value & 0.034 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The identity-baseline return-only signal has a smaller and insignificant
+6.62\% annualized top-minus-bottom spread. This supports the interpretation
+that semantic peer topology improves cross-sectional ranking quality, while the
+report avoids presenting the result as investment advice or live-trading
+deployability.
+
+\section*{Claim Safety and Limitations}
+
+The final package is deliberately conservative about unsupported evidence.
+Taxonomy-coverage percentages, AAPL firm-level migration claims, DAV/EGARCH-X
+BIC comparisons, Fama-MacBeth tables, and SAR/network regression claims are not
+used as headline findings unless their source tables are regenerated and added
+to the output manifest.
+
+The available DAV peak diagnostics are retained only as event-local context:
+93 figures were parsed, with 20 positive improvements, 73 negative
+improvements, and mean improvement of -2.40\%. These diagnostics do not
+establish broad DAV dominance.
+
+\section*{Repository Status}
+
+Before GitHub cleanup, the complete local artifact set passed the lightweight
+validation suite with 45 passes, 2 warnings, and 0 failures as of 2026-04-27.
+The warnings are research caveats rather than code crashes: four financial
+feature values require downstream train-period median imputation, and risk-year
+2024 has a forward target window ending on 2026-06-30.
+
+The committed GitHub repository is a lightweight code, report, presentation,
+and documentation package. Large raw data, intermediate files, generated
+outputs, logs, and the local virtual environment are excluded from version
+control and preserved outside the repository as local artifacts.
+
+\end{document}

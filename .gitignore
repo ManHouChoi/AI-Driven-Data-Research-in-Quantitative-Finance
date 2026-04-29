@@ -152,6 +152,7 @@ logs/
 # Ignore temporary report builds, but allow final report PDFs in report/
 *.pdf
 !report/*.pdf
+!docs/executive_summary.pdf
 
 # ============================================================
 # Testing / coverage
