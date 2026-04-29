@@ -161,19 +161,27 @@ Nominal spread p-value & 0.034 \\
 \end{tabular}
 \end{center}
 
+\begin{center}
+    \centering
+    \includegraphics[width=0.96\linewidth]{portfolio_backtest_comparison.png}
+    \captionof*{figure}{\textbf{Backtest comparison.} Monthly rebalanced ST-GAT and
+    identity-baseline portfolio variants are compared against SPY using the
+    current exported equity-curve artifact.}
+\end{center}
+
 The identity-baseline return-only signal has a smaller and insignificant
 6.62\% annualized top-minus-bottom spread. This supports the interpretation
 that semantic peer topology improves cross-sectional ranking quality, while the
 report avoids presenting the result as investment advice or live-trading
 deployability.
 
-\begin{figure}[!htbp]
+\begin{center}
     \centering
     \includegraphics[width=0.82\linewidth]{portfolio_top_bottom_spread.png}
-    \caption*{\textbf{Portfolio ranking diagnostic.} The Meso ST-GAT return-only
+    \captionof*{figure}{\textbf{Portfolio ranking diagnostic.} The Meso ST-GAT return-only
     signal produces the strongest top-minus-bottom spread in the current
     academic backtest outputs.}
-\end{figure}
+\end{center}
 
 \section*{Claim Safety and Limitations}
 
