@@ -6,8 +6,11 @@
 \usepackage{microtype}
 \usepackage{xcolor}
 \usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{caption}
 \usepackage{hyperref}
 \geometry{margin=1in}
+\graphicspath{{../report/figures/}{report/figures/}}
 \hypersetup{
     colorlinks=true,
     linkcolor=blue,
@@ -24,19 +27,19 @@ CHAN Ho Lam \quad CHOI Man Hou \quad TSOI Ching Yi\\
 \small IEDA4920 Final Year Project \\
 \small HKUST \quad WorldQuant Consulting (Beijing) Co., Ltd.
 }
-\date{Final review-submission package}
+\date{April 2026}
 
 \begin{document}
 \maketitle
 
 \section*{Project Overview}
 
-This repository contains the final review-submission package for the IEDA4920
-Final Year Project, \textit{AI-Driven Data Research in Quantitative Finance}.
-The project develops an end-to-end framework that converts SEC Item 1A
-\textit{Risk Factors} disclosures into hierarchical textual-risk exposures,
-semantic peer networks, topology-only ST-GAT forecasts, econometric diagnostics,
-and academic portfolio-backtesting outputs.
+This executive summary presents the IEDA4920 Final Year Project,
+\textit{AI-Driven Data Research in Quantitative Finance}. The project develops
+an end-to-end framework that converts SEC Item 1A \textit{Risk Factors}
+disclosures into hierarchical textual-risk exposures, semantic peer networks,
+topology-only ST-GAT forecasts, econometric diagnostics, and academic
+portfolio-backtesting outputs.
 
 Annual 10-K risk paragraphs are extracted from EDGAR filings, mapped into a
 dynamic macro-meso taxonomy, aggregated into firm-year exposure vectors, and
@@ -105,6 +108,14 @@ The clearest improvement is in volatility forecasting, where granular textual
 risk topology substantially reduces forecast error and reverses the rank
 correlation from negative to positive.
 
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.92\linewidth]{oos_metric_comparison.png}
+    \caption*{\textbf{OOS forecasting comparison.} Meso ST-GAT is the strongest
+    verified specification against the identity baseline on the exported
+    2021--2024 review panel.}
+\end{figure}
+
 \section*{Graph Interpretation}
 
 Graph-density diagnostics support the interpretation that semantic resolution
@@ -116,6 +127,13 @@ active-node density below 0.14\%.
 The report therefore frames the Meso result as evidence that granular risk
 categories create sparse, high-confidence semantic peer links, rather than
 merely smoothing information through a dense network.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.88\linewidth]{graph_density_macro_meso.png}
+    \caption*{\textbf{Graph-density diagnostic.} The Macro graph is much denser,
+    while the Meso graph keeps sparse, high-confidence textual-risk peer links.}
+\end{figure}
 
 \section*{Portfolio Validation}
 
@@ -148,6 +166,14 @@ The identity-baseline return-only signal has a smaller and insignificant
 that semantic peer topology improves cross-sectional ranking quality, while the
 report avoids presenting the result as investment advice or live-trading
 deployability.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.82\linewidth]{portfolio_top_bottom_spread.png}
+    \caption*{\textbf{Portfolio ranking diagnostic.} The Meso ST-GAT return-only
+    signal produces the strongest top-minus-bottom spread in the current
+    academic backtest outputs.}
+\end{figure}
 
 \section*{Claim Safety and Limitations}
 
