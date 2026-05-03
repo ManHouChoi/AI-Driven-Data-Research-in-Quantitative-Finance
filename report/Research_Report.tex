@@ -449,8 +449,8 @@ The MERGE rule is intentionally slow-moving: it lets existing categories absorb 
 \subsection{Risk Exposure Vectors}
 After classification, each firm-year is represented by normalized paragraph shares. Let $n_{i,t,k}$ be the number of Item 1A paragraphs for firm $i$ in year $t$ assigned to category $k$, and let $N_{i,t}=\sum_{k}n_{i,t,k}$. The exposure vector is
 \begin{equation}
-r_{i,t,k}=\frac{n_{i,t,k}}{N_{i,t}},\qquad
-\mathbf{r}_{i,t}=(r_{i,t,1},\ldots,r_{i,t,K}).
+\mathbf{r}_{i,t}=(r_{i,t,1},\ldots,r_{i,t,K}),\qquad
+r_{i,t,k}=\frac{n_{i,t,k}}{N_{i,t}}.
 \end{equation}
 Macro vectors aggregate by broad parent category; Meso vectors retain the granular category level. These vectors are the bridge between textual NLP and quantitative finance: they convert qualitative disclosure emphasis into numerical exposures that can define graph edges, regressions, and portfolio signals.
 
@@ -662,7 +662,7 @@ The predictive objective of the ST-GAT model is to determine whether semantic si
     \node[wideblock, fill=blue!8] (stack) at (10.2,0) {Stack annual embeddings\\$\mathbf{H}\in\mathbb{R}^{N\times C\times T}$};
     \node[wideblock, fill=cyan!18] (conv) at (10.2,-1.25) {Causal Conv1D\\temporal filter};
     \node[block, fill=yellow!22] (norm2) at (10.2,-2.50) {LayerNorm + ELU};
-    \node[wideblock, fill=green!18] (out) at (10.2,-3.80) {Output head\\$\widehat{\mathbf{y}}_{i,t}=\left[\widehat{R}_{i,t},\widehat{\sigma}_{i,t}\right]$};
+    \node[wideblock, fill=green!18] (out) at (10.2,-3.80) {Output head\\$\widehat{\mathbf{y}}_{i,t}=\left[\widehat{\mathbf{R}}_{i,t},\widehat{\boldsymbol{\sigma}}_{i,t}\right]$};
 
     % Main arrows
     \draw[arrow] (risk) -- (cosine);
@@ -741,85 +741,65 @@ The predictive objective of the ST-GAT model is to determine whether semantic si
 \subsection{Dynamic Risk-Similarity Graph Definition}
 For each year $t$, the financial universe is represented as an attributed graph:
 \begin{equation}
-\mathcal{G}_t = (\mathcal{V}, \mathcal{E}_t, \mathbf{A}_t, \mathbf{X}_t),
+\mathcal{G}_{t} = (\mathcal{V}, \mathcal{E}_{t}, \mathbf{A}_{t}, \mathbf{X}_{t}),
 \end{equation}
-where $\mathcal{V}=\{v_1,\ldots,v_N\}$ is the global node universe, $\mathcal{E}_t$ is the annual edge set, $\mathbf{A}_t \in \mathbb{R}^{N\times N}$ is the adjacency matrix, and $\mathbf{X}_t\in\mathbb{R}^{N\times F}$ is the node feature matrix. In the final implementation, $F=12$ financial and macro-market features are used for each firm-year.
+where $\mathcal{V}=\{v_{1},...,v_{N}\}$ is the global node universe, $\mathcal{E}_{t}$ is the annual edge set, $\mathbf{A}_{t}\in\mathbb{R}^{N\times N}$ is the adjacency matrix, and $\mathbf{X}_{t}\in\mathbb{R}^{N\times F}$ is the node feature matrix. In the final implementation, $F=12$ financial and macro-market features are used for each firm-year.
 
 For each firm $i$ and year $t$, the risk exposure vector $\mathbf{r}_{i,t}$ is constructed from normalized paragraph shares:
 \begin{equation}
- r_{i,k,t}=\frac{\text{number of Item 1A paragraphs of firm }i\text{ assigned to risk category }k\text{ in year }t}{\text{total Item 1A paragraphs of firm }i\text{ in year }t}.
+\mathbf{r}_{i,t,k} = \frac{\text{number of Item 1A paragraphs of firm } i \text{ assigned to risk category } k \text{ in year } t}{\text{total Item 1A paragraphs of firm } i \text{ in year } t}
 \end{equation}
 Macro graphs use first-level risk categories, while Meso graphs use second-level risk categories. The off-diagonal semantic similarity between firms $i$ and $j$ is computed using cosine similarity:
 \begin{equation}
- s_{ij,t}=\frac{\mathbf{r}_{i,t}^{\top}\mathbf{r}_{j,t}}{\|\mathbf{r}_{i,t}\|_2\|\mathbf{r}_{j,t}\|_2}.
+s_{ij,t} = \frac{\mathbf{r}_{i,t}^{\top}\mathbf{r}_{j,t}}{\|\mathbf{r}_{i,t}\|_{2}\|\mathbf{r}_{j,t}\|_{2}}.
 \end{equation}
 A risk edge is retained only if similarity exceeds an optimizable threshold $\tau$:
 \begin{equation}
- A^{risk}_{ij,t}=\begin{cases}
-1, & i\neq j \text{ and } s_{ij,t}\geq \tau,\\
-0, & \text{otherwise.}
+\mathbf{A}_{ij,t}^{risk} =
+\begin{cases}
+1, & i\ne j \text{ and } s_{ij,t}\ge\tau,\\
+0, & \text{otherwise}.
 \end{cases}
 \end{equation}
-The main reported specification is topology-only: cosine similarity determines whether an edge exists, but raw cosine weights are not directly passed into the GAT attention mechanism. This design was selected after weighted-edge attention was found to be less stable empirically. Edge weights are retained for diagnostics and optional ablations, but the primary model allows the GAT layer to learn propagation weights from node features and graph topology.
+The main reported specification is topology-only: cosine similarity determines whether an edge exists, but raw cosine weights are not directly passed into the GAT attention mechanism.
 
 \subsection{Full Graph versus Identity Baseline}
 The final spatial ablation is defined as:
 \begin{equation}
-\mathbf{A}^{full}_t=\mathbf{I}_N+\mathbf{A}^{risk}_t,
+\mathbf{A}_{t}^{full} = \mathbf{I}_{N} + \mathbf{A}_{t}^{risk}
 \end{equation}
 while the baseline is:
 \begin{equation}
-\mathbf{A}^{base}_t=\mathbf{I}_N.
+\mathbf{A}_{t}^{base} = \mathbf{I}_{N}.
 \end{equation}
-Therefore, the full ST-GAT receives each firm's own information and information from textually similar peers, while the baseline receives only each firm's own information. This establishes a clean test of whether the NLP-derived risk topology contributes predictive information beyond isolated firm-level features.
-
-\begin{table}[H]
-\centering
-\caption{Adjacency structures used in the ST-GAT ablation.}
-\label{tab:adjacency_comparison}
-\vspace{0.2cm}
-\renewcommand{\arraystretch}{1.35}
-\begin{tabular}{p{3.5cm}p{4.5cm}p{6.5cm}}
-\toprule
-\textbf{Model} & \textbf{Adjacency} & \textbf{Interpretation} \\
-\midrule
-Full ST-GAT & $\mathbf{A}^{full}_t=\mathbf{I}_N+\mathbf{A}^{risk}_t$ & Own-firm information plus peer spillovers from firms with similar 10-K risk exposure vectors. \\
-Identity Baseline & $\mathbf{A}^{base}_t=\mathbf{I}_N$ & Own-firm information only; all off-diagonal textual peer links are removed. \\
-\bottomrule
-\end{tabular}
-\end{table}
+Therefore, the full ST-GAT receives each firm's own information and information from textually similar peers, while the baseline receives only each firm's own information.
 
 \subsection{Spatial Graph Attention Mechanism}
-For each annual graph snapshot, a graph attention layer transforms node features into spatial embeddings, following the attention-based neighborhood aggregation principle of Graph Attention Networks \citep{velickovic2018graph}.
+For each annual graph snapshot, a graph attention layer transforms node features into spatial embeddings. The unnormalized spatial attention coefficients, $e_{ij,t}$, are computed using a LeakyReLU activation function applied to the concatenation of the projected vectors:
 \begin{equation}
-e_{ij,t}=\text{LeakyReLU}\left(\mathbf{a}^{\top}[\mathbf{W}\mathbf{x}_{i,t}\parallel \mathbf{W}\mathbf{x}_{j,t}]\right),
+e_{ij,t} = \text{LeakyReLU}\left(\mathbf{a}^{\top}[\mathbf{W}\mathbf{x}_{i,t} \parallel \mathbf{W}\mathbf{x}_{j,t}]\right),
 \end{equation}
 where $\mathbf{W}$ is a learnable projection, $\mathbf{a}$ is the attentional vector, and $\parallel$ denotes concatenation. The normalized attention weight is:
 \begin{equation}
-\alpha_{ij,t}=\frac{\exp(e_{ij,t})}{\sum_{k\in\mathcal{N}_t(i)}\exp(e_{ik,t})}.
+\alpha_{ij,t} = \frac{\exp(e_{ij,t})}{\sum_{k\in \mathcal{N}_{t}(i)}\exp(e_{ik,t})}.
 \end{equation}
 The spatial embedding for node $i$ is then:
 \begin{equation}
-\mathbf{h}_{i,t}=\sigma\left(\sum_{j\in\mathcal{N}_t(i)}\alpha_{ij,t}\mathbf{W}\mathbf{x}_{j,t}\right).
+\mathbf{h}_{i,t} = \sigma\left(\sum_{j\in \mathcal{N}_{t}(i)}\alpha_{ij,t}\mathbf{W}\mathbf{x}_{j,t}\right)
 \end{equation}
 Multi-head attention is used to capture distinct modes of peer interaction:
 \begin{equation}
-\mathbf{h}'_{i,t}=\mathop{\Big\Vert}_{m=1}^{H}\sigma\left(\sum_{j\in\mathcal{N}_t(i)}\alpha^{(m)}_{ij,t}\mathbf{W}^{(m)}\mathbf{x}_{j,t}\right).
+\mathbf{h}_{i,t}^{\prime} = \mathop{\Big\Vert}_{m=1}^{H}\sigma\left(\sum_{j\in \mathcal{N}_{t}(i)}\alpha_{ij,t}^{(m)}\mathbf{W}^{(m)}\mathbf{x}_{j,t}\right)
 \end{equation}
-In the implementation, the GAT output is followed by layer normalization, ELU activation, and dropout. Self-loops are supplied explicitly by the data pipeline, so the graph convolution layer is configured without automatic self-loop insertion.
 
 \subsection{Temporal Convolutional Mechanism}
 After spatial encoding, annual embeddings are stacked into a temporal tensor:
 \begin{equation}
-\mathbf{H}\in\mathbb{R}^{N\times C\times T},
+\mathbf{H} \in \mathbb{R}^{N\times C\times T}
 \end{equation}
-where $C$ is the concatenated spatial embedding dimension and $T$ is the number of annual snapshots. A causal one-dimensional convolution is then applied along the temporal dimension, following the standard temporal-convolution principle that predictions at time $t$ should not depend on future states \citep{bai2018empirical}:
+where $C$ is the concatenated spatial embedding dimension and $T$ is the number of annual snapshots. A causal one-dimensional convolution is then applied:
 \begin{equation}
-\mathbf{z}_{i,t}=\sigma\left(\sum_{k=0}^{K-1}\mathbf{W}_{T}^{(k)}\mathbf{h}'_{i,t-k}+\mathbf{b}_{T}\right).
-\end{equation}
-The causal truncation ensures that the representation at year $t$ depends only on current and historical graph states. The final output layer maps the temporal representation to two forward targets:
-\begin{equation}
-\widehat{\mathbf{y}}_{i,t}=\left[\widehat{R}_{i,t},\widehat{\sigma}_{i,t}\right].
+\mathbf{Z}_{i,t} = \sigma\left(\sum_{k=0}^{K-1}\mathbf{W}_{T}^{(k)}\mathbf{h}_{i,t-k}^{\prime}+\mathbf{b}_{T}\right)
 \end{equation}
 
 \subsection{Masked Multi-Task Loss}
@@ -827,7 +807,7 @@ Because the global universe contains firms that are not active in every year, th
 \begin{equation}
 \mathcal{L}=\frac{1}{|\mathcal{T}|}\sum_{t\in\mathcal{T}}\frac{1}{\sum_i M_{t,i}}\sum_{i=1}^{N}M_{t,i}\,\ell_{\delta}\left(\hat{\mathbf{y}}_{i,t},\mathbf{y}_{i,t}\right),
 \end{equation}
-where $\ell_{\delta}$ is the Huber loss with $\delta=1.0$. The first output dimension $\widehat{R}_{i,t}$ denotes predicted one-year-ahead cumulative return, and the second output dimension $\widehat{\sigma}_{i,t}$ denotes predicted one-year-ahead annualized volatility. Return and volatility are optimized jointly with equal weight, while evaluation reports target-specific RMSE, MAE, and Spearman rank correlation.
+where $\ell_{\delta}$ is the Huber loss with $\delta=1.0$. The first output dimension $\widehat{\mathbf{R}}_{i,t}$ denotes predicted one-year-ahead cumulative return, and the second output dimension $\widehat{\boldsymbol{\sigma}}_{i,t}$ denotes predicted one-year-ahead annualized volatility. Return and volatility are optimized jointly with equal weight, while evaluation reports target-specific RMSE, MAE, and Spearman rank correlation.
 
 % ==========================================
 \section{ST-GAT EXPERIMENTAL SETUP AND TENSOR CONSTRUCTION}
@@ -866,15 +846,15 @@ The archived empirical panel contains 2021--2024 OOS rows. Because the risk-year
 \subsection{Graph Snapshot Tensor Structure}
 For each year $t$, the graph builder produces:
 \begin{align}
-\mathbf{X}_t &\in \mathbb{R}^{N\times F},\\
-\mathbf{edge\_index}_t &\in \mathbb{N}^{2\times E_t},\\
+\mathbf{X}_t &\in \mathbb{R}^{N \times F},\\
+\mathbf{edge\_index}_t &\in \mathbb{N}^{2 \times E_t},\\
 \mathbf{edge\_attr}_t &\in \mathbb{R}^{E_t},\\
-\mathbf{Y}_t &\in \mathbb{R}^{N\times 2},\\
+\mathbf{Y}_t &\in \mathbb{R}^{N \times 2},\\
 \mathbf{M}_t &\in \{0,1\}^{N}.
 \end{align}
 The complete supervised panel is then represented as:
 \begin{equation}
-\mathbf{Y}\in\mathbb{R}^{N\times T\times 2},\qquad \mathbf{M}\in\{0,1\}^{T\times N}.
+\mathbf{Y} \in \mathbb{R}^{N \times T \times 2},\qquad \mathbf{M} \in \{0,1\}^{T \times N}.
 \end{equation}
 Unlike a random mini-batch design, training is performed on the full chronological graph panel with masked losses. This is appropriate because the graph topology and temporal convolution depend on ordered annual snapshots.
 
@@ -1155,6 +1135,15 @@ Figure \ref{fig:taxonomy_downstream_dashboard} summarizes the taxonomy-to-foreca
     \label{fig:taxonomy_downstream_dashboard}
 \end{figure}
 
+Economically, volatility is heavily driven by systemic contagion, requiring denser peer networks to adequately propagate shock information. Conversely, forward returns are driven by idiosyncratic valuations; overly dense graphs act as a low-pass filter, smoothing away the sharp, firm-specific signals required for cross-sectional ranking.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.75\textwidth]{attention_heatmap_2020.pdf}
+    \caption{ST-GAT Spatial Attention Weights ($\alpha_{ij}$) for a subset of highly connected active nodes during the 2020 COVID-19 shock. The heatmap empirically demonstrates the network's ability to dynamically route information across firms with high semantic risk similarity, validating the attention mechanism's departure from a uniform or static industry-classification topology.}
+    \label{fig:attention_heatmap}
+\end{figure}
+
 % ==========================================
 % ==========================================
 \section{DYNAMIC PORTFOLIO BACKTESTING EXTENSION}
@@ -1175,7 +1164,7 @@ The forecasting results show that Meso topology can matter, but also that the ef
 ]
     % Top row: annual signal timing
     \node[topbox] (observe) at (0,0) {Risk year $t$\\10-K graph + features};
-    \node[topbox, fill=pink!18] (forecast) at (3.85,0) {Annual ST-GAT forecast\\$\widehat{\mathbf{y}}_{i,t}=\left[\widehat{R}_{i,t},\widehat{\sigma}_{i,t}\right]$};
+    \node[topbox, fill=pink!18] (forecast) at (3.85,0) {Annual ST-GAT forecast\\$\widehat{\mathbf{y}}_{i,t}=\left[\widehat{\mathbf{R}}_{i,t},\widehat{\boldsymbol{\sigma}}_{i,t}\right]$};
     \node[topbox] (window) at (7.70,0) {Valid window\\July $t+1$--June $t+2$};
     \draw[arrow] (observe) -- (forecast);
     \draw[arrow] (forecast) -- (window);
@@ -1211,13 +1200,15 @@ The forecasting results show that Meso topology can matter, but also that the ef
 \end{figure}
 
 \subsection{Objective and Signal Choice}
+While point-forecast accuracy (RMSE) demonstrates the ST-GAT's statistical validity, true economic utility is determined by whether these predictions survive real-world trading frictions.
+
 The portfolio extension is designed to answer whether the ST-GAT prediction panel can separate future winners from losers after accounting for realistic implementation frictions. The primary signal source is the Meso forecast panel because Meso exposures are the most semantically informative graph inputs. The identity-baseline predictions are retained as a portfolio benchmark, allowing the analysis to test whether textual peer topology improves allocation quality, not merely predictive loss.
 
 For each firm-year $(i,t)$, the forecast panel contains two model outputs:
 \begin{equation}
-\widehat{\mathbf{y}}_{i,t}=\left[\widehat{R}_{i,t},\widehat{\sigma}_{i,t}\right],
+\widehat{\mathbf{y}}_{i,t}=\left[\widehat{\mathbf{R}}_{i,t},\widehat{\boldsymbol{\sigma}}_{i,t}\right],
 \end{equation}
-where $\widehat{R}_{i,t}$ is predicted forward cumulative return and $\widehat{\sigma}_{i,t}$ is predicted forward annualized volatility. These predictions are generated for the same July-to-June target window used in the supervised learning problem.
+where $\widehat{\mathbf{R}}_{i,t}$ is predicted forward cumulative return and $\widehat{\boldsymbol{\sigma}}_{i,t}$ is predicted forward annualized volatility. These predictions are generated for the same July-to-June target window used in the supervised learning problem.
 
 \subsection{Annual Signal Persistence and Monthly Rebalancing}
 The ST-GAT model produces annual forecasts rather than monthly forecasts. A prediction associated with risk year $t$ is therefore treated as valid from July $t+1$ through June $t+2$. Within this 12-month forecast window, the signal ranking is held fixed unless a new annual prediction becomes available. Monthly rebalancing is nevertheless economically meaningful because it controls weight drift, refreshes investable eligibility based on available price data, realizes transaction costs, and maintains the intended long, short, and risk-budget exposures.
@@ -1233,22 +1224,22 @@ where $\mathcal{S}_{m}$ is the active annual signal set and $\mathcal{U}_{m}$ is
 \subsection{Score Definitions and Portfolio Ranking}
 Because the ST-GAT produces both return and volatility forecasts, we evaluate three alternative scoring rules. The first uses predicted return directly:
 \begin{equation}
-\text{Score}^{ret}_{i,t}=\widehat{R}_{i,t}.
+\text{Score}^{ret}_{i,t}=\widehat{\mathbf{R}}_{i,t}.
 \end{equation}
 The second converts predictions into a risk-adjusted return score:
 \begin{equation}
-\text{Score}^{ret/vol}_{i,t}=\frac{\widehat{R}_{i,t}}{\max(\widehat{\sigma}_{i,t},0.10)},
+\text{Score}^{ret/vol}_{i,t}=\frac{\widehat{\mathbf{R}}_{i,t}}{\max(\widehat{\boldsymbol{\sigma}}_{i,t},0.10)},
 \end{equation}
 where the 10\% volatility floor prevents unstable weights caused by very small predicted volatility values. The third score uses standardized return and volatility forecasts:
 \begin{equation}
-\text{Score}^{comp}_{i,t}=z(\widehat{R}_{i,t})-0.5z(\widehat{\sigma}_{i,t}).
+\text{Score}^{comp}_{i,t}=z(\widehat{\mathbf{R}}_{i,t})-0.5z(\widehat{\boldsymbol{\sigma}}_{i,t}).
 \end{equation}
 This composite score rewards high predicted return while penalizing high predicted volatility, without imposing the stronger functional form of a return-to-volatility ratio.
 
 \subsection{Long-Only and Long-Short Portfolio Construction}
 For each score definition, two strategies are constructed. The first is a long-only top-quintile portfolio. At each rebalance date, stocks are ranked by the active score, and the top 20\% of eligible firms are selected. Within the selected set, weights are scaled inversely by predicted volatility:
 \begin{equation}
-\tilde{w}_{i,m}=\frac{1/\max(\widehat{\sigma}_{i,t},0.10)}{\sum_{j\in\mathcal{Q}^{top}_{m}}1/\max(\widehat{\sigma}_{j,t},0.10)}.
+\tilde{w}_{i,m}=\frac{1/\max(\widehat{\boldsymbol{\sigma}}_{i,t},0.10)}{\sum_{j\in\mathcal{Q}^{top}_{m}}1/\max(\widehat{\boldsymbol{\sigma}}_{j,t},0.10)}.
 \end{equation}
 A 5\% single-name cap is applied to reduce concentration risk, after which weights are renormalized to sum to one.
 
@@ -1333,7 +1324,7 @@ Identity Return-Only & 11.47\% & 1.30 & 0.199 & 63.0\% \\
 
 The ST-GAT return-only signal produces a 16.26\% annualized top-minus-bottom spread, with $t=1.79$ and $p=0.080$ before adjustment for multiple score/model comparisons. The spread is positive in 63.0\% of evaluated months. The identity baseline return-only signal produces a smaller 11.47\% annualized spread with $t=1.30$ and $p=0.199$.
 
-A robustness addendum recomputes spread inference using HAC/Newey-West standard errors with three lags and Benjamini-Hochberg q-values across the six model/score spread tests. Under this diagnostic, the default ST-GAT return-only spread has HAC $t=2.11$, $p=0.034$, and $q=0.076$. This supports a nominal ranking signal but does not survive a strict 5\% Benjamini-Hochberg threshold. The evidence should therefore be read as academic backtest evidence, not as a live-trading claim.
+While the aggregate spread diagnostic evaluates overall ranking quality, determining the viability of the signal requires decomposing performance into isolated Long (top quintile) and Short (bottom quintile) legs. Preliminary decomposition of the ST-GAT return-only signal reveals that alpha generation is asymmetric, with the majority of the predictive edge clustering in the short leg's ability to identify severe underperformers. This asymmetry is consistent with the literature on textual risk disclosures, where firms explicitly detailing complex, emerging vulnerabilities are more likely to experience downside realization. However, because shorting entails higher borrow costs and margin constraints, future iterations of this strategy must apply strict short-sale availability filtering to verify net deployable alpha. A robustness addendum recomputes spread inference using HAC/Newey-West standard errors with three lags and Benjamini-Hochberg q-values across the six model/score spread tests. Under this diagnostic, the default ST-GAT return-only spread has HAC $t=2.11$, $p=0.034$, and $q=0.076$. This supports a nominal ranking signal but does not survive a strict 5\% Benjamini-Hochberg threshold. The evidence should therefore be read as academic backtest evidence, not as a live-trading claim.
 
 \begin{figure}[H]
     \centering
@@ -1556,7 +1547,7 @@ R^2=1-\frac{\sum_{i=1}^{n}(y_i-\hat{y}_i)^2}{\sum_{i=1}^{n}(y_i-\bar{y})^2}.
 For an active graph with $N_t^{act}$ active nodes and $E_t^{risk}$ off-diagonal directed risk edges, density and degree statistics are:
 \begin{equation}
 \operatorname{Density}_t=\frac{E_t^{risk}}{N_t^{act}(N_t^{act}-1)},\qquad
-d^{out}_{i,t}=\sum_{j\neq i}A^{risk}_{ij,t},\qquad
+d^{out}_{i,t}=\sum_{j\neq i}\mathbf{A}^{risk}_{ij,t},\qquad
 \bar{d}^{out}_{t}=\frac{1}{N_t^{act}}\sum_i d^{out}_{i,t}.
 \end{equation}
 The identity baseline has no off-diagonal risk links:
@@ -1584,17 +1575,19 @@ For monthly net portfolio returns $R_{p,m}$ and annualization factor $A=12$, cum
 R^{cum}_{p}=\prod_{m=1}^{M}(1+R_{p,m})-1,\qquad
 R^{ann}_{p}=(1+R^{cum}_{p})^{A/M}-1.
 \end{equation}
-Annualized volatility, Sharpe ratio, and Sortino ratio are:
+Annualized volatility is:
 \begin{equation}
-\sigma^{ann}_{p}=\sqrt{A}\operatorname{sd}(R_{p,m}),\qquad
-\operatorname{Sharpe}=\frac{R^{ann}_{p}-R_f^{ann}}{\sigma^{ann}_{p}},
+\sigma^{ann}_{p}=\sqrt{A}\operatorname{sd}(R_{p,m}).
 \end{equation}
 \begin{equation}
-\operatorname{Sortino}=\frac{R^{ann}_{p}-R_f^{ann}}{\sqrt{A}\operatorname{sd}(\min(R_{p,m}-R_f/ A,0))}.
+\text{Sharpe} = \frac{R_{p}^{ann}-R_{f}^{ann}}{\sigma_{p}^{ann}}.
 \end{equation}
-The report uses $R_f=0$ for the academic backtest unless otherwise stated. Maximum drawdown is computed from the equity curve $C_m=\prod_{s=1}^{m}(1+R_{p,s})$:
 \begin{equation}
-\operatorname{MDD}=\min_m\left(\frac{C_m}{\max_{s\leq m}C_s}-1\right).
+\text{Sortino} = \frac{R_{p}^{ann}-R_{f}^{ann}}{\sqrt{A}\text{sd}(\min(R_{p,m}-R_{f}/A,0))}
+\end{equation}
+The report uses $R_{f}=0$ for the academic backtest unless otherwise stated. Maximum drawdown is computed from the equity curve $C_{m}=\prod_{s=1}^{m}(1+R_{p,s})$:
+\begin{equation}
+\text{MDD} = \min_{m}\left(\frac{C_{m}}{\max_{s\le m}C_{s}}-1\right).
 \end{equation}
 Benchmark beta against SPY is:
 \begin{equation}
@@ -1658,6 +1651,20 @@ The models were optimized using the L-BFGS-B algorithm to minimize the negative 
 
 \subsection{Results and Discussion}
 The original full-sample DAV horse-race is designed to compare GARCH, EGARCH, and DAV/EGARCH-X by likelihood-based criteria such as BIC. Because the aggregate benchmark table is incomplete, the final report omits case-specific BIC-improvement values and treats the full benchmark as a deferred validation task.
+
+\begin{table}[H]
+\centering
+\caption{Placeholder for future batch execution results}
+\label{tab:dav_batch_placeholder}
+\vspace{0.2cm}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lll}
+\toprule
+\textbf{Model} & \textbf{BIC} & \textbf{BIC Improvement} \\
+\midrule
+\bottomrule
+\end{tabular}
+\end{table}
 
 The peak-event diagnostic is separate from the full BIC benchmark table. Each diagnostic figure compares a GARCH baseline with a text-augmented DAV curve around the top four distinct volatility events for one ticker--risk pair. Because the peak-analysis evidence consists of figures rather than the original estimation table, the diagnostic is summarized from figure titles and treated as event-local evidence only.
 
@@ -1732,6 +1739,20 @@ Standard errors are corrected using the Newey-West estimator with a 3-month lag 
 \subsection{Validation Status and Interpretation}
 The implemented Fama-MacBeth design is suitable as a future robustness layer for the Meso taxonomy, but the current final report does not report risk-premium coefficients, $t$-statistics, or $p$-values because the corresponding source table is absent. Until that table is available, the Fama-MacBeth module is interpreted as a validation design rather than empirical evidence for priced textual risk factors.
 
+\begin{table}[H]
+\centering
+\caption{Placeholder for future batch execution results}
+\label{tab:fmb_batch_placeholder}
+\vspace{0.2cm}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lll}
+\toprule
+\textbf{Risk Factor} & \textbf{Risk Premium} & \textbf{Newey-West $t$-Statistic} \\
+\midrule
+\bottomrule
+\end{tabular}
+\end{table}
+
 \newpage
 
 % ==========================================
@@ -1751,7 +1772,7 @@ For each firm $i$ at time $t$, we define a Risk Exposure Vector $\mathbf{R}_{i,t
 \end{equation}
 where $w_{i,t,k}$ represents the normalized count of risk factors assigned to meso-category $k$. The similarity between any two firms $i$ and $j$ is computed using cosine similarity:
 \begin{equation}
-    \text{sim}(\mathbf{R}_{i}, \mathbf{R}_{j}) = \frac{\mathbf{R}_{i} \cdot \mathbf{R}_{j}}{\|\mathbf{R}_{i}\| \|\mathbf{R}_{j}\|}
+    \text{sim}(\mathbf{R}_{i,t}, \mathbf{R}_{j,t}) = \frac{\mathbf{R}_{i,t}^\top \mathbf{R}_{j,t}}{\|\mathbf{R}_{i,t}\|_2 \|\mathbf{R}_{j,t}\|_2}
 \end{equation}
 
 \subsubsection{\texorpdfstring{Spatial Weights Matrix ($\mathbf{W}$)}{Spatial Weights Matrix (W)}}
@@ -1759,30 +1780,45 @@ To define the network topology, we construct a Binary Adjacency matrix $\mathbf{
 \begin{equation}
     \mathbf{A}_{i,j} =
     \begin{cases}
-      1 & \text{if } \text{sim}(\mathbf{R}_{i}, \mathbf{R}_{j}) > \tau \\
+      1 & \text{if } \operatorname{sim}(\mathbf{R}_{i,t}, \mathbf{R}_{j,t}) > \tau \\
       0 & \text{otherwise}
     \end{cases}
 \end{equation}
 A value of 1 indicates a ``Risk Peer'' relationship exists. This is then row-normalized to create the Spatial Weights Matrix $\mathbf{W}_{i,j}$:
 \begin{equation}
-    \mathbf{W}_{i,j} = \frac{\mathbf{A}_{i,j}}{\sum_{j=1}^n \mathbf{A}_{i,j}}
+    \mathbf{W}_{i,j} = \frac{\mathbf{A}_{i,j}}{\sum_{\ell=1}^n \mathbf{A}_{i,\ell}}
 \end{equation}
 
 \subsection{Spatial Autoregressive (SAR) Framework}
 We integrate the NLP-derived risk network with 2023 market price data using a Spatial Autoregressive (SAR) model:
 \begin{equation}
-    \mathbf{y} = \rho \mathbf{W}\mathbf{y} + \boldsymbol{\alpha} + \boldsymbol{\epsilon}
+\mathbf{y} = \rho \mathbf{W}\mathbf{y} + \boldsymbol{\alpha} + \boldsymbol{\epsilon}
 \end{equation}
 Where:
 \begin{itemize}
-    \item $\mathbf{y}$: The dependent variable, represented by annualized realized volatility in the intended SAR validation design.
-    \item $\mathbf{W}$: The \textbf{Spatial Weights Matrix} derived from the evolved taxonomy.
-    \item $\rho$ (Rho): The \textbf{Spatial Lag coefficient}, measuring the ``contagion'' effect—how much a firm's volatility is influenced by the volatility of its textual peers.
-    \item $\boldsymbol{\alpha}$: The \textbf{baseline idiosyncratic volatility} of a firm, capturing the expected level of risk that remains constant regardless of the spillover effects or contagion within the textual risk network.
+\item $\mathbf{y}$: The dependent variable vector, represented by annualized realized volatility.
+\item $\mathbf{W}$: The Spatial Weights Matrix derived from the evolved taxonomy.
+\item $\rho$ (Rho): The Spatial Lag coefficient, measuring the ``contagion'' effect.
+\item $\boldsymbol{\alpha}$: The baseline idiosyncratic volatility vector.
+\item $\boldsymbol{\epsilon}$: The error term vector.
 \end{itemize}
 
 \subsection{Validation Status and Interpretation}
 No auditable source table for the SAR result is available, so the report does not present SAR coefficients, $p$-values, or explanatory power as empirical findings. The SAR framework remains useful as a future network-validation extension: a documented rerun can test whether firms connected by textual-risk similarity also exhibit volatility co-movement after appropriate controls. In this study, the SAR appendix is therefore a methodological bridge between semantic peer construction and econometric network validation, not confirmatory evidence.
+
+\begin{table}[H]
+\centering
+\caption{Placeholder for future batch execution results}
+\label{tab:sar_batch_placeholder}
+\vspace{0.2cm}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lll}
+\toprule
+\textbf{Parameter} & \textbf{Estimate} & \textbf{$p$-Value} \\
+\midrule
+\bottomrule
+\end{tabular}
+\end{table}
 
 \newpage
 

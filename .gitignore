@@ -154,6 +154,7 @@ logs/
 # Ignore temporary report builds, but allow final report PDFs in report/
 *.pdf
 !report/*.pdf
+!report/figures/attention_heatmap_2020.pdf
 !docs/executive_summary.pdf
 
 # ============================================================

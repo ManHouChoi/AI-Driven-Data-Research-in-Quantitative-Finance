@@ -55,6 +55,7 @@ class PortfolioBacktestResult:
     monthly_returns: pd.Series
     monthly_turnover: pd.Series
     weights: pd.DataFrame
+    leg_returns: pd.DataFrame
     metrics: Dict[str, float]
 
 
@@ -322,6 +323,7 @@ class PredictionWeightedPortfolioBacktester:
         all_returns = []
         all_turnover = []
         weight_records = []
+        leg_return_records = []
         prev_weights = pd.Series(dtype=float)
 
         for date in rebalance_dates:
@@ -363,6 +365,29 @@ class PredictionWeightedPortfolioBacktester:
             gross_return = float((target_weights * period_returns).sum())
             net_return = gross_return - cost
 
+            if portfolio_type == "long_short":
+                long_weights = target_weights[target_weights > 0]
+                short_weights = target_weights[target_weights < 0]
+                long_gross = float(long_weights.sum())
+                short_gross = float(-short_weights.sum())
+
+                long_leg_return = np.nan
+                short_leg_return = np.nan
+                if long_gross > 0:
+                    long_period_returns = period_returns.reindex(long_weights.index).fillna(0.0)
+                    long_leg_return = float(((long_weights / long_gross) * long_period_returns).sum())
+                if short_gross > 0:
+                    short_period_returns = period_returns.reindex(short_weights.index).fillna(0.0)
+                    short_leg_return = float(((short_weights / short_gross) * short_period_returns).sum())
+
+                leg_return_records.append({
+                    "Holding_Return_Date": holding_return_date,
+                    "Long_Leg_Return": long_leg_return,
+                    "Short_Leg_Return": short_leg_return,
+                    "Long_Gross_Exposure": long_gross,
+                    "Short_Gross_Exposure": short_gross,
+                })
+
             all_returns.append((holding_return_date, net_return))
             all_turnover.append((date, turnover))
 
@@ -385,6 +410,9 @@ class PredictionWeightedPortfolioBacktester:
         monthly_ret = pd.Series(dict(all_returns), name=name).sort_index()
         monthly_turnover = pd.Series(dict(all_turnover), name=f"{name}_Turnover").sort_index()
         weights_df = pd.DataFrame(weight_records)
+        leg_returns_df = pd.DataFrame(leg_return_records)
+        if not leg_returns_df.empty:
+            leg_returns_df = leg_returns_df.set_index("Holding_Return_Date").sort_index()
         metrics = self._performance_metrics(monthly_ret, monthly_turnover)
 
         return PortfolioBacktestResult(
@@ -392,6 +420,7 @@ class PredictionWeightedPortfolioBacktester:
             monthly_returns=monthly_ret,
             monthly_turnover=monthly_turnover,
             weights=weights_df,
+            leg_returns=leg_returns_df,
             metrics=metrics,
         )
 
@@ -594,6 +623,8 @@ class PredictionWeightedPortfolioBacktester:
             result.monthly_turnover.to_csv(os.path.join(self.output_dir, f"turnover_{name}.csv"))
             if not result.weights.empty:
                 result.weights.to_csv(os.path.join(self.output_dir, f"weights_{name}.csv"), index=False)
+            if not result.leg_returns.empty:
+                result.leg_returns.to_csv(os.path.join(self.output_dir, f"leg_returns_{name}.csv"))
 
         self.spread_diagnostics = self._compute_top_bottom_spread_diagnostics()
         if not self.spread_diagnostics.empty:
@@ -604,7 +635,17 @@ class PredictionWeightedPortfolioBacktester:
 
         self._export_summary()
         self._plot_equity_curves()
+        self._plot_long_short_leg_curves()
         print(f"Portfolio backtest complete. Outputs saved in: {self.output_dir}")
+
+    def _annualized_return_from_monthly(self, returns: pd.Series) -> float:
+        returns = returns.dropna()
+        if returns.empty:
+            return np.nan
+
+        ann = float(self.config["annualization_factor"])
+        total_return = float((1.0 + returns).prod() - 1.0)
+        return float((1.0 + total_return) ** (ann / len(returns)) - 1.0)
 
     def _export_summary(self) -> None:
         rows = []
@@ -639,6 +680,27 @@ class PredictionWeightedPortfolioBacktester:
         if not self.spread_diagnostics.empty:
             print("\nTop-bottom spread diagnostics:")
             print(self.spread_diagnostics)
+
+        leg_rows = []
+        for name, result in self.results.items():
+            if result.leg_returns.empty:
+                continue
+            long_ann = self._annualized_return_from_monthly(result.leg_returns["Long_Leg_Return"])
+            short_ann = self._annualized_return_from_monthly(result.leg_returns["Short_Leg_Return"])
+            leg_rows.append({
+                "Strategy": name,
+                "Long Leg Annualized Return": long_ann,
+                "Short Leg Annualized Return": short_ann,
+            })
+            print(f"{name} Long Leg Annualized Return: {long_ann:.2%}")
+            print(f"{name} Short Leg Annualized Return: {short_ann:.2%}")
+
+        if leg_rows:
+            pd.DataFrame(leg_rows).to_csv(
+                os.path.join(self.output_dir, "long_short_leg_annualized_returns.csv"),
+                index=False,
+            )
+
         print("\nPortfolio performance summary:")
         print(summary)
 
@@ -664,6 +726,53 @@ class PredictionWeightedPortfolioBacktester:
         plt.tight_layout()
         plt.savefig(os.path.join(self.output_dir, "portfolio_equity_curves.png"), dpi=300)
         plt.close()
+
+    def _plot_long_short_leg_curves(self) -> None:
+        primary_name = "GAT_LongShort_TopBottomQuintile_return_only"
+        candidates = [
+            (name, result)
+            for name, result in self.results.items()
+            if "LongShort" in name and not result.leg_returns.empty
+        ]
+        if not candidates:
+            return
+
+        for name, result in candidates:
+            leg_returns = result.leg_returns[["Long_Leg_Return", "Short_Leg_Return"]].dropna(how="all")
+            if leg_returns.empty:
+                continue
+
+            long_cumulative = (1.0 + leg_returns["Long_Leg_Return"].dropna()).cumprod() - 1.0
+            short_cumulative = (1.0 + leg_returns["Short_Leg_Return"].dropna()).cumprod() - 1.0
+
+            plt.figure(figsize=(10, 6))
+            plt.axhline(0.0, color="black", linewidth=1.0, linestyle="--", alpha=0.7)
+            plt.plot(
+                long_cumulative.index,
+                long_cumulative.values,
+                label="Long leg: top quintile",
+                linewidth=2.0,
+            )
+            plt.plot(
+                short_cumulative.index,
+                short_cumulative.values,
+                label="Short leg: bottom quintile payoff",
+                linewidth=2.0,
+            )
+            plt.title(f"Long and Short Leg Cumulative Returns: {name}")
+            plt.xlabel("Date")
+            plt.ylabel("Cumulative return relative to zero")
+            plt.legend(fontsize=9)
+            plt.grid(True, linestyle="--", alpha=0.55)
+            plt.tight_layout()
+
+            if name == primary_name:
+                output_name = "long_short_leg_cumulative_returns.png"
+            else:
+                safe_name = "".join(ch if ch.isalnum() or ch in ("_", "-") else "_" for ch in name)
+                output_name = f"long_short_leg_cumulative_returns_{safe_name}.png"
+            plt.savefig(os.path.join(self.output_dir, output_name), dpi=300)
+            plt.close()
 
 
 if __name__ == "__main__":
