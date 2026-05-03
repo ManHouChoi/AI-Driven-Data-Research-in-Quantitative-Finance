@@ -35,7 +35,7 @@
 - Verified default full-window logs for 2006-2024: 578,516 total risk factors, 475 final Meso categories, 349 ADD actions, 56 MERGE actions, and 0 REORGANIZE actions.
 - Executed a full-window `theta040` sensitivity run on real reconstructed paragraph inputs: 578,516 total risk factors, 258 final Meso categories, 132 ADD actions, 69 MERGE actions, and 3 REORGANIZE actions.
 - Built default and `theta040` ST-GAT-ready Macro and Meso exposure matrices with `scripts/build_taxonomy_variant_matrix.py`.
-- Generated 2024 category coverage, taxonomy-topology, and firm-level case-study artifacts with `scripts/generate_sensitivity_report_artifacts.py`.
+- Generated 2024 category coverage, taxonomy-topology, and LVS dynamic taxonomy EDA artifacts with `scripts/generate_sensitivity_report_artifacts.py`.
 
 ## Statistical Improvements
 

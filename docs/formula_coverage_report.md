@@ -15,6 +15,7 @@
 | Feature standardization | Yes | Section 3 | No | Train-only scaler in `GAT_data_pipeline.py` | Yes |
 | Text context construction | Yes | Section 4 | No | Update-pack `full_context` construction | Yes |
 | Sentence embedding vector | Yes | Section 4 | No | `all-MiniLM-L6-v2` taxonomy encoder implementation | Yes |
+| Plain-language encoding and embedding examples | Yes | Appendix A | Yes | May 2 update-style examples and local `all-MiniLM-L6-v2` embedding smoke run | Yes |
 | Cosine similarity | Yes | Section 4, Section 5 | No | Taxonomy and graph construction | Yes |
 | UMAP projection | Yes | Section 4 | No | Update-pack `build_taxonomy.py` | Yes |
 | HDBSCAN assignment | Yes | Section 4 | No | Update-pack `build_taxonomy.py` | Yes |

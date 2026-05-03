@@ -104,7 +104,7 @@ The validation warnings are retained transparently:
 The final report and deck no longer use unsupported claims as headline findings. The following items were reframed:
 
 - unsupported taxonomy coverage percentages from the old conceptual figure;
-- unsupported single-firm migration claims without generated case-study source tables;
+- unsupported single-firm migration claims without generated case-study source tables, now replaced by LVS dynamic taxonomy EDA artifacts;
 - Fama-MacBeth coefficient and significance tables;
 - DAV/EGARCH-X aggregate BIC improvement claims;
 - SAR/network regression coefficients, p-values, and R-squared claims.

@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import pandas as pd
+from sklearn.decomposition import PCA
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -506,37 +507,278 @@ def load_macro_profiles(variant: VariantArtifact) -> pd.DataFrame:
     return pd.concat(records, ignore_index=True, sort=False).fillna(0.0)
 
 
-def plot_case_studies(variant: VariantArtifact) -> None:
-    profiles = load_macro_profiles(variant)
-    if profiles.empty:
+def load_score_panel(path: Path) -> pd.DataFrame:
+    if not path.exists():
+        return pd.DataFrame()
+    df = pd.read_csv(path)
+    if "Ticker" not in df.columns or "Year" not in df.columns:
+        return pd.DataFrame()
+    df["Ticker"] = df["Ticker"].astype(str).str.upper().str.strip()
+    df["Year"] = pd.to_numeric(df["Year"], errors="coerce").astype("Int64")
+    return df.dropna(subset=["Year"]).copy()
+
+
+def top_category(row: pd.Series, excluded: set[str]) -> tuple[str, float]:
+    values = row.drop(labels=list(excluded), errors="ignore")
+    values = pd.to_numeric(values, errors="coerce").fillna(0.0)
+    if values.empty:
+        return "", 0.0
+    category = str(values.idxmax())
+    return category, float(values.loc[category])
+
+
+def build_lvs_case_summary(variant: VariantArtifact) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    macro = load_score_panel(variant.taxonomy_root / "risk_scores_macro_annual.csv")
+    meso = load_score_panel(variant.taxonomy_root / "risk_scores_meso_annual.csv")
+    if macro.empty or meso.empty:
+        return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+
+    macro_lvs = macro[macro["Ticker"] == "LVS"].sort_values("Year").copy()
+    meso_lvs = meso[meso["Ticker"] == "LVS"].sort_values("Year").copy()
+    if macro_lvs.empty or meso_lvs.empty:
+        return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+
+    meso_cols = [c for c in meso.columns if c not in {"Ticker", "Year"}]
+    summary_rows = []
+    previous_vector: np.ndarray | None = None
+    for row in meso_lvs.itertuples(index=False):
+        year = int(row.Year)
+        meso_row = meso_lvs[meso_lvs["Year"] == year].iloc[0]
+        macro_row = macro_lvs[macro_lvs["Year"] == year].iloc[0]
+        top_macro, top_macro_share = top_category(macro_row, {"Ticker", "Year"})
+        top_meso, top_meso_share = top_category(meso_row, {"Ticker", "Year"})
+
+        year_panel = meso[meso["Year"] == year].copy()
+        x = meso_row[meso_cols].to_numpy(dtype=float)
+        peer = ""
+        peer_sim = np.nan
+        if len(year_panel) > 1 and np.linalg.norm(x) > 0:
+            matrix = year_panel[meso_cols].to_numpy(dtype=float)
+            denom = np.linalg.norm(matrix, axis=1) * np.linalg.norm(x)
+            sims = np.divide(matrix @ x, denom, out=np.zeros(len(year_panel)), where=denom > 0)
+            year_panel = year_panel.assign(Cosine=sims)
+            peer_row = year_panel[year_panel["Ticker"] != "LVS"].sort_values("Cosine", ascending=False).head(1)
+            if not peer_row.empty:
+                peer = str(peer_row.iloc[0]["Ticker"])
+                peer_sim = float(peer_row.iloc[0]["Cosine"])
+
+        distance = np.nan
+        if previous_vector is not None:
+            denom = np.linalg.norm(previous_vector) * np.linalg.norm(x)
+            distance = float(1.0 - (previous_vector @ x / denom)) if denom > 0 else np.nan
+        previous_vector = x
+
+        summary_rows.append(
+            {
+                "Ticker": "LVS",
+                "Year": year,
+                "Top_Macro_Category": top_macro,
+                "Top_Macro_Share": top_macro_share,
+                "Top_Meso_Category": top_meso,
+                "Top_Meso_Share": top_meso_share,
+                "Vector_Distance_From_Previous": distance,
+                "Nearest_Peer": peer,
+                "Nearest_Peer_Cosine": peer_sim,
+            }
+        )
+
+    summary = pd.DataFrame(summary_rows)
+    summary.to_csv(SENSITIVITY_OUT / "taxonomy_lvs_dynamic_case_summary.csv", index=False)
+
+    top_meso = (
+        meso_lvs[meso_cols]
+        .loc[meso_lvs["Year"] >= 2012]
+        .sum(axis=0)
+        .sort_values(ascending=False)
+        .head(7)
+        .index.tolist()
+    )
+    meso_traj = meso_lvs[["Ticker", "Year", *top_meso]].copy()
+    meso_traj.to_csv(SENSITIVITY_OUT / "taxonomy_lvs_meso_trajectory.csv", index=False)
+
+    peer_rows = []
+    for year in summary["Year"]:
+        year_panel = meso[meso["Year"] == year].copy()
+        lvs = year_panel[year_panel["Ticker"] == "LVS"]
+        if lvs.empty:
+            continue
+        x = lvs.iloc[0][meso_cols].to_numpy(dtype=float)
+        matrix = year_panel[meso_cols].to_numpy(dtype=float)
+        denom = np.linalg.norm(matrix, axis=1) * np.linalg.norm(x)
+        sims = np.divide(matrix @ x, denom, out=np.zeros(len(year_panel)), where=denom > 0)
+        for row in year_panel.assign(Cosine=sims).query("Ticker != 'LVS'").nlargest(5, "Cosine").itertuples(index=False):
+            peer_rows.append({"Year": int(year), "Peer": row.Ticker, "Cosine": float(row.Cosine)})
+    peers = pd.DataFrame(peer_rows)
+    peers.to_csv(SENSITIVITY_OUT / "taxonomy_lvs_nearest_peers.csv", index=False)
+    return summary, meso_traj, peers
+
+
+def plot_lvs_dynamic_case_study(variant: VariantArtifact) -> None:
+    summary, meso_traj, _ = build_lvs_case_summary(variant)
+    macro = load_score_panel(variant.taxonomy_root / "risk_scores_macro_annual.csv")
+    if summary.empty or meso_traj.empty or macro.empty:
         return
-    counts = profiles["Company"].value_counts()
-    preferred = [ticker for ticker in ["LVS", "CPRT", "PSA", "ULTA", "UHS", "AAPL"] if ticker in counts.index]
-    tickers = (preferred + counts.index.tolist())[:4]
-    work = profiles[profiles["Company"].isin(tickers)].copy()
-    macro_cols = [c for c in work.columns if c not in {"Company", "Year"}]
-    top_macros = work[macro_cols].sum(axis=0).sort_values(ascending=False).head(8).index.tolist()
 
-    rows = []
-    for row in work.sort_values(["Company", "Year"]).itertuples(index=False):
-        row_dict = row._asdict()
-        label = f"{row_dict['Company']} {int(row_dict['Year'])}"
-        rows.append({"Firm_Year": label, **{macro: float(row_dict.get(macro, 0.0)) for macro in top_macros}})
-    heat = pd.DataFrame(rows).set_index("Firm_Year")
-    heat.to_csv(SENSITIVITY_OUT / "taxonomy_case_study_macro_profiles.csv")
+    macro_lvs = macro[macro["Ticker"] == "LVS"].sort_values("Year").copy()
+    macro_cols = [c for c in macro_lvs.columns if c not in {"Ticker", "Year"}]
+    top_macros = macro_lvs[macro_cols].sum(axis=0).sort_values(ascending=False).head(5).index.tolist()
+    macro_plot = macro_lvs[["Year", *top_macros]].copy()
+    macro_plot["Other"] = 1.0 - macro_plot[top_macros].sum(axis=1)
+    years = macro_plot["Year"].astype(int).to_numpy()
 
-    fig, ax = plt.subplots(figsize=(11.8, max(5.6, 0.26 * len(heat))), dpi=180)
-    image = ax.imshow(heat.values, aspect="auto", cmap="YlGnBu", vmin=0.0)
-    ax.set_xticks(np.arange(len(top_macros)))
-    ax.set_xticklabels([short_label(col, 24) for col in top_macros], rotation=35, ha="right", fontsize=8)
-    ax.set_yticks(np.arange(len(heat.index)))
-    ax.set_yticklabels(heat.index, fontsize=7)
-    ax.set_title(f"Firm-level macro risk exposure case studies ({variant.label})")
-    cbar = fig.colorbar(image, ax=ax, fraction=0.025, pad=0.02)
-    cbar.set_label("Exposure share")
+    fig, axes = plt.subplots(3, 1, figsize=(12.6, 11.0), dpi=180, sharex=True)
+
+    colors = ["#214f80", "#d8a03d", "#4f8c6b", "#b55239", "#6f5b8f", "#b9b9b9"]
+    axes[0].stackplot(
+        years,
+        [macro_plot[col].to_numpy(dtype=float) for col in [*top_macros, "Other"]],
+        labels=[short_label(col, 30) for col in [*top_macros, "Other"]],
+        colors=colors,
+        alpha=0.88,
+    )
+    axes[0].set_ylabel("Macro exposure")
+    axes[0].set_ylim(0, 1)
+    axes[0].set_title(f"LVS dynamic taxonomy EDA under the {variant.label} taxonomy")
+    axes[0].legend(ncol=2, fontsize=7.5, frameon=False, loc="upper left")
+
+    for col, color in zip([c for c in meso_traj.columns if c not in {"Ticker", "Year"}], colors):
+        axes[1].plot(meso_traj["Year"], meso_traj[col], marker="o", linewidth=1.6, label=short_label(col, 38), color=color)
+    axes[1].set_ylabel("Meso exposure")
+    axes[1].grid(axis="y", linestyle="--", alpha=0.25)
+    axes[1].legend(ncol=2, fontsize=7.2, frameon=False, loc="upper left")
+
+    axes[2].bar(
+        summary["Year"].astype(int),
+        summary["Vector_Distance_From_Previous"].fillna(0.0),
+        color="#b55239",
+        alpha=0.74,
+        label="Vector distance from previous available filing",
+    )
+    ax2 = axes[2].twinx()
+    ax2.plot(
+        summary["Year"].astype(int),
+        summary["Nearest_Peer_Cosine"],
+        color="#214f80",
+        marker="s",
+        linewidth=1.7,
+        label="Nearest-peer cosine",
+    )
+    axes[2].set_ylabel("Cosine distance")
+    ax2.set_ylabel("Cosine similarity")
+    axes[2].set_xlabel("Risk disclosure year")
+    axes[2].grid(axis="y", linestyle="--", alpha=0.25)
+    for _, row in summary.dropna(subset=["Nearest_Peer_Cosine"]).iterrows():
+        if int(row["Year"]) in {2014, 2018, 2019, 2022, 2024}:
+            ax2.annotate(
+                str(row["Nearest_Peer"]),
+                (int(row["Year"]), float(row["Nearest_Peer_Cosine"])),
+                textcoords="offset points",
+                xytext=(0, 7),
+                ha="center",
+                fontsize=7,
+                color="#214f80",
+            )
+    handles1, labels1 = axes[2].get_legend_handles_labels()
+    handles2, labels2 = ax2.get_legend_handles_labels()
+    axes[2].legend(handles1 + handles2, labels1 + labels2, frameon=False, fontsize=8, loc="upper left")
+
+    event_labels = {
+        2019: "MBS expansion\nagreement",
+        2020: "COVID\nshock",
+        2021: "Las Vegas\nsale",
+        2022: "Macao\nconcession",
+    }
+    for ax in axes:
+        for year, label in event_labels.items():
+            ax.axvline(year, color="#333333", linestyle=":", linewidth=0.8, alpha=0.55)
+        ax.set_xlim(min(years) - 0.5, max(years) + 0.5)
+    ymax = axes[0].get_ylim()[1]
+    for year, label in event_labels.items():
+        axes[0].text(year + 0.05, ymax * 0.96, label, fontsize=7, va="top", color="#333333")
+
     fig.tight_layout()
-    fig.savefig(REPORT_FIGURES / "taxonomy_case_study_macro_profiles.png", bbox_inches="tight")
+    fig.savefig(REPORT_FIGURES / "taxonomy_lvs_dynamic_eda.png", bbox_inches="tight")
     plt.close(fig)
+
+
+def plot_lvs_vector_network(variant: VariantArtifact) -> None:
+    summary, _, peers = build_lvs_case_summary(variant)
+    meso = load_score_panel(variant.taxonomy_root / "risk_scores_meso_annual.csv")
+    if summary.empty or peers.empty or meso.empty:
+        return
+
+    meso_cols = [c for c in meso.columns if c not in {"Ticker", "Year"}]
+    matrix = meso[meso_cols].to_numpy(dtype=float)
+    coords = PCA(n_components=2, random_state=42).fit_transform(matrix)
+    coords_df = meso[["Ticker", "Year"]].copy()
+    coords_df["PC1"] = coords[:, 0]
+    coords_df["PC2"] = coords[:, 1]
+
+    lvs_coords = coords_df[coords_df["Ticker"] == "LVS"].sort_values("Year")
+    selected_years = [2014, 2018, 2019, 2022, 2024]
+    nearest = peers[peers["Year"].isin(selected_years)].sort_values(["Year", "Cosine"], ascending=[True, False])
+    nearest = nearest.groupby("Year", as_index=False).head(1)
+    nearest_coords = coords_df.merge(
+        nearest.rename(columns={"Peer": "Ticker"}),
+        on=["Ticker", "Year"],
+        how="inner",
+    )
+
+    fig, ax = plt.subplots(figsize=(10.5, 7.8), dpi=180)
+    ax.scatter(coords_df["PC1"], coords_df["PC2"], s=18, color="#b8b8b8", alpha=0.28, label="Other firm-year vectors")
+    ax.plot(lvs_coords["PC1"], lvs_coords["PC2"], color="#b55239", linewidth=2.0, marker="o", label="LVS vector path")
+    label_offsets = {
+        2008: (-18, 7),
+        2013: (-20, -10),
+        2014: (5, 9),
+        2018: (5, -13),
+        2019: (-10, -16),
+        2022: (6, 8),
+        2024: (7, -12),
+    }
+    for row in lvs_coords.itertuples(index=False):
+        year = int(row.Year)
+        if year in label_offsets:
+            ax.annotate(
+                str(year),
+                (row.PC1, row.PC2),
+                xytext=label_offsets[year],
+                textcoords="offset points",
+                fontsize=8,
+                color="#6a2f24",
+            )
+    ax.scatter(nearest_coords["PC1"], nearest_coords["PC2"], s=70, marker="s", color="#214f80", alpha=0.9, label="Nearest semantic peer")
+    for row in nearest_coords.itertuples(index=False):
+        lvs = lvs_coords[lvs_coords["Year"] == row.Year]
+        if not lvs.empty:
+            ax.plot([float(lvs.iloc[0]["PC1"]), row.PC1], [float(lvs.iloc[0]["PC2"]), row.PC2], color="#214f80", alpha=0.45, linewidth=1.0)
+        ax.annotate(f"{row.Ticker} {int(row.Year)}", (row.PC1, row.PC2), xytext=(5, -9), textcoords="offset points", fontsize=7, color="#214f80")
+
+    ax.set_title("LVS risk-vector path and nearest semantic peers")
+    ax.set_xlabel("PCA component 1 of Meso exposure vector")
+    ax.set_ylabel("PCA component 2 of Meso exposure vector")
+    focus = pd.concat(
+        [
+            coords_df[["PC1", "PC2"]],
+            lvs_coords[["PC1", "PC2"]],
+            nearest_coords[["PC1", "PC2"]],
+        ],
+        ignore_index=True,
+    )
+    x_low, x_high = focus["PC1"].quantile([0.01, 0.985])
+    y_low, y_high = focus["PC2"].quantile([0.01, 0.985])
+    ax.set_xlim(float(x_low) - 0.015, float(x_high) + 0.015)
+    ax.set_ylim(float(y_low) - 0.015, float(y_high) + 0.015)
+    ax.grid(linestyle="--", alpha=0.22)
+    ax.legend(frameon=False, loc="best")
+    fig.tight_layout()
+    fig.savefig(REPORT_FIGURES / "taxonomy_lvs_vector_network.png", bbox_inches="tight")
+    plt.close(fig)
+
+
+def plot_case_studies(variant: VariantArtifact) -> None:
+    plot_lvs_dynamic_case_study(variant)
+    plot_lvs_vector_network(variant)
 
 
 def write_variant_summary(logs: pd.DataFrame, coverage: pd.DataFrame) -> None:

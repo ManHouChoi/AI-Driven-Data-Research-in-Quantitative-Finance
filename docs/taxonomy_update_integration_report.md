@@ -9,7 +9,7 @@
 - `May 2 update/taxonomy/output_risk_factor_*/run_log.json` for verified annual counts, deviation rates, action counts, and final Meso category totals.
 - `May 2 update/taxonomy/output_risk_factor_*/taxonomy_base.json` and `taxonomy_evolved.json` for taxonomy structure and centroid availability.
 - `May 2 update/taxonomy/output_risk_factor_*/risk_vectors.csv` and `base_year_vectors.csv` for exposure-vector logic.
-- `report/figures/taxonomy_semantic_decay_deviation_rate.jpg`, `taxonomy_lvs_composition_shift.jpg`, and `taxonomy_lvs_emerging_declining_risks.jpg` for Section 4 diagnostics.
+- `report/figures/taxonomy_semantic_decay_deviation_rate.jpg`, `taxonomy_lvs_dynamic_eda.png`, and `taxonomy_lvs_vector_network.png` for Section 4 diagnostics.
 
 ## Taxonomy Logic Changed
 
@@ -31,21 +31,20 @@
 - Section 7: deepened the default and `theta040` forecasting comparison with paired Macro/Meso experiments, convergence discussion, graph-density mechanism, and downstream sensitivity interpretation.
 - Section 8: added downstream `theta040` portfolio sensitivity and revised portfolio claims to match regenerated outputs.
 - Limitations: framed the remaining sensitivity grid points as confirmatory extensions that require the same full-window LLM-assisted taxonomy procedure.
-- Appendix A: added formula compendium.
+- Appendix A: added formula compendium plus plain-language encoding and embedding examples.
 
 ## Figures Changed
 
 - Added/retained taxonomy diagnostic figures:
   - `report/figures/taxonomy_semantic_decay_deviation_rate.jpg`
-  - `report/figures/taxonomy_lvs_composition_shift.jpg`
-  - `report/figures/taxonomy_lvs_emerging_declining_risks.jpg`
+  - `report/figures/taxonomy_lvs_dynamic_eda.png`
+  - `report/figures/taxonomy_lvs_vector_network.png`
 - Added new sensitivity figures:
   - `report/figures/taxonomy_category_evolution_default_theta040.png`
   - `report/figures/stgat_convergence_default_theta040.png`
   - `report/figures/taxonomy_downstream_sensitivity_dashboard.png`
   - `report/figures/taxonomy_macro_coverage_comparison.png`
   - `report/figures/taxonomy_topology_theta040.png`
-  - `report/figures/taxonomy_case_study_macro_profiles.png`
 - Replaced a missing portfolio-output path with committed figure `report/figures/portfolio_backtest_comparison.png`.
 - Regenerated `report/figures/oos_metric_comparison.png`, `graph_density_macro_meso.png`, and `portfolio_top_bottom_spread.png` from current default/`theta040` outputs.
 - Added a reproducible figure generator at `scripts/generate_sensitivity_report_artifacts.py`.

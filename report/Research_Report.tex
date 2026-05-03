@@ -586,33 +586,44 @@ The topology view in Figure \ref{fig:taxonomy_topology_theta040} makes this fron
 
 The full sensitivity grid is therefore treated as a downstream experimental design rather than a cosmetic NLP ablation. For every completed taxonomy path $h$, the empirical workflow records category growth, deviation rate, paired Macro/Meso graph density, forecast-error improvement relative to the identity baseline, rank-correlation improvement, long-short Sharpe ratio, and top-minus-bottom spread. This makes taxonomy selection a disciplined model-selection problem: a taxonomy is preferable only if it improves both semantic coherence and downstream economic validation without inducing excessive category fragmentation or overconnected broad-category graphs.
 
-\subsection{Firm-Level Taxonomy Validation: Case Studies}
-Firm-level case studies are used as interpretability checks rather than as portfolio results. The question is whether the taxonomy records intuitive changes in disclosure emphasis as each firm's operating environment changes. Figure \ref{fig:taxonomy_case_study_macro_profiles} compares the $\theta=0.40$ Macro exposure profiles for several firms with the longest available histories in the reconstructed taxonomy panel. The case-study heat map shows that the dynamic taxonomy can represent both persistent firm identity and time variation: real-estate and gaming names concentrate in property, governance, operational-event, and market-credit families, while shifts in the heat map identify periods when disclosures move toward different risk families.
+\subsection{Firm-Level Dynamic Taxonomy Validation: Las Vegas Sands}
+The firm-level case study is an exploratory data analysis rather than a forecast result. Its purpose is to ask whether the LLM-assisted taxonomy records economically interpretable movements in a firm's disclosure vector. This is a face-validity check for the classification layer: if changes in a firm's risk-vector trajectory coincide with identifiable business events, then the semantic graph used in Section 5 has a plausible economic object to learn from. If the vectors were pure taxonomy noise, the ST-GAT graph would be only a statistical artifact.
+
+Las Vegas Sands (LVS) is a useful audit case because its disclosure history contains large, externally observable shocks: the Marina Bay Sands expansion agreement in 2019, the COVID-19 disruption to Macao, Singapore, and Las Vegas operations in 2020, the agreement to sell its Las Vegas properties in 2021, and the Macao gaming concession renewal process completed in December 2022 \citep{lvs2019singapore,lvs2020annual,lvs2021sale,macau2022concession,sands2022concession}. Figure \ref{fig:lvs_dynamic_eda} tracks the $\theta=0.40$ Macro and Meso exposure paths and adds vector diagnostics. The main pattern is economically coherent. LVS moves away from early financial-reporting and debt-disclosure categories toward operational, gaming-competition, concession, pandemic, and brand/reputation categories as its risk profile becomes more concentrated in Asian integrated-resort operations.
+
+\begin{table}[H]
+\centering
+\caption[LVS event-aligned taxonomy validation]{Event-aligned taxonomy validation for LVS. Exposure shares are computed from the reconstructed $\theta=0.40$ Meso vectors.}
+\label{tab:lvs_event_alignment}
+\scriptsize
+\begin{tabularx}{\textwidth}{L{1.2cm}Y Y Y}
+\toprule
+Year & External business context & Taxonomy movement & Interpretation \\
+\midrule
+2019 & LVS announced a Marina Bay Sands expansion agreement and its 2019 filing entered the COVID-19 news window shortly before the February 2020 Form 10-K filing. & The vector distance from the prior available filing is 0.506. Pandemic/business-interruption exposure reaches 7.5\%, while debt maturity is the largest single Meso category at 11.8\%. & The classifier separates the growth-investment and travel-disruption narratives instead of placing all changes into a generic operational bucket. \\
+2022 & The Las Vegas property sale had been announced in March 2021 and the Macao concession process culminated in a new 10-year contract in December 2022. & The vector distance is 0.433. Casino resort competition is 18.2\%, pandemic interruption is 12.1\%, and Macao gaming tax plus debt-covenant categories each appear at 6.1\%. & The taxonomy records the transition from a diversified Las Vegas/Macao/Singapore operator toward an Asia-concession and recovery-risk profile. \\
+2023--2024 & The post-concession period begins and pandemic restrictions fade from the headline operating environment. & Vector distances fall to 0.197 and 0.105. Casino resort competition remains the leading Meso category at 14.7\% and 24.2\%, while explicit pandemic exposure is no longer a top category in 2024. & The vector stabilizes after the concession reset, consistent with a new operating regime rather than a continuing one-off shock. \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{taxonomy_case_study_macro_profiles.png}
-    \caption[Firm-level taxonomy case studies]{Firm-level Macro risk exposure case studies under the $\theta=0.40$ taxonomy. Each row is a firm-year and each cell is the exposure share assigned to a Macro family.}
-    \label{fig:taxonomy_case_study_macro_profiles}
+    \includegraphics[width=0.98\textwidth]{taxonomy_lvs_dynamic_eda.png}
+    \caption[LVS dynamic taxonomy EDA]{LVS dynamic taxonomy EDA under the best-tested $\theta=0.40$ taxonomy. The upper panel shows Macro exposure shares, the middle panel shows selected Meso trajectories, and the lower panel shows year-to-year Meso-vector movement together with the nearest semantic-peer similarity.}
+    \label{fig:lvs_dynamic_eda}
 \end{figure}
 
-The Las Vegas Sands (LVS) diagnostic over 2008--2024 provides a deeper single-firm view. It is used as an interpretability check rather than as a portfolio result. The question is whether the taxonomy records intuitive changes in LVS disclosure emphasis as its operating environment changes.
+The network view in Figure \ref{fig:lvs_vector_network} provides the bridge to the ST-GAT design. Each point is a firm-year Meso exposure vector; the red path is LVS; blue squares are the nearest semantic peers in selected years. The nearest neighbors are not simply a static industry screen. In 2014--2018, Hotel and lodging exposure makes HLT the closest peer. In the 2019 and 2022 shock windows, the nearest peers change as the LVS vector moves toward other firms with overlapping financing, operational-disruption, development, and regulatory language. This is exactly the kind of time-varying peer relation the graph model is meant to test. The case study therefore motivates, but does not prove, the Section 5 graph construction: predictive value still has to come from the identity-matrix ablation in Section 7.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{taxonomy_lvs_composition_shift.jpg}
-    \caption[LVS risk-composition shift]{LVS risk-composition shift over 2008--2024. The stacked-area chart illustrates how a firm-level exposure vector can move across Meso categories over time.}
-    \label{fig:lvs_composition_shift}
+    \includegraphics[width=0.95\textwidth]{taxonomy_lvs_vector_network.png}
+    \caption[LVS risk-vector path and nearest semantic peers]{LVS risk-vector path and selected nearest semantic peers in the Meso exposure-vector space. The two displayed axes are PCA coordinates used only for EDA visualization; ST-GAT edges are built from cosine similarity in the full taxonomy-vector space.}
+    \label{fig:lvs_vector_network}
 \end{figure}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.95\textwidth]{taxonomy_lvs_emerging_declining_risks.jpg}
-    \caption[LVS emerging and declining risks]{LVS emerging and declining risk categories between 2008 and 2024. The figure is used as a taxonomy interpretability diagnostic, not as an investment signal.}
-    \label{fig:lvs_emerging_declining}
-\end{figure}
-
-The LVS figures show how the taxonomy can be audited at the firm level: emerging categories include legal, concession, brand, and business-interruption themes, while declining categories include some earlier financial-statement and fixed-obligation categories. This kind of case study helps non-expert readers understand the purpose of the taxonomy. It does not by itself prove predictive power; predictive value is evaluated later through the identity-matrix ST-GAT ablation and portfolio diagnostics.
+This single-firm analysis does not establish classification accuracy in the supervised-learning sense, because there are no hand-labelled ground-truth risk categories. It does provide an audit trail for face validity: the LLM-assisted labels, the normalized exposure vector, and the nearest-neighbor graph all move in directions that can be interpreted against external business events. That is the empirical reason for carrying the taxonomy vectors forward into the ST-GAT instead of stopping at a static disclosure summary.
 
 \subsection{Validation Limits}
 Several taxonomy limitations remain. The default deviation threshold $\theta=0.45$ is only one governance choice; the $\theta=0.40$ sensitivity path shows that category counts, graph density, forecast errors, and portfolio ranking can all change when the threshold changes. LLM labels can introduce semantic style drift, even when centroids remain data-driven. Category deletion is not implemented, so the taxonomy may accumulate stale categories over long horizons. Finally, firm-level case studies validate interpretability but should not be treated as cross-sectional proof. These limitations are carried into the empirical design by requiring identity-baseline ablations, graph-density diagnostics, and downstream taxonomy sensitivity checks.
@@ -1455,6 +1466,14 @@ Future work should extend the framework in four directions. First, historical co
 
     \bibitem[Loughran and McDonald(2011)]{loughran2011liability} Loughran, T., \& McDonald, B. (2011). When is a liability not a liability? Textual analysis, dictionaries, and 10-Ks. \textit{Journal of Finance}, 66(1), 35--65.
 
+    \bibitem[Las Vegas Sands(2019)]{lvs2019singapore} Las Vegas Sands. (2019). Las Vegas Sands enters into agreement with Singapore Government to expand Marina Bay Sands IR. Press release, April 3, 2019. \url{https://www.marinabaysands.com/content/dam/singapore/marinabaysands/master/main/home/company-information/media-centre/apr2019/Las%20Vegas%20Sands%20Enters%20into%20Agreement%20with%20Singapore%20Government%20to%20Expand-3%20April.pdf}.
+
+    \bibitem[Las Vegas Sands(2021a)]{lvs2020annual} Las Vegas Sands. (2021a). Annual report on Form 10-K for the year ended December 31, 2020. \url{https://content.edgar-online.com/ExternalLink/EDGAR/0001300514-21-000033.html?dest=LVS-20201231_HTM}.
+
+    \bibitem[Las Vegas Sands(2021b)]{lvs2021sale} Las Vegas Sands. (2021b). Sands reaches agreement to sell Las Vegas properties for \$6.25 billion. Press release, March 3, 2021. \url{https://www.sands.com/news/press/sands-reaches-agreement-to-sell-las-vegas-properties-for-6-25-billion/}.
+
+    \bibitem[Macao SAR Government(2022)]{macau2022concession} Macao SAR Government. (2022). MSAR signs gaming concession contracts with six awardees. Government Portal, December 16, 2022. \url{https://www.gov.mo/en/news/289189/}.
+
     \bibitem[McInnes et~al.(2018)]{mcinnes2018umap} McInnes, L., Healy, J., \& Melville, J. (2018). UMAP: Uniform manifold approximation and projection for dimension reduction. \textit{arXiv preprint arXiv:1802.03426}.
 
     \bibitem[Naimoli et~al.(2023)]{naimoli2023realized} Naimoli, A., Gerlach, R., \& Storti, G. (2023). Realized EGARCH-X with exogenous variables. \textit{Journal of Financial Econometrics}, 21(2), 345--378.
@@ -1464,6 +1483,8 @@ Future work should extend the framework in four directions. First, historical co
     \bibitem[Niu et~al.(2024)]{niu2024dynamic} Niu, H., et al. (2024). Dynamic graph construction for financial GNNs: Challenges and opportunities. \textit{IEEE Transactions on Neural Networks and Learning Systems}, 35(4), 512--526.
 
     \bibitem[Reimers and Gurevych(2019)]{reimers2019sentencebert} Reimers, N., \& Gurevych, I. (2019). Sentence-BERT: Sentence embeddings using Siamese BERT-networks. \textit{EMNLP}.
+
+    \bibitem[Sands China(2022)]{sands2022concession} Sands China. (2022). Sands China signs 10-year gaming concession contract. Press release, December 16, 2022. \url{https://www.sands.com/news/press/sands-china-signs-10-year-gaming-concession-contract/}.
 
     \bibitem[Sharpe(1966)]{sharpe1966mutual} Sharpe, W. F. (1966). Mutual fund performance. \textit{Journal of Business}, 39(1), 119--138.
 
@@ -1484,6 +1505,31 @@ Future work should extend the framework in four directions. First, historical co
 \section{Formula Compendium and Evaluation Metrics}
 % ==========================================
 This appendix collects supplementary equations used across the report. They are placed here to preserve main-text readability while keeping the methodology fully explicit.
+
+\subsection{Encoding and Embedding Examples}
+This short example mirrors the plain-language encoding examples in the May 2 update pack. Before clustering, each Item 1A paragraph is converted into a context string,
+\[
+x_i=\texttt{Heading}_i \oplus \texttt{Subheading}_i \oplus \texttt{RawText}_i,
+\]
+and then mapped by the sentence-transformer encoder into a normalized vector $\mathbf{e}_i\in\mathbb{R}^{384}$. Individual coordinates are not interpreted as standalone economic variables; they are useful because their direction permits cosine-similarity comparisons between pieces of disclosure text.
+
+\begin{table}[H]
+\centering
+\caption[Illustrative encoding examples]{Illustrative encoding examples using \texttt{all-MiniLM-L6-v2}. Only the first four normalized embedding coordinates are shown; the actual vector has 384 dimensions.}
+\label{tab:embedding_examples}
+\scriptsize
+\begin{tabularx}{\textwidth}{L{0.8cm}Y L{4.0cm}}
+\toprule
+ID & Simplified encoded context & First eight embedding coordinates \\
+\midrule
+A & Integrated resort operations may be disrupted by infectious disease outbreaks, travel restrictions, reduced visitation, and temporary property closures. & $(0.102,-0.012,0.040,0.046)$ \\
+B & Casino operations in Macao depend on maintaining gaming concessions, complying with regulation, and satisfying licensing requirements. & $(0.064,0.035,-0.013,-0.072)$ \\
+C & A failure of information systems, unauthorized access, or a data breach could disrupt operations and harm customer trust. & $(-0.029,0.001,0.006,-0.044)$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The economic point is directional similarity, not the meaning of coordinate 1 or coordinate 2. For example, a paraphrase of Example A that refers to pandemics, quarantines, border closures, and casino-resort interruption has cosine similarity 0.661 with Example A, but only 0.222 with the concession/licensing example and 0.278 with the cybersecurity example. This is why the pipeline can cluster paragraphs that use different wording but describe the same underlying risk theme.
 
 \subsection{Forecast Error and Ranking Metrics}
 For $n$ evaluated firm-years with observed value $y_i$ and prediction $\hat{y}_i$, the mean squared error (MSE), root mean squared error (RMSE), and mean absolute error (MAE) are:

@@ -12,13 +12,13 @@
   - final archival results can be refreshed after the full 2024 target window closes.
 - Updated the abstract, contributions, research-gap summary, feature-target alignment, output verification map, limitations, and conclusion so they tell the same claim-safe story.
 - Added paired Macro/Meso Section 7 sensitivity evidence and expanded the Section 4 taxonomy hyperparameter grid.
-- Added best-tested taxonomy coverage, taxonomy-topology, and firm-level case-study artifacts to the report narrative.
+- Added best-tested taxonomy coverage, taxonomy-topology, an LVS dynamic taxonomy EDA, and Appendix A encoding/embedding examples to the report narrative.
 
 ## Claim-Safety Changes
 
 - Removed unsupported taxonomy coverage percentages from headline contributions.
 - Reintroduced taxonomy coverage only where backed by `outputs/taxonomy/sensitivity/taxonomy_macro_coverage_2024.csv`.
-- Replaced the unsupported AAPL migration case with generated firm-level case-study profiles from `outputs/taxonomy/sensitivity/taxonomy_case_study_macro_profiles.csv`.
+- Replaced the unsupported AAPL migration case with an event-aligned LVS taxonomy EDA backed by `outputs/taxonomy/sensitivity/taxonomy_lvs_dynamic_case_summary.csv`.
 - Removed unsupported Fama-MacBeth numerical table claims from the appendix and kept only the methodology extension.
 - Removed unsupported SAR coefficient, p-value, and R-squared claims from the appendix and kept only the network-validation framework.
 - Removed aggregate DAV BIC-improvement claims because the benchmark metrics CSV is empty.
@@ -31,7 +31,8 @@
   - `report/figures/graph_density_macro_meso.png`
   - `report/figures/taxonomy_macro_coverage_comparison.png`
   - `report/figures/taxonomy_topology_theta040.png`
-  - `report/figures/taxonomy_case_study_macro_profiles.png`
+  - `report/figures/taxonomy_lvs_dynamic_eda.png`
+  - `report/figures/taxonomy_lvs_vector_network.png`
   - `outputs/portfolio/GAT_portfolio_output/portfolio_equity_curves.png`
   - `report/figures/portfolio_top_bottom_spread.png`
 - Kept the old `outputs/figures/taxonomy_coverage_improvement.png` out of headline evidence; the new coverage figure is generated from source CSVs.

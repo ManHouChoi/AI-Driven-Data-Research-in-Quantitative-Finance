@@ -53,8 +53,8 @@ The final package is deliberately conservative about unsupported evidence.
 Old taxonomy-coverage percentages, unsupported AAPL migration claims, DAV/EGARCH-X
 BIC comparisons, Fama-MacBeth tables, and SAR/network regression claims are not
 used as headline findings unless their source tables are regenerated and added
-to the output manifest. The new 2024 category coverage and firm-level case-study
-figures are source-backed by `outputs/taxonomy/sensitivity/*.csv`. The available DAV peak diagnostics are retained only as
+to the output manifest. The new 2024 category coverage and LVS dynamic taxonomy
+case-study figures are source-backed by `outputs/taxonomy/sensitivity/*.csv`. The available DAV peak diagnostics are retained only as
 event-local context: 93 figures were parsed, with 20 positive improvements, 73
 negative improvements, and mean improvement of -2.40%.
 
@@ -226,7 +226,7 @@ errors after rebuilding `report/Research_Report.pdf`.
   matrix and are handled by train-period median imputation.
 - Old taxonomy coverage percentages remain excluded; the new coverage figure is
   backed by `outputs/taxonomy/sensitivity/taxonomy_macro_coverage_2024.csv`.
-- Firm-level case-study figures are retained as interpretability diagnostics,
+- The LVS dynamic taxonomy case-study figures are retained as interpretability diagnostics,
   not proof of cross-sectional predictive value.
 - DAV/EGARCH-X, Fama-MacBeth, and SAR/network appendix claims are treated as
   supplemental or unverified where source result tables are absent or empty.
@@ -258,7 +258,7 @@ errors after rebuilding `report/Research_Report.pdf`.
 | Claim Area | Current Treatment |
 |---|---|
 | Old taxonomy coverage improvement values, including 94.7% and 98.5% | Removed from headline evidence; replaced by source-backed 2024 category coverage |
-| AAPL firm-level taxonomy migration case study | Replaced by generated multi-firm taxonomy profile case studies |
+| AAPL firm-level taxonomy migration case study | Replaced by source-backed LVS dynamic taxonomy EDA and nearest-peer diagnostics |
 | DAV/EGARCH-X BIC improvement values | Treated as supplemental/unverified because the aggregate metrics CSV is empty locally |
 | Fama-MacBeth coefficient and significance table | Treated as supplemental/unverified until source tables are regenerated |
 | SAR/network regression claims | Treated as supplemental/unverified until source result tables are regenerated |

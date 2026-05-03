@@ -1105,7 +1105,7 @@ def make_deck() -> None:
         [
             ("Area", "Current treatment"),
             ("Taxonomy coverage percentages", "deferred until source table and rerun script are present"),
-            ("Firm-level taxonomy case studies", "generated taxonomy profile artifact"),
+            ("LVS dynamic taxonomy case study", "event-aligned vector and nearest-peer artifact"),
             ("Fama-MacBeth and SAR tables", "methodology extensions unless regenerated"),
             ("DAV BIC benchmark", "deferred; DAV peak diagnostics are mixed"),
             ("Portfolio evidence", "academic ranking validation, not investment advice"),
