@@ -8,21 +8,24 @@ The project converts SEC Item 1A `Risk Factors` disclosures into quantitative ri
 
 ## Project Overview
 
-The research pipeline consists of five major components:
+The research pipeline consists of six major components:
 
 1. **SEC 10-K risk disclosure extraction**  
    Download, parse, clean, and structure Item 1A risk-factor text from annual filings.
 
-2. **Dynamic macro–meso risk taxonomy construction**  
+2. **Dynamic macro–meso risk taxonomy construction**<br>
    Build a base-year taxonomy using embeddings, UMAP, HDBSCAN, and LLM-assisted category refinement, then update the taxonomy dynamically as new risk themes emerge.
 
-3. **Risk scoring and firm-year exposure construction**  
+3. **Risk scoring and firm-year exposure construction**<br>
    Classify risk paragraphs into the evolved taxonomy and aggregate them into firm-year risk exposure vectors.
 
-4. **ST-GAT forecasting**  
+4. **Full-window taxonomy sensitivity**<br>
+   Optional long-running orchestration expands base-year sensitivity into full 2006-2024 taxonomy variants and can feed those variants into downstream ST-GAT and portfolio tests.
+
+5. **ST-GAT forecasting**<br>
    Construct topology-only semantic peer graphs from risk exposure similarity and train Spatio-Temporal Graph Attention Networks for one-year-ahead return and volatility forecasting.
 
-5. **Econometric and portfolio validation**  
+6. **Econometric and portfolio validation**<br>
    Validate the text-derived signals using DAV/EGARCH-X volatility models, Fama-MacBeth regressions, risk-contagion network analysis, and dynamic portfolio backtesting.
 
 ## Repository Structure
@@ -59,11 +62,13 @@ IEDA4920_FYP/
 │   └── econometrics/         # DAV/FMB/SAR outputs
 ├── scripts/
 │   ├── check_github_ready.py         # GitHub upload preflight check
+│   ├── build_taxonomy_variant_matrix.py
 │   ├── evaluate_oos_robustness.py    # OOS paired/bootstrap diagnostics
 │   ├── evaluate_portfolio_inference.py
 │   ├── generate_final_presentation.py
 │   ├── generate_report_figures.py
 │   ├── run_multi_seed_forecasts.py
+│   ├── run_taxonomy_sensitivity.py   # Full-window taxonomy sensitivity orchestrator
 │   ├── summarize_dav_peak_analysis.py
 │   ├── run_pipeline.sh               # Stage-based execution driver
 │   └── validate_pipeline.py          # Lightweight artifact and timing validator
@@ -99,7 +104,11 @@ Expected modules include:
 ```text
 base_year_taxonomy.py
 classification.py
+dynamic_base_year_taxonomy.py
+dynamic_taxonomy_evolver.py
+llm_service.py
 risk_scoring.py
+taxonomy_prompts.py
 ```
 
 ### `src/gat/`
@@ -180,7 +189,7 @@ pip install -r requirements.txt
 Validate the current local artifacts without rerunning expensive stages:
 
 ```bash
-.venv/bin/python scripts/validate_pipeline.py --as-of 2026-04-27
+.venv/bin/python scripts/validate_pipeline.py --as-of 2026-05-03
 ```
 
 Equivalent runner command:
@@ -232,6 +241,13 @@ PYTHON=.venv/bin/python bash scripts/run_pipeline.sh master-csv
 PYTHON=.venv/bin/python bash scripts/run_pipeline.sh taxonomy
 PYTHON=.venv/bin/python bash scripts/run_pipeline.sh classify
 PYTHON=.venv/bin/python bash scripts/run_pipeline.sh risk-scoring
+
+# Optional long-running taxonomy sensitivity across 2006-2024.
+# Requires yearly data/interim/taxonomy_sensitivity/input/risk_factor_YYYY.csv files.
+FYP_TAXONOMY_SENSITIVITY_ARGS="--dry-run" PYTHON=.venv/bin/python bash scripts/run_pipeline.sh taxonomy-sensitivity
+
+# To propagate variants into paired Macro/Meso downstream tests after taxonomy outputs exist:
+FYP_TAXONOMY_SENSITIVITY_ARGS="--variant theta040 --downstream forecast --levels macro,meso --reuse-existing" PYTHON=.venv/bin/python bash scripts/run_pipeline.sh taxonomy-sensitivity
 
 # 3. Financial feature/target matrix
 PYTHON=.venv/bin/python bash scripts/run_pipeline.sh financial
@@ -312,9 +328,9 @@ The report documents the full methodology, including dynamic taxonomy constructi
 
 - The ST-GAT experiments use chronological splits: training years 2006–2016, validation years 2017–2020, and out-of-sample test years 2021–2024.
 - Node features are standardized using training-year statistics only.
-- The Meso ST-GAT is the primary model specification for portfolio construction.
+- Section 7 reports paired Macro and Meso ST-GAT evidence for completed taxonomy paths; the Meso ST-GAT remains the primary model specification for portfolio construction.
 - Annual forecasts are held fixed over the July-to-June forecast window, while portfolio weights are rebalanced monthly.
-- As of 2026-04-27, the risk-year 2024 forward target window has not fully closed because the July 2025 to June 2026 target window ends on 2026-06-30. Treat any realized 2024 OOS target or backtest claim as caveated until that window closes.
+- As of 2026-05-03, the risk-year 2024 forward target window has not fully closed because the July 2025 to June 2026 target window ends on 2026-06-30. Treat any realized 2024 OOS target or backtest claim as caveated until that window closes.
 - See `configs/default.yaml`, `docs/data_dictionary.md`, `docs/output_manifest.md`, and `docs/experiment_manifest.md` for the current reproducibility map.
 
 ## Authors

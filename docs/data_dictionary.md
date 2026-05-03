@@ -110,7 +110,7 @@ Timing convention:
 |---|---|---|
 | `t` | July 1 `t` to June 30 `t+1` | July 1 `t+1` to June 30 `t+2` |
 
-As of 2026-04-27, the 2024 target window has not fully closed.
+As of 2026-05-03, the 2024 target window has not fully closed.
 
 ## Forecast Panels
 

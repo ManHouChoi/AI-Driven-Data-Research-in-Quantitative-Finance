@@ -11,12 +11,14 @@
   - current 2021-2024 OOS review-panel results are retained;
   - final archival results can be refreshed after the full 2024 target window closes.
 - Updated the abstract, contributions, research-gap summary, feature-target alignment, output verification map, limitations, and conclusion so they tell the same claim-safe story.
+- Added paired Macro/Meso Section 7 sensitivity evidence and expanded the Section 4 taxonomy hyperparameter grid.
+- Added best-tested taxonomy coverage, taxonomy-topology, and firm-level case-study artifacts to the report narrative.
 
 ## Claim-Safety Changes
 
-- Removed taxonomy coverage percentages from headline contributions.
-- Reframed the taxonomy coverage figure as a conceptual diagnostic because the standalone source table is absent.
-- Reframed the AAPL migration case as a feasible case-study design rather than an empirical result.
+- Removed unsupported taxonomy coverage percentages from headline contributions.
+- Reintroduced taxonomy coverage only where backed by `outputs/taxonomy/sensitivity/taxonomy_macro_coverage_2024.csv`.
+- Replaced the unsupported AAPL migration case with generated firm-level case-study profiles from `outputs/taxonomy/sensitivity/taxonomy_case_study_macro_profiles.csv`.
 - Removed unsupported Fama-MacBeth numerical table claims from the appendix and kept only the methodology extension.
 - Removed unsupported SAR coefficient, p-value, and R-squared claims from the appendix and kept only the network-validation framework.
 - Removed aggregate DAV BIC-improvement claims because the benchmark metrics CSV is empty.
@@ -27,9 +29,12 @@
 - Kept verified or source-traceable figures:
   - `report/figures/oos_metric_comparison.png`
   - `report/figures/graph_density_macro_meso.png`
+  - `report/figures/taxonomy_macro_coverage_comparison.png`
+  - `report/figures/taxonomy_topology_theta040.png`
+  - `report/figures/taxonomy_case_study_macro_profiles.png`
   - `outputs/portfolio/GAT_portfolio_output/portfolio_equity_curves.png`
   - `report/figures/portfolio_top_bottom_spread.png`
-- Kept `outputs/figures/taxonomy_coverage_improvement.png` only as a conceptual diagnostic.
+- Kept the old `outputs/figures/taxonomy_coverage_improvement.png` out of headline evidence; the new coverage figure is generated from source CSVs.
 - Removed unsupported numerical interpretation from the Fama-MacBeth and SAR appendices.
 - Updated the output verification map to use final-review wording:
   - "Verified for review panel"
@@ -64,7 +69,7 @@
 ## Validation Results
 
 - Report compiled successfully with `latexmk`.
-- Pipeline validation passed with 45 passed checks, 2 warnings, and 0 failures.
+- Pipeline validation passed with 35 passed checks, 7 warnings, and 0 failures after the expanded Macro/Meso sensitivity edit.
 - GitHub readiness check passed.
 - Python compile check passed.
 - PPTX package integrity check passed.
@@ -83,7 +88,7 @@
 ## Remaining Limitations
 
 - The current review package includes 2024 rows from existing outputs; final archival outputs can be refreshed after the 2024 target window fully closes on 2026-06-30.
-- Taxonomy coverage percentages require a standalone reproducible source table before they should be treated as empirical findings.
-- AAPL firm-level taxonomy migration requires regenerated source artifacts before becoming a case-study result.
+- Additional sensitivity grid points beyond `theta040` require the same long-running LLM-assisted full-window taxonomy procedure before they should be treated as empirical results.
+- Firm-level case studies are interpretability diagnostics, not cross-sectional proof of forecast value.
 - Fama-MacBeth, DAV BIC, and SAR appendix modules require regenerated source tables for inferential claims.
 - Portfolio performance remains an academic validation exercise, not a live-trading recommendation.

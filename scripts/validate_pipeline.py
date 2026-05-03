@@ -130,11 +130,40 @@ def project_paths(root: Path) -> Dict[str, Path]:
 
 
 def check_required_files(validator: Validator, paths: Dict[str, Path]) -> None:
-    missing = [f"{name} -> {path}" for name, path in paths.items() if not path.exists()]
+    core_labels = {
+        "meso_risk",
+        "financial_matrix",
+        "meso_panel",
+        "meso_oos",
+        "portfolio_summary",
+        "portfolio_spread",
+        "portfolio_monthly_returns",
+        "portfolio_weights",
+        "portfolio_turnover",
+        "report_tex",
+        "report_pdf",
+        "report_oos_metric_figure",
+        "report_graph_density_figure",
+        "report_portfolio_spread_figure",
+        "robust_oos_evaluation",
+        "portfolio_spread_robust_inference",
+        "portfolio_strategy_robust_inference",
+    }
+    optional_labels = sorted(set(paths).difference(core_labels))
+    missing = [f"{name} -> {paths[name]}" for name in sorted(core_labels) if not paths[name].exists()]
     if missing:
         validator.fail("file path existence", "missing required artifact(s): " + "; ".join(missing))
     else:
-        validator.pass_("file path existence", f"all {len(paths)} canonical artifacts are present")
+        validator.pass_("file path existence", f"all {len(core_labels)} core artifacts are present")
+
+    optional_missing = [name for name in optional_labels if not paths[name].exists()]
+    if optional_missing:
+        validator.warn(
+            "optional artifact availability",
+            "missing optional artifact(s): " + ", ".join(optional_missing),
+        )
+    else:
+        validator.pass_("optional artifact availability", "all optional artifacts are present")
 
 
 def check_nonempty_artifacts(validator: Validator, paths: Dict[str, Path]) -> None:
@@ -163,9 +192,19 @@ def check_nonempty_artifacts(validator: Validator, paths: Dict[str, Path]) -> No
         validator.pass_("report artifact nonempty", "report source, PDF, and generated report figures are nonempty")
 
 
-def read_csv(validator: Validator, name: str, path: Path, **kwargs: object) -> Optional[pd.DataFrame]:
+def read_csv(
+    validator: Validator,
+    name: str,
+    path: Path,
+    *,
+    required: bool = True,
+    **kwargs: object,
+) -> Optional[pd.DataFrame]:
     if not path.exists():
-        validator.fail(f"read {name}", f"file not found: {path}")
+        if required:
+            validator.fail(f"read {name}", f"file not found: {path}")
+        else:
+            validator.warn(f"read {name}", f"optional file not found: {path}")
         return None
     try:
         return pd.read_csv(path, **kwargs)
@@ -784,19 +823,19 @@ def main() -> int:
     check_required_files(validator, paths)
     check_nonempty_artifacts(validator, paths)
 
-    macro_risk = read_csv(validator, "macro risk scores", paths["macro_risk"])
+    macro_risk = read_csv(validator, "macro risk scores", paths["macro_risk"], required=False)
     meso_risk = read_csv(validator, "meso risk scores", paths["meso_risk"])
     fin_matrix = read_csv(validator, "financial matrix", paths["financial_matrix"])
-    macro_panel = read_csv(validator, "macro prediction panel", paths["macro_panel"])
+    macro_panel = read_csv(validator, "macro prediction panel", paths["macro_panel"], required=False)
     meso_panel = read_csv(validator, "meso prediction panel", paths["meso_panel"])
     portfolio_summary = read_csv(validator, "portfolio summary", paths["portfolio_summary"])
     portfolio_spread = read_csv(validator, "portfolio spread diagnostics", paths["portfolio_spread"])
     portfolio_weights = read_csv(validator, "portfolio weights", paths["portfolio_weights"])
     portfolio_monthly_returns = read_csv(validator, "portfolio monthly returns", paths["portfolio_monthly_returns"])
     portfolio_turnover = read_csv(validator, "portfolio turnover", paths["portfolio_turnover"])
-    multi_seed_metrics = read_csv(validator, "multi-seed metrics", paths["multi_seed_metrics"])
-    multi_seed_summary = read_csv(validator, "multi-seed summary", paths["multi_seed_summary"])
-    dav_peak_summary = read_csv(validator, "DAV peak summary", paths["dav_peak_summary"])
+    multi_seed_metrics = read_csv(validator, "multi-seed metrics", paths["multi_seed_metrics"], required=False)
+    multi_seed_summary = read_csv(validator, "multi-seed summary", paths["multi_seed_summary"], required=False)
+    dav_peak_summary = read_csv(validator, "DAV peak summary", paths["dav_peak_summary"], required=False)
 
     check_risk_scores(validator, "macro risk scores", macro_risk)
     check_risk_scores(validator, "meso risk scores", meso_risk)

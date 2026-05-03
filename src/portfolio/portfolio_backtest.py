@@ -37,7 +37,7 @@ CONFIG = {
     "prediction_model_prefix": "GAT",
     "score_methods": ["return_only", "return_over_vol", "composite_z"],
     "composite_vol_penalty": 0.50,
-    "rebalance_frequency": "M",
+    "rebalance_frequency": "ME",
     "top_quantile": 0.20,
     "bottom_quantile": 0.20,
     "volatility_floor": 0.10,
@@ -90,7 +90,7 @@ class PredictionWeightedPortfolioBacktester:
 
     @staticmethod
     def _month_end_index(start: str, end: str) -> pd.DatetimeIndex:
-        return pd.date_range(start=start, end=end, freq="M")
+        return pd.date_range(start=start, end=end, freq="ME")
 
     @staticmethod
     def _extract_price_panel(raw_df: pd.DataFrame) -> pd.DataFrame:
@@ -173,7 +173,7 @@ class PredictionWeightedPortfolioBacktester:
         if missing:
             print(f"Warning: {len(missing)} tickers missing from price data. Example: {missing[:10]}")
 
-        monthly_prices = daily_prices.resample("M").last().dropna(axis=1, how="all")
+        monthly_prices = daily_prices.resample("ME").last().dropna(axis=1, how="all")
         monthly_returns = monthly_prices.pct_change().replace([np.inf, -np.inf], np.nan)
 
         if benchmark not in monthly_returns.columns:

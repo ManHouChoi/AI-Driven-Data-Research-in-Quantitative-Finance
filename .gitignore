@@ -49,6 +49,7 @@ credentials/
 # Raw and intermediate data
 # Keep folder structure with .gitkeep if needed.
 # ============================================================
+May 2 update/
 data/raw/*
 data/interim/*
 data/cache/*
@@ -111,6 +112,7 @@ outputs/gat/*
 outputs/portfolio/*
 outputs/econometrics/*
 outputs/figures/*
+outputs/taxonomy/*
 !outputs/gat/.gitkeep
 !outputs/portfolio/.gitkeep
 !outputs/econometrics/.gitkeep

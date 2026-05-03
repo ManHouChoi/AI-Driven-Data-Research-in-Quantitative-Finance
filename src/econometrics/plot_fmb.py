@@ -57,7 +57,7 @@ def main():
     )
     
     ax.axvline(0, color='black', linewidth=1.5)
-    ax.set_xlabel('Estimated Risk Premium ($\lambda$)', fontsize=12, fontweight='bold')
+    ax.set_xlabel(r'Estimated Risk Premium ($\lambda$)', fontsize=12, fontweight='bold')
     ax.set_title('Top 10 Statistically Significant Meso-Risk Premiums (2020–2025)', fontsize=14, fontweight='bold', pad=15)
     ax.tick_params(axis='y', labelsize=11)
     

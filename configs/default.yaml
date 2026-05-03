@@ -62,6 +62,6 @@ portfolio:
   slippage_bps: 5.0
 
 validation:
-  default_as_of_date: "2026-04-27"
+  default_as_of_date: "2026-05-03"
   known_warnings:
     - "The Year 2024 forward target window closes on 2026-06-30, so realized 2024 target claims require caveats before that date."

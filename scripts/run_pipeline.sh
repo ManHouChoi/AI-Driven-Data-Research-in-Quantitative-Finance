@@ -43,6 +43,10 @@ Stages:
   taxonomy          Rebuild the base taxonomy JSON/CSV. Requires DEEPSEEK_API_KEY.
   classify          Classify risk paragraphs using the taxonomy centroids.
   risk-scoring      Aggregate classified paragraphs into macro/meso exposures.
+  taxonomy-sensitivity
+                    Run full-window taxonomy hyperparameter sensitivity variants.
+  taxonomy-variant-matrix
+                    Build a model-ready exposure matrix from one taxonomy variant.
   financial         Rebuild the enhanced financial feature/target matrix.
   gat-objective     Run Macro and Meso Optuna searches.
   gat-forecast      Run Macro and Meso ST-GAT forecasts with fixed best params.
@@ -57,7 +61,7 @@ Stages:
 Useful environment variables:
   PYTHON=/path/to/python
   DRY_RUN=1
-  FYP_AS_OF_DATE=2026-04-27
+  FYP_AS_OF_DATE=2026-05-03
   SEC_CONTACT_EMAIL=your.name@example.com
 
 Examples:
@@ -121,6 +125,14 @@ classify() {
 
 risk_scoring() {
   run_python "risk_scoring" "src/taxonomy/risk_scoring.py"
+}
+
+taxonomy_sensitivity() {
+  run_python "taxonomy_sensitivity" "scripts/run_taxonomy_sensitivity.py" ${FYP_TAXONOMY_SENSITIVITY_ARGS:-}
+}
+
+taxonomy_variant_matrix() {
+  run_python "taxonomy_variant_matrix" "scripts/build_taxonomy_variant_matrix.py" ${FYP_TAXONOMY_VARIANT_MATRIX_ARGS:-}
 }
 
 financial() {
@@ -206,6 +218,12 @@ case "${stage}" in
     ;;
   risk-scoring)
     risk_scoring
+    ;;
+  taxonomy-sensitivity)
+    taxonomy_sensitivity
+    ;;
+  taxonomy-variant-matrix)
+    taxonomy_variant_matrix
     ;;
   financial)
     financial

@@ -36,20 +36,49 @@ def parse_args() -> argparse.Namespace:
 
 
 def panel_paths() -> Dict[str, Path]:
-    return {
-        "macro": Path(
+    """Return forecast panels available in the lightweight artifact set.
+
+    The original full project can include Macro and Meso panels. The GitHub-ready
+    package may intentionally omit Macro outputs, so missing optional panels are
+    skipped instead of making the robustness addendum unusable.
+    """
+
+    theta040_meso = Path(
+        os.getenv(
+            "FYP_GAT_THETA040_MESO_PANEL_CSV",
+            ROOT / "outputs/gat/taxonomy_sensitivity/theta040_meso/ST_GAT_vs_Baseline_Panel_meso.csv",
+        )
+    )
+    if not theta040_meso.exists():
+        theta040_meso = Path(
             os.getenv(
-                "FYP_GAT_MACRO_PANEL_CSV",
-                ROOT / "outputs/gat/GAT_output_macro/ST_GAT_vs_Baseline_Panel_macro.csv",
+                "FYP_GAT_THETA040_PANEL_CSV",
+                ROOT / "outputs/gat/taxonomy_sensitivity/theta040/ST_GAT_vs_Baseline_Panel_meso.csv",
             )
-        ),
+        )
+
+    candidates = {
         "meso": Path(
             os.getenv(
                 "FYP_GAT_MESO_PANEL_CSV",
                 ROOT / "outputs/gat/GAT_output_meso/ST_GAT_vs_Baseline_Panel_meso.csv",
             )
         ),
+        "macro": Path(
+            os.getenv(
+                "FYP_GAT_MACRO_PANEL_CSV",
+                ROOT / "outputs/gat/GAT_output_macro/ST_GAT_vs_Baseline_Panel_macro.csv",
+            )
+        ),
+        "theta040_macro": Path(
+            os.getenv(
+                "FYP_GAT_THETA040_MACRO_PANEL_CSV",
+                ROOT / "outputs/gat/taxonomy_sensitivity/theta040_macro/ST_GAT_vs_Baseline_Panel_macro.csv",
+            )
+        ),
+        "theta040_meso": theta040_meso,
     }
+    return {name: path for name, path in candidates.items() if path.exists()}
 
 
 def safe_spearman(actual: pd.Series, pred: pd.Series) -> float:
@@ -179,6 +208,15 @@ def load_oos_panel(path: Path) -> pd.DataFrame:
     return df
 
 
+def display_level(name: str) -> str:
+    return {
+        "macro": "Default Macro",
+        "meso": "Default Meso",
+        "theta040_macro": "Theta040 Macro",
+        "theta040_meso": "Theta040 Meso",
+    }.get(name, name.replace("_", " ").title())
+
+
 def write_notes(output_dir: Path, n_bootstrap: int) -> None:
     notes = output_dir / "robust_oos_evaluation_notes.md"
     notes.write_text(
@@ -218,7 +256,7 @@ def main() -> None:
                 subset=[f"Actual_{target}", f"GAT_Pred_{target}", f"Base_Pred_{target}"]
             ).copy()
             row: Dict[str, float | str] = {
-                "Level": level.capitalize(),
+                "Level": display_level(level),
                 "Target": target,
                 "Num_FirmYears": int(len(target_df)),
             }
@@ -229,7 +267,7 @@ def main() -> None:
             rows.append(row)
 
             annual.insert(0, "Target", target)
-            annual.insert(0, "Level", level.capitalize())
+            annual.insert(0, "Level", display_level(level))
             annual_rows.append(annual)
 
     robust_df = pd.DataFrame(rows)

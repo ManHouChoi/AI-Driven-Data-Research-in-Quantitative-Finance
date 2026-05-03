@@ -79,7 +79,7 @@ The final IEDA4920 deck was regenerated to follow that rhythm more closely. The 
 ## Validation Commands Run
 
 ```bash
-PYTHON=.venv/bin/python FYP_AS_OF_DATE=2026-04-27 bash scripts/run_pipeline.sh validate
+PYTHON=.venv/bin/python FYP_AS_OF_DATE=2026-05-03 bash scripts/run_pipeline.sh validate
 PYTHON=.venv/bin/python bash scripts/run_pipeline.sh github-check
 .venv/bin/python -m compileall -q src scripts
 git diff --check
@@ -88,13 +88,13 @@ unzip -t report/IEDA4920_Final_Presentation.pptx
 
 Validation results:
 
-- Pipeline validation: 45 passed, 2 warnings, 0 failed.
-- GitHub readiness check: passed; 68 upload candidate files checked after repository cleanup.
+- Pipeline validation: 35 passed, 7 warnings, 0 failed.
+- GitHub readiness check: passed; 91 upload candidate files checked after repository cleanup.
 - Python compile check: passed.
 - Git whitespace check: passed.
 - PPTX package check: passed.
 
-The two validation warnings are retained transparently:
+The validation warnings are retained transparently:
 
 - 4 missing financial feature values are expected to be imputed downstream using training-year medians only.
 - The current review panel includes 2024 rows whose final archival target window closes on 2026-06-30.
@@ -103,8 +103,8 @@ The two validation warnings are retained transparently:
 
 The final report and deck no longer use unsupported claims as headline findings. The following items were reframed:
 
-- taxonomy coverage percentages from the existing coverage figure;
-- AAPL firm-level taxonomy migration discussion;
+- unsupported taxonomy coverage percentages from the old conceptual figure;
+- unsupported single-firm migration claims without generated case-study source tables;
 - Fama-MacBeth coefficient and significance tables;
 - DAV/EGARCH-X aggregate BIC improvement claims;
 - SAR/network regression coefficients, p-values, and R-squared claims.
@@ -115,13 +115,14 @@ These topics are now described as conceptual diagnostics, methodology extensions
 
 The final report and deck retain the verified/review-accepted results supported by current artifacts:
 
-- Meso ST-GAT averaged RMSE improves from 0.3345 to 0.3001 relative to identity baseline.
-- Meso ST-GAT averaged Spearman rank improves from -0.0139 to 0.1701.
-- Meso volatility RMSE improves from 0.2240 to 0.1565.
-- Meso volatility Spearman rank improves from -0.1351 to 0.1770.
-- Macro graph is substantially denser than Meso graph in the OOS period.
-- Best Meso ST-GAT return-only long-short portfolio has Sharpe 1.06 and 7.93% annualized return.
-- Return-only top-minus-bottom spread is 17.69% annualized with nominal p=0.034 and HAC q=0.049.
+- Default Meso ST-GAT improves return MAE and return rank, but not averaged OOS RMSE.
+- Full-window `theta040` Meso sensitivity improves averaged RMSE from 0.3523 to 0.3176 relative to its identity baseline.
+- `theta040` volatility RMSE improves from 0.2082 to 0.1555 and volatility Spearman improves from -0.1906 to 0.1212.
+- Paired Macro ST-GAT sensitivity runs are much denser but underperform identity baselines, supporting the report's Macro-versus-Meso resolution interpretation.
+- 2024 taxonomy coverage is now backed by `outputs/taxonomy/sensitivity/taxonomy_macro_coverage_2024.csv`; `theta040` is more concentrated, with its largest Macro family covering 56.21% of assigned paragraphs.
+- Default Meso graph is very sparse in the OOS period; `theta040` is denser and materially changes downstream behavior.
+- Default Meso ST-GAT return-only long-short portfolio has Sharpe 0.88 and 7.31% annualized return.
+- Default return-only top-minus-bottom spread is 16.26% annualized with conventional p=0.080 and HAC q=0.076.
 - DAV peak-event diagnostics are mixed: 93 figures parsed, 20 positive, 73 negative, mean improvement -2.40%.
 
 ## Reviewer-Facing Notes

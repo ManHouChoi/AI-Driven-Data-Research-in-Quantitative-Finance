@@ -19,45 +19,52 @@ into annual semantic peer graphs. The full ST-GAT model uses
 the main experiment isolates whether textual-risk peer topology adds predictive
 information beyond each firm's own financial and market features.
 
-The finalized report emphasizes the Meso-level graph as the strongest verified
-specification. On the exported 2021-2024 OOS review panel, Meso ST-GAT improves
-averaged RMSE from 0.3345 to 0.3001, averaged MAE from 0.2314 to 0.1991, and
-averaged Spearman rank correlation from -0.0139 to 0.1701 relative to the
-identity baseline. The clearest improvement is in volatility forecasting, where
-RMSE falls from 0.2240 to 0.1565 and Spearman rank improves from -0.1351 to
-0.1770.
+The finalized report is conservative about the default Meso graph evidence.
+On the exported 2021-2024 OOS review panel, the default Meso ST-GAT improves
+return MAE and return rank correlation, but it does not dominate the identity
+baseline on averaged OOS metrics. A full-window `theta040` taxonomy sensitivity
+run gives stronger forecast-error evidence: averaged RMSE improves from 0.3523
+to 0.3176 and averaged MAE improves from 0.2546 to 0.2012 relative to its
+matched identity baseline, with the strongest gain in volatility RMSE.
+Paired Macro-level runs are now included as sensitivity evidence: they are much
+denser than Meso graphs but underperform identity baselines, supporting the
+report's conclusion that broad coverage is not enough without selective
+semantic resolution.
 
-Graph-density diagnostics support the interpretation that semantic resolution
-matters. During the OOS period, the Macro graph retains roughly 3,900-4,460
-off-diagonal directed edges per year, while the Meso graph retains only 38-118
-edges with active-node density below 0.14%. The report therefore frames the
-Meso result as evidence that granular risk categories create sparse,
-high-confidence peer links, rather than merely smoothing information through a
-dense network.
+Graph-density diagnostics support the interpretation that taxonomy evolution
+settings matter. During the OOS period, the default Meso graph retains 32-96
+off-diagonal directed edges per year, while the `theta040` graph retains
+100-630. The report therefore frames graph topology as a validated modeling
+choice that must be sensitivity-tested, rather than as an automatically
+beneficial preprocessing output.
 
 The portfolio extension is presented as academic validation, not as live-trading
 evidence. Annual Meso ST-GAT forecasts are held fixed over their July-to-June
 forecast window, while portfolios are rebalanced monthly with 10 bps transaction
-costs, 5 bps slippage, and SPY as benchmark. The strongest return-only
-long-short strategy reports 7.93% annualized return, 7.47% annualized
-volatility, Sharpe 1.06, Sortino 2.01, maximum drawdown of -6.90%, and beta of
-0.24. Its top-minus-bottom spread is 17.69% annualized with nominal p=0.034
-before multiple-testing adjustment, compared with an insignificant 6.62% spread
-for the identity-baseline return-only signal.
+costs, 5 bps slippage, and SPY as benchmark. Under the default dynamic
+taxonomy, the return-only long-short strategy reports 7.31% annualized return,
+8.34% annualized volatility, Sharpe 0.88, Sortino 1.52, maximum drawdown of
+-8.06%, and beta of 0.30. Its top-minus-bottom spread is 16.26% annualized with
+conventional p=0.080 and HAC/Newey-West p=0.034 before multiple-testing
+adjustment. The `theta040` variant improves forecast errors but has weaker raw
+portfolio ranking than its identity baseline.
 
 The final package is deliberately conservative about unsupported evidence.
-Taxonomy-coverage percentages, AAPL firm-level migration claims, DAV/EGARCH-X
+Old taxonomy-coverage percentages, unsupported AAPL migration claims, DAV/EGARCH-X
 BIC comparisons, Fama-MacBeth tables, and SAR/network regression claims are not
 used as headline findings unless their source tables are regenerated and added
-to the output manifest. The available DAV peak diagnostics are retained only as
+to the output manifest. The new 2024 category coverage and firm-level case-study
+figures are source-backed by `outputs/taxonomy/sensitivity/*.csv`. The available DAV peak diagnostics are retained only as
 event-local context: 93 figures were parsed, with 20 positive improvements, 73
 negative improvements, and mean improvement of -2.40%.
 
 Before GitHub cleanup, the complete local artifact set passed the lightweight
-validation suite with 45 passes, 2 warnings, and 0 failures as of 2026-04-27.
-The warnings are research caveats rather than code crashes: four financial
-feature values require downstream train-period median imputation, and risk-year
-2024 has a forward target window ending on 2026-06-30. The committed GitHub
+validation suite with 35 passes, 7 warnings, and 0 failures as of 2026-05-03.
+The warnings are artifact-scope and research caveats rather than code crashes:
+optional multi-seed, DAV, and taxonomy-interim files are absent from the
+lightweight package; four financial feature values require downstream
+train-period median imputation; and risk-year 2024 has a forward target window
+ending on 2026-06-30. The committed GitHub
 repository is a lightweight code, report, and documentation package; large raw
 data, intermediate files, generated outputs, logs, and the local virtual
 environment are excluded from version control and preserved outside the repo as
@@ -115,7 +122,7 @@ pip install -r requirements.txt
 Validate current local artifacts:
 
 ```bash
-.venv/bin/python scripts/validate_pipeline.py --as-of 2026-04-27
+.venv/bin/python scripts/validate_pipeline.py --as-of 2026-05-03
 ```
 
 Refresh report-local figures from the current CSV outputs:
@@ -174,13 +181,13 @@ SEC download requires `SEC_CONTACT_EMAIL`. Taxonomy construction requires
 ## Validation/Test Command
 
 ```bash
-PYTHON=.venv/bin/python FYP_AS_OF_DATE=2026-04-27 bash scripts/run_pipeline.sh validate
+PYTHON=.venv/bin/python FYP_AS_OF_DATE=2026-05-03 bash scripts/run_pipeline.sh validate
 ```
 
 Latest observed result:
 
 ```text
-Summary: 45 passed, 2 warnings, 0 failed
+Summary: 35 passed, 7 warnings, 0 failed
 ```
 
 Additional local checks completed:
@@ -217,10 +224,10 @@ errors after rebuilding `report/Research_Report.pdf`.
   until the July 2025 to June 2026 target window closes on 2026-06-30.
 - Four financial feature values are missing in the current enhanced financial
   matrix and are handled by train-period median imputation.
-- Taxonomy coverage percentages in the report are retained as unverified until
-  the underlying coverage calculation table/script output is regenerated.
-- The AAPL case-study discussion is retained as qualitative and unverified until
-  its source table/figure is regenerated.
+- Old taxonomy coverage percentages remain excluded; the new coverage figure is
+  backed by `outputs/taxonomy/sensitivity/taxonomy_macro_coverage_2024.csv`.
+- Firm-level case-study figures are retained as interpretability diagnostics,
+  not proof of cross-sectional predictive value.
 - DAV/EGARCH-X, Fama-MacBeth, and SAR/network appendix claims are treated as
   supplemental or unverified where source result tables are absent or empty.
 - DAV peak-event diagnostics are now summarized from 93 local PNG figures:
@@ -250,8 +257,8 @@ errors after rebuilding `report/Research_Report.pdf`.
 
 | Claim Area | Current Treatment |
 |---|---|
-| Taxonomy coverage improvement values, including 94.7% and 98.5% | Marked `UNVERIFIED CLAIM — requires validation` in the report |
-| AAPL firm-level taxonomy migration case study | Marked qualitative/unverified in the report |
+| Old taxonomy coverage improvement values, including 94.7% and 98.5% | Removed from headline evidence; replaced by source-backed 2024 category coverage |
+| AAPL firm-level taxonomy migration case study | Replaced by generated multi-firm taxonomy profile case studies |
 | DAV/EGARCH-X BIC improvement values | Treated as supplemental/unverified because the aggregate metrics CSV is empty locally |
 | Fama-MacBeth coefficient and significance table | Treated as supplemental/unverified until source tables are regenerated |
 | SAR/network regression claims | Treated as supplemental/unverified until source result tables are regenerated |
@@ -259,9 +266,8 @@ errors after rebuilding `report/Research_Report.pdf`.
 
 ## Recommended Future Work
 
-- Regenerate taxonomy coverage source tables and add them to the output
-  manifest.
-- Regenerate AAPL case-study source data and figure, or remove the case study.
+- Execute the remaining expanded taxonomy sensitivity grid points end-to-end
+  before treating them as empirical results.
 - Recompute DAV/EGARCH-X, Fama-MacBeth, and SAR/network result tables with
   machine-readable CSV outputs.
 - Re-run final OOS and portfolio evaluation after 2026-06-30 so risk-year 2024

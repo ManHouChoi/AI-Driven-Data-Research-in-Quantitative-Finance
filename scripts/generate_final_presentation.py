@@ -395,7 +395,7 @@ def make_deck() -> None:
         "motivation",
     )
     add_text(slide, "One empirical story", 0.72, 1.62, 2.8, 0.28, size=16, color=GOLD, bold=True)
-    add_text(slide, "Meso-level semantic peer graphs improve OOS forecasting relative to a strict identity baseline.", 0.72, 2.0, 6.0, 1.05, size=29, color=INK, bold=True)
+    add_text(slide, "The best tested Meso taxonomy improves OOS forecasting relative to a strict identity baseline.", 0.72, 2.0, 6.0, 1.05, size=29, color=INK, bold=True)
     add_numbered_points(
         slide,
         [
@@ -878,7 +878,7 @@ def make_deck() -> None:
     slide = new_content_slide(
         prs,
         blank,
-        "Meso ST-GAT improves the core OOS forecasting metrics",
+        "The theta040 Meso ST-GAT improves the core OOS forecasting metrics",
         "The strongest verified model specification is the meso full graph.",
         18,
         "results",
@@ -1003,7 +1003,7 @@ def make_deck() -> None:
             ("best strategy", str(best["Strategy"]).replace("_", " ")),
             ("annualized return", f"{best['Annualized_Return'] * 100:.2f}%"),
             ("Sharpe ratio", f"{best['Sharpe']:.2f}"),
-            ("max drawdown", "-6.90%"),
+            ("max drawdown", f"{best['Max_Drawdown'] * 100:.2f}%"),
         ],
         8.35,
         1.7,
@@ -1105,7 +1105,7 @@ def make_deck() -> None:
         [
             ("Area", "Current treatment"),
             ("Taxonomy coverage percentages", "deferred until source table and rerun script are present"),
-            ("AAPL migration case study", "future case-study artifact"),
+            ("Firm-level taxonomy case studies", "generated taxonomy profile artifact"),
             ("Fama-MacBeth and SAR tables", "methodology extensions unless regenerated"),
             ("DAV BIC benchmark", "deferred; DAV peak diagnostics are mixed"),
             ("Portfolio evidence", "academic ranking validation, not investment advice"),
@@ -1129,7 +1129,7 @@ def make_deck() -> None:
     add_text(slide, "Run from repository root", 0.95, 1.7, 3.6, 0.3, size=16, color=GOLD, bold=True)
     add_panel(slide, 0.95, 2.12, 11.25, 1.08, fill=WHITE, line=INK)
     add_text(slide, "PYTHON=.venv/bin/python bash scripts/run_pipeline.sh validate\nPYTHON=.venv/bin/python bash scripts/run_pipeline.sh github-check", 1.22, 2.37, 10.8, 0.48, size=16, color=BLACK)
-    add_metric(slide, "45 passed", "validation tests", 1.05, 4.05, 2.6)
+    add_metric(slide, "35 passed", "validation tests", 1.05, 4.05, 2.6)
     add_metric(slide, "passed", "GitHub preflight", 4.1, 4.05, 2.6, TEAL)
     add_metric(slide, "compiled", "final PDF report", 7.0, 4.05, 2.6, TEAL)
     add_metric(slide, "editable", "PowerPoint deck", 9.75, 4.05, 2.6, GOLD)

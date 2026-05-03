@@ -33,6 +33,14 @@ def read_csv(rel_path: str) -> pd.DataFrame:
     return pd.read_csv(path)
 
 
+def first_existing(*rel_paths: str) -> Path | None:
+    for rel_path in rel_paths:
+        path = ROOT / rel_path
+        if path.exists():
+            return path
+    return None
+
+
 def save_current(fig_dir: Path, name: str) -> None:
     fig_dir.mkdir(parents=True, exist_ok=True)
     out = fig_dir / name
@@ -44,72 +52,112 @@ def save_current(fig_dir: Path, name: str) -> None:
 
 def plot_oos_metric_comparison(fig_dir: Path) -> None:
     frames = []
-    for level, rel_path in [
-        ("Macro", "outputs/gat/GAT_output_macro/goodness_of_fit_metrics_macro_OOS.csv"),
-        ("Meso", "outputs/gat/GAT_output_meso/goodness_of_fit_metrics_meso_OOS.csv"),
+    for variant, level, rel_paths in [
+        ("Default", "Macro", ["outputs/gat/GAT_output_macro/goodness_of_fit_metrics_macro_OOS.csv"]),
+        ("Default", "Meso", ["outputs/gat/GAT_output_meso/goodness_of_fit_metrics_meso_OOS.csv"]),
+        ("Theta 0.40", "Macro", ["outputs/gat/taxonomy_sensitivity/theta040_macro/goodness_of_fit_metrics_macro_OOS.csv"]),
+        (
+            "Theta 0.40",
+            "Meso",
+            [
+                "outputs/gat/taxonomy_sensitivity/theta040_meso/goodness_of_fit_metrics_meso_OOS.csv",
+                "outputs/gat/taxonomy_sensitivity/theta040/goodness_of_fit_metrics_meso_OOS.csv",
+            ],
+        ),
     ]:
-        df = read_csv(rel_path)
+        path = first_existing(*rel_paths)
+        if path is None:
+            continue
+        df = pd.read_csv(path)
         df = df[df["Target"].isin(["Ret", "Vol"])].copy()
+        df["Variant"] = variant
         df["Level"] = level
         frames.append(df)
 
-    data = pd.concat(frames, ignore_index=True)
-    data["Label"] = data["Level"] + " " + data["Target"] + " " + data["Model"].replace({"Identity Baseline": "Identity"})
+    if not frames:
+        raise FileNotFoundError("No OOS metric files were available for report figure generation.")
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4.8))
+    data = pd.concat(frames, ignore_index=True)
+    data["Label"] = (
+        data["Variant"]
+        + " "
+        + data["Level"]
+        + " "
+        + data["Target"]
+        + " "
+        + data["Model"].replace({"Identity Baseline": "Identity"})
+    )
+
+    fig, axes = plt.subplots(1, 2, figsize=(13.5, 6.4))
     colors = data["Model"].map({"ST-GAT": "#2f6f9f", "Identity Baseline": "#9a9a9a"})
 
     for ax, metric, title in [
         (axes[0], "RMSE", "OOS RMSE by Target"),
         (axes[1], "Spearman_Rank", "OOS Spearman Rank by Target"),
     ]:
-        ordered = data.sort_values(["Level", "Target", "Model"])
+        ordered = data.sort_values(["Variant", "Level", "Target", "Model"])
         ax.barh(ordered["Label"], ordered[metric], color=colors.loc[ordered.index])
         ax.axvline(0, color="black", linewidth=0.8)
         ax.set_title(title)
         ax.set_xlabel(metric.replace("_", " "))
         ax.grid(axis="x", linestyle="--", alpha=0.35)
 
-    fig.suptitle("ST-GAT vs. Identity Baseline: OOS Forecast Metrics", fontsize=13, fontweight="bold")
+    fig.suptitle("Macro and Meso ST-GAT OOS Metrics Under Taxonomy Sensitivity", fontsize=13, fontweight="bold")
     save_current(fig_dir, "oos_metric_comparison.png")
 
 
 def plot_graph_density(fig_dir: Path) -> None:
-    macro = read_csv("outputs/gat/GAT_output_macro/graph_diagnostics_macro_forecast_tau.csv")
-    meso = read_csv("outputs/gat/GAT_output_meso/graph_diagnostics_meso_forecast_tau.csv")
-    macro = macro[macro["Year"].between(2021, 2024)].copy()
-    meso = meso[meso["Year"].between(2021, 2024)].copy()
+    sources = [
+        ("Default Macro", "#8a8a8a", first_existing("outputs/gat/GAT_output_macro/graph_diagnostics_macro_forecast_tau.csv")),
+        ("Default Meso", "#2f6f9f", first_existing("outputs/gat/GAT_output_meso/graph_diagnostics_meso_forecast_tau.csv")),
+        (
+            r"$\theta=0.40$ Macro",
+            "#c49a6c",
+            first_existing("outputs/gat/taxonomy_sensitivity/theta040_macro/graph_diagnostics_macro_forecast_tau.csv"),
+        ),
+        (
+            r"$\theta=0.40$ Meso",
+            "#b55239",
+            first_existing(
+                "outputs/gat/taxonomy_sensitivity/theta040_meso/graph_diagnostics_meso_forecast_tau.csv",
+                "outputs/gat/taxonomy_sensitivity/theta040/graph_diagnostics_meso_forecast_tau.csv",
+            ),
+        ),
+    ]
+    frames = []
+    for label, color, path in sources:
+        if path is None:
+            continue
+        df = pd.read_csv(path)
+        df = df[df["Year"].between(2021, 2024)].copy()
+        frames.append((label, color, df))
+    if not frames:
+        raise FileNotFoundError("No graph diagnostic CSV files were available for report figure generation.")
 
     fig, axes = plt.subplots(1, 2, figsize=(11, 4.5))
-    axes[0].plot(macro["Year"], macro["Num_OffDiagonal_Edges"], marker="o", label="Macro", color="#b55239")
-    axes[0].plot(meso["Year"], meso["Num_OffDiagonal_Edges"], marker="o", label="Meso", color="#2f6f9f")
+    for label, color, df in frames:
+        axes[0].plot(df["Year"], df["Num_OffDiagonal_Edges"], marker="o", label=label, color=color)
     axes[0].set_title("Off-Diagonal Directed Edges")
     axes[0].set_xlabel("Year")
     axes[0].set_ylabel("Edges")
     axes[0].legend()
     axes[0].grid(True, linestyle="--", alpha=0.35)
 
-    axes[1].plot(
-        macro["Year"],
-        100 * macro["Density_Among_Active_Risk_Nodes"],
-        marker="o",
-        label="Macro",
-        color="#b55239",
-    )
-    axes[1].plot(
-        meso["Year"],
-        100 * meso["Density_Among_Active_Risk_Nodes"],
-        marker="o",
-        label="Meso",
-        color="#2f6f9f",
-    )
+    for label, color, df in frames:
+        axes[1].plot(
+            df["Year"],
+            100 * df["Density_Among_Active_Risk_Nodes"],
+            marker="o",
+            label=label,
+            color=color,
+        )
     axes[1].set_title("Density Among Active Risk Nodes")
     axes[1].set_xlabel("Year")
     axes[1].set_ylabel("Density (%)")
     axes[1].legend()
     axes[1].grid(True, linestyle="--", alpha=0.35)
 
-    fig.suptitle("Macro vs. Meso OOS Graph Density", fontsize=13, fontweight="bold")
+    fig.suptitle("Macro and Meso OOS Graph Density Under Taxonomy Sensitivity", fontsize=13, fontweight="bold")
     save_current(fig_dir, "graph_density_macro_meso.png")
 
 

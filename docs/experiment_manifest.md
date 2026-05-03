@@ -13,6 +13,8 @@ It does not replace the scripts or output files; it is a reviewer-facing map.
 - The identity baseline uses only self-loops, representing `A_t = I`.
 - The full graph uses explicit self-loops plus risk-similarity edges,
   representing `A_t = I + A_risk,t`.
+- Completed taxonomy sensitivity paths are evaluated at both Macro and Meso
+  graph levels before portfolio testing uses the Meso forecast panel.
 
 ## Chronological Split
 
@@ -49,12 +51,21 @@ For risk year `t`:
 | Portfolio inference addendum | HAC/Newey-West tests and Benjamini-Hochberg q-values in `scripts/evaluate_portfolio_inference.py` |
 | Seed-stability addendum | Final forecast reruns across seeds in `scripts/run_multi_seed_forecasts.py`; canonical outputs are not overwritten |
 
+## Taxonomy Sensitivity Axes
+
+`scripts/run_taxonomy_sensitivity.py` supports full-window 2006-2024 variants
+for Macro and Meso HDBSCAN cluster sizes, UMAP neighbor counts/components,
+HDBSCAN minimum samples, semantic-deviation thresholds, centroid LLM weights,
+MERGE retention weights, LLM prompt sample size, and random seed. Downstream
+forecast runs can be launched for `--levels macro,meso`; the runner also supports
+`--reuse-existing` so completed long-running taxonomy paths are not recomputed.
+
 ## Canonical Commands
 
 Validate current artifacts:
 
 ```bash
-.venv/bin/python scripts/validate_pipeline.py --as-of 2026-04-27
+.venv/bin/python scripts/validate_pipeline.py --as-of 2026-05-03
 ```
 
 Dry-run the full pipeline order:

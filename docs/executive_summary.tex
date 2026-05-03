@@ -86,53 +86,57 @@ volatility targets are measured over the following July-to-June window.
 
 \section*{Main Verified Results}
 
-The finalized report emphasizes the Meso-level graph as the strongest verified
-specification. On the exported 2021--2024 OOS review panel, Meso ST-GAT improves
-the identity baseline as follows:
+The finalized report is conservative about the default Meso graph evidence.
+On the exported 2021--2024 OOS review panel, the default Meso ST-GAT improves
+return MAE and return rank, but not averaged OOS RMSE. A full-window
+\texttt{theta040} taxonomy sensitivity run provides stronger forecast-error
+evidence:
 
 \begin{center}
 \begin{tabular}{@{}lll@{}}
 \toprule
-Metric & Identity baseline & Meso ST-GAT \\
+Metric & Identity baseline & ST-GAT \\
 \midrule
-Averaged RMSE & 0.3345 & 0.3001 \\
-Averaged MAE & 0.2314 & 0.1991 \\
-Averaged Spearman rank & -0.0139 & 0.1701 \\
-Volatility RMSE & 0.2240 & 0.1565 \\
-Volatility Spearman rank & -0.1351 & 0.1770 \\
+Averaged RMSE (\texttt{theta040}) & 0.3523 & 0.3176 \\
+Averaged MAE (\texttt{theta040}) & 0.2546 & 0.2012 \\
+Averaged Spearman rank (\texttt{theta040}) & -0.0403 & 0.1055 \\
+Volatility RMSE (\texttt{theta040}) & 0.2082 & 0.1555 \\
+Default return Spearman rank & 0.1564 & 0.1650 \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-The clearest improvement is in volatility forecasting, where granular textual
-risk topology substantially reduces forecast error and reverses the rank
-correlation from negative to positive.
+The clearest improvement is in volatility forecasting under \texttt{theta040}.
+Paired Macro-level runs are much denser but underperform identity baselines,
+so the report interprets the result as selective Meso information transfer
+rather than a generic benefit from broad category coverage. The default taxonomy
+remains useful as a conservative baseline because it shows that graph gains are
+not automatic and must be sensitivity-tested.
 
 \begin{figure}[!htbp]
     \centering
     \includegraphics[width=0.92\linewidth]{oos_metric_comparison.png}
-    \caption*{\textbf{OOS forecasting comparison.} Meso ST-GAT is the strongest
-    verified specification against the identity baseline on the exported
-    2021--2024 review panel.}
+    \caption*{\textbf{OOS forecasting comparison.} The report compares
+    Macro and Meso default and \texttt{theta040} outputs against matched
+    identity baselines.}
 \end{figure}
 
 \section*{Graph Interpretation}
 
-Graph-density diagnostics support the interpretation that semantic resolution
-matters. During the OOS period, the Macro graph retains roughly 3,900--4,460
-off-diagonal directed edges per year, with density around 5.1\%--5.5\%. The
-Meso graph retains only 38--118 off-diagonal directed edges per year, with
-active-node density below 0.14\%.
+Graph-density diagnostics support the interpretation that taxonomy sensitivity
+matters. During the OOS period, the default Meso graph retains 32--96
+off-diagonal directed edges per year. The \texttt{theta040} Meso graph retains
+100--630 edges and is materially denser in 2021, while Macro graphs retain
+tens of thousands of links and become overconnected.
 
-The report therefore frames the Meso result as evidence that granular risk
-categories create sparse, high-confidence semantic peer links, rather than
-merely smoothing information through a dense network.
+The report therefore frames the graph result as conditional evidence: taxonomy
+settings alter graph density, forecast behavior, and portfolio ranking.
 
 \begin{figure}[!htbp]
     \centering
     \includegraphics[width=0.88\linewidth]{graph_density_macro_meso.png}
-    \caption*{\textbf{Graph-density diagnostic.} The Macro graph is much denser,
-    while the Meso graph keeps sparse, high-confidence textual-risk peer links.}
+    \caption*{\textbf{Graph-density diagnostic.} Macro and Meso taxonomies
+    produce very different OOS graph densities.}
 \end{figure}
 
 \section*{Portfolio Validation}
@@ -149,14 +153,14 @@ The strongest return-only long-short strategy reports:
 \toprule
 Measure & Value \\
 \midrule
-Annualized return & 7.93\% \\
-Annualized volatility & 7.47\% \\
-Sharpe ratio & 1.06 \\
-Sortino ratio & 2.01 \\
-Maximum drawdown & -6.90\% \\
-Beta versus SPY & 0.24 \\
-Top-minus-bottom spread & 17.69\% annualized \\
-Nominal spread p-value & 0.034 \\
+Annualized return & 7.31\% \\
+Annualized volatility & 8.34\% \\
+Sharpe ratio & 0.88 \\
+Sortino ratio & 1.52 \\
+Maximum drawdown & -8.06\% \\
+Beta versus SPY & 0.30 \\
+Top-minus-bottom spread & 16.26\% annualized \\
+Nominal spread p-value & 0.080 \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -186,10 +190,12 @@ deployability.
 \section*{Claim Safety and Limitations}
 
 The final package is deliberately conservative about unsupported evidence.
-Taxonomy-coverage percentages, AAPL firm-level migration claims, DAV/EGARCH-X
-BIC comparisons, Fama-MacBeth tables, and SAR/network regression claims are not
-used as headline findings unless their source tables are regenerated and added
-to the output manifest.
+Old taxonomy-coverage percentages, unsupported single-firm migration claims,
+DAV/EGARCH-X BIC comparisons, Fama-MacBeth tables, and SAR/network regression
+claims are not used as headline findings unless their source tables are
+regenerated and added to the output manifest. The updated taxonomy coverage and
+case-study figures are backed by generated source CSVs and are interpreted as
+taxonomy diagnostics, not standalone proof of forecast value.
 
 The available DAV peak diagnostics are retained only as event-local context:
 93 figures were parsed, with 20 positive improvements, 73 negative
@@ -199,10 +205,12 @@ establish broad DAV dominance.
 \section*{Repository Status}
 
 Before GitHub cleanup, the complete local artifact set passed the lightweight
-validation suite with 45 passes, 2 warnings, and 0 failures as of 2026-04-27.
-The warnings are research caveats rather than code crashes: four financial
-feature values require downstream train-period median imputation, and risk-year
-2024 has a forward target window ending on 2026-06-30.
+validation suite with 35 passes, 7 warnings, and 0 failures as of 2026-05-03.
+The warnings are artifact-scope and research caveats rather than code crashes:
+optional multi-seed, DAV, and taxonomy-interim files are absent from the
+lightweight package; four financial feature values require downstream
+train-period median imputation; and risk-year 2024 has a forward target window
+ending on 2026-06-30.
 
 The committed GitHub repository is a lightweight code, report, presentation,
 and documentation package. Large raw data, intermediate files, generated

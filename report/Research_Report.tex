@@ -119,11 +119,11 @@ Consulting (Beijing) Co., Ltd.}}
 \begin{abstract}
     \noindent This project develops an end-to-end framework for converting SEC Item 1A ``Risk Factors'' disclosures into quantitative forecasting and portfolio-construction signals. Annual 10-K risk paragraphs are extracted from EDGAR filings, classified into a dynamically updated macro--meso risk taxonomy, aggregated into firm-year risk exposure vectors, and used to construct semantic peer networks. The forecasting model is a topology-only Spatio-Temporal Graph Attention Network (ST-GAT): cosine similarity between risk exposure vectors determines whether a peer edge exists, but raw cosine weights are not fed directly into the graph attention layer. This produces a strict ablation between the full risk graph, $\mathbf{A}_{t}=\mathbf{I}+\mathbf{A}_{risk,t}$, and an identity baseline, $\mathbf{A}_{t}=\mathbf{I}$, which uses only each equity's own financial features.
 
-    The forecasting panel covers 2006--2024, with chronological splitting into training years 2006--2016, validation years 2017--2020, and out-of-sample test years 2021--2024. Each firm-year node uses $F=12$ backward-looking financial and market features, standardized using training-year statistics only, and predicts one-year-ahead July-to-June cumulative return and annualized volatility. The review-submission results are reported on the current exported 2021--2024 OOS panel; archival results can be refreshed after all forward windows are fully closed. On this panel, the Meso-level ST-GAT provides the strongest results, improving averaged RMSE from $0.3345$ to $0.3001$, averaged MAE from $0.2314$ to $0.1991$, and averaged Spearman rank correlation from $-0.0139$ to $0.1701$ relative to the identity baseline. For volatility forecasting, the Meso ST-GAT reduces RMSE from $0.2240$ to $0.1565$ and improves Spearman rank from $-0.1351$ to $0.1770$.
+    The forecasting panel covers 2006--2024, with chronological splitting into training years 2006--2016, validation years 2017--2020, and out-of-sample test years 2021--2024. Each firm-year node uses $F=12$ backward-looking financial and market features, standardized using training-year statistics only, and predicts one-year-ahead July-to-June cumulative return and annualized volatility. The default dynamic-taxonomy Meso specification is mixed on the 2021--2024 OOS panel: ST-GAT slightly improves return MAE and return Spearman rank, but the identity baseline has lower averaged RMSE and stronger volatility rank correlation. A full-window sensitivity specification with a lower semantic-deviation threshold, $\theta=0.40$, produces stronger Meso forecast evidence: averaged RMSE improves from $0.3523$ to $0.3176$, averaged MAE from $0.2546$ to $0.2012$, and volatility RMSE from $0.2082$ to $0.1555$ relative to its matched identity baseline. Paired Macro-level experiments are much denser but underperform identity baselines, showing that broad category coverage alone is not sufficient for useful information transfer.
 
-    Graph diagnostics show that the Meso improvement is not driven by dense graph smoothing. In the 2021--2024 OOS period, the Meso topology retains only 38--118 off-diagonal directed edges per year, with active-node density below $0.14\%$, while the Macro topology retains 3,900--4,460 edges per year, with density around $5.1\%$--$5.5\%$. This indicates that granular risk categories form sparse, high-confidence semantic peer links, whereas broad Macro categories create substantially denser and noisier connectivity.
+    Graph diagnostics show that taxonomy hyperparameters materially affect graph sparsity. In the 2021--2024 OOS period, the default Meso topology retains 32--96 off-diagonal directed edges per year, with active-node density below $0.16\%$. The $\theta=0.40$ taxonomy retains 100--630 edges per year over the same period, with density from $0.17\%$ to $1.20\%$. This indicates that the semantic-deviation threshold changes not only category counts but also the graph topology seen by the ST-GAT.
 
-    Finally, the project extends the forecasting model into an academic portfolio backtest. Annual ST-GAT predictions are held fixed over their July-to-June forecast window, while portfolios are rebalanced monthly using next-month execution timing, transaction costs of 10 bps, slippage of 5 bps, and SPY as benchmark. The strongest strategy ranks stocks by the Meso ST-GAT predicted return, holds the top quintile long and bottom quintile short, and achieves 7.93\% annualized return, 7.47\% annualized volatility, a Sharpe ratio of 1.06, Sortino ratio of 2.01, maximum drawdown of -6.90\%, and beta of 0.24 against SPY. A top-minus-bottom diagnostic gives a nominally significant 17.69\% annualized spread before multiple-testing adjustment ($t=2.18$, $p=0.034$), compared with an insignificant 6.62\% spread for the identity baseline return-only signal.
+    Finally, the project extends the forecasting model into an academic portfolio backtest. Annual ST-GAT predictions are held fixed over their July-to-June forecast window, while portfolios are rebalanced monthly using next-month execution timing, transaction costs of 10 bps, slippage of 5 bps, and SPY as benchmark. Under the default dynamic taxonomy, the ST-GAT return-only long-short portfolio achieves 7.31\% annualized return, 8.34\% annualized volatility, a Sharpe ratio of 0.88, Sortino ratio of 1.52, maximum drawdown of -8.06\%, and beta of 0.30 against SPY. Its return-only top-minus-bottom spread is 16.26\% annualized, with a conventional $t$-test $p=0.080$ and HAC/Newey-West $p=0.034$ before Benjamini-Hochberg adjustment. The $\theta=0.40$ sensitivity variant improves forecast errors but does not uniformly improve portfolio ranking: its ST-GAT return-only spread is 9.33\% annualized, below its identity-baseline spread of 11.68\%. The defensible conclusion is therefore nuanced: textual risk topology can improve forecast and ranking diagnostics, but the portfolio alpha interpretation is sensitive to taxonomy evolution settings and short OOS windows.
 
     \vspace{0.5cm}
     \noindent \textbf{Keywords} -- Text classification; Large language models; SEC Item 1A; Risk taxonomy; Graph Neural Networks; ST-GAT; Portfolio backtesting; Volatility forecasting; Risk similarity; Semantic peer networks; Volatility contagion.
@@ -214,15 +214,15 @@ We address two core problems:
 
 \subsection{Contributions}
 \begin{itemize}
-    \item \textbf{LLM-driven hierarchical taxonomy with dynamic evolution:} The project implements a macro--meso taxonomy update mechanism that can add new categories, merge emerging clusters into existing nodes, and reorganize parent macro assignments. Coverage-percentage diagnostics are treated as a reproducibility extension unless their source calculation is regenerated.
+    \item \textbf{LLM-driven hierarchical taxonomy with dynamic evolution:} The project implements a macro--meso taxonomy update mechanism that can add new categories, merge emerging clusters into existing nodes, and reorganize parent macro assignments. Coverage diagnostics are interpreted as taxonomy-quality evidence rather than as standalone proof of forecasting value.
     \item \textbf{Topology-only ST-GAT with strict spatial ablation:} The main forecasting model uses $\mathbf{A}_{t}=\mathbf{I}+\mathbf{A}_{risk,t}$, where off-diagonal edges are selected by thresholded cosine similarity of risk exposure vectors. The identity baseline uses $\mathbf{A}_{t}=\mathbf{I}$, isolating the incremental contribution of textual peer topology.
-    \item \textbf{Macro-versus-Meso semantic resolution comparison:} Meso-level risk topology produces sparse, high-confidence semantic peer links and outperforms the identity baseline across return and volatility metrics. Macro topology is substantially denser and produces mixed results, improving return ranking but not volatility ranking.
-    \item \textbf{Dynamic portfolio extension:} Annual ST-GAT forecasts are converted into monthly rebalanced long-only and long-short portfolios. The best Meso ST-GAT return-only long-short portfolio achieves a Sharpe ratio of 1.06, maximum drawdown of -6.90\%, and a nominally significant annualized top-minus-bottom spread of 17.69\% before multiple-testing adjustment.
+    \item \textbf{Macro--Meso semantic-resolution and sensitivity comparison:} Macro-level graphs produce broad but overconnected peer topologies, while Meso-level graphs test whether finer semantic resolution improves information transfer. The full-window $\theta=0.40$ Meso taxonomy produces a denser graph than the default Meso taxonomy and stronger OOS forecast-error reductions. This sensitivity result shows that taxonomy evolution settings are an empirical modeling choice, not a harmless preprocessing detail.
+    \item \textbf{Dynamic portfolio extension:} Annual ST-GAT forecasts are converted into monthly rebalanced long-only and long-short portfolios. The default Meso ST-GAT return-only long-short portfolio achieves a Sharpe ratio of 0.88, maximum drawdown of -8.06\%, and a 16.26\% annualized top-minus-bottom spread with nominal but not multiple-testing-adjusted support.
     \item \textbf{Multi-model validation:} Integration of LLM taxonomy construction, ST-GAT forecasting, portfolio backtesting, and supplemental EGARCH-X/DAV, Fama-MacBeth, and network diagnostic modules. Source-table-limited econometric outputs are reported as methodology extensions rather than headline evidence.
 \end{itemize}
 
 \subsection{Report Organization}
-The remainder of this report is organized as follows. Section 2 reviews financial textual analysis, SEC risk disclosure studies, graph neural networks, volatility modeling, and cross-sectional asset-pricing validation. Section 3 describes the data sources and preprocessing pipeline, including risk-factor extraction and the enhanced macro-financial feature matrix. Section 4 details the base-year taxonomy construction and LLM-driven dynamic taxonomy update mechanism. Section 5 formally defines the ST-GAT architecture, including graph construction, identity-matrix ablation, spatial attention, temporal convolution, and masked multi-task loss. Section 6 specifies the tensor construction, train-only standardization, active-mask logic, and feature-target alignment. Section 7 presents the chronological experimental design, Optuna tuning process, and hyperparameter configurations. Section 8 reports forecasting results and graph-density diagnostics. Section 9 introduces the dynamic portfolio backtesting extension, including monthly rebalancing, transaction costs, score ablations, and top-minus-bottom spread diagnostics. Sections 10 and 11 discuss limitations and conclude. Supplemental econometric baseline evaluations (DAV, Fama-MacBeth, and SAR models) and a representative sample of the evolved taxonomy are provided in the Appendices.
+The remainder of this report is organized as follows. Section 2 reviews financial textual analysis, SEC risk disclosure studies, graph neural networks, volatility modeling, and cross-sectional asset-pricing validation. Section 3 describes the data sources and preprocessing pipeline, including risk-factor extraction and the enhanced macro-financial feature matrix. Section 4 develops the dynamic risk-taxonomy methodology. Section 5 formally defines the ST-GAT architecture, including graph construction, identity-matrix ablation, spatial attention, temporal convolution, and masked multi-task loss. Section 6 specifies tensor construction, train-only standardization, active-mask logic, feature-target alignment, chronological splitting, and hyperparameter tuning. Section 7 reports forecasting results, convergence diagnostics, graph-density analysis, and taxonomy sensitivity. Section 8 introduces the dynamic portfolio backtesting extension, including monthly rebalancing, transaction costs, score ablations, and top-minus-bottom spread diagnostics. Sections 9 and 10 discuss limitations and conclude. Supplemental econometric baseline evaluations (DAV, Fama-MacBeth, and SAR models) and a representative sample of the evolved taxonomy are provided in the Appendices.
 
 % ==========================================
 % 2: LITERATURE REVIEW
@@ -257,223 +257,365 @@ The Fama-MacBeth two-step procedure is the standard methodology for testing whet
 \subsection{Research Gap and the Present Contribution}
 Synthesizing the existing literature, four interconnected gaps remain: (i) the absence of quantitative metrics for year-over-year textual drift linked to predictive performance; (ii) the lack of semantic-similarity graph architectures with rigorous spatial ablation protocols; (iii) the absence of a diagnostic framework to address the frequency mismatch between annual disclosures and daily volatility; and (iv) a lack of Fama-MacBeth validation for LLM-derived risk scores from SEC Item 1A.
 
-The present research addresses these gaps by integrating an LLM-driven dynamic taxonomy, a multi-resolution topology-only ST-GAT architecture, and a suite of supplemental validation models. The main forecasting result is that the granular Meso-level topology outperforms the identity baseline across both return and volatility targets in the exported 2021--2024 review-submission OOS panel. The Meso ST-GAT improves averaged RMSE from 0.3345 to 0.3001 and averaged Spearman rank correlation from -0.0139 to 0.1701. For volatility specifically, the Meso ST-GAT reduces RMSE from 0.2240 to 0.1565 and improves Spearman rank from -0.1351 to 0.1770. The portfolio extension is economically suggestive in an academic backtest: the Meso ST-GAT return-only long-short strategy achieves a Sharpe ratio of 1.06 and a nominally significant annualized top-minus-bottom spread of 17.69\% ($p=0.034$) before multiple-testing adjustment. Supplemental DAV peak diagnostics are retained as event-local evidence, while DAV BIC, Fama-MacBeth, and SAR modules are framed as deferred validation extensions when source tables are absent. The central verified contribution is the strict identity-matrix ablation showing that granular textual-risk topology adds predictive information beyond own-firm features alone.
+The present research addresses these gaps by integrating an LLM-driven dynamic taxonomy, a multi-resolution topology-only ST-GAT architecture, and a suite of supplemental validation models. The empirical result is deliberately conservative. Under the default full-window taxonomy, the Meso ST-GAT improves return MAE and return Spearman rank but does not dominate the identity baseline on averaged OOS forecast metrics. Under the full-window $\theta=0.40$ sensitivity taxonomy, the Meso graph model improves averaged RMSE from 0.3523 to 0.3176 and averaged MAE from 0.2546 to 0.2012 relative to its matched identity baseline, with the strongest gain in volatility RMSE. Macro-level graphs are included as paired sensitivity experiments and underperform identity baselines despite much higher graph density, reinforcing the need for semantic-resolution controls. The portfolio extension is economically suggestive but not conclusive: the default Meso ST-GAT return-only long-short strategy achieves a Sharpe ratio of 0.88 and a 16.26\% annualized top-minus-bottom spread, while the $\theta=0.40$ sensitivity variant has weaker portfolio ranking despite stronger forecast errors. Supplemental DAV peak diagnostics are retained as event-local evidence, while DAV BIC, Fama-MacBeth, and SAR modules are framed as validation extensions when archived source tables are unavailable. The central contribution is therefore the identity-matrix ablation and sensitivity workflow, not an unconditional claim that every textual graph specification produces stable alpha.
 % ==========================================
 % 3: DATA & PRE-PROCESSING
 % ==========================================
 \section{DATA \& PRE-PROCESSING}
 
 \subsection{Data Sources}
-Our data pipeline draws from four primary sources:
-\begin{itemize}
-    \item \textbf{SEC EDGAR Database:} The primary source of textual risk disclosures is the SEC's Electronic Data Gathering, Analysis, and Retrieval (EDGAR) system. We access filings through the SEC's RESTful API, which provides structured access to company filing histories.
-    \item \textbf{Yahoo Finance / yfinance:} Daily adjusted prices, volumes, market proxies, and benchmark prices are used in the implemented forecasting feature-generation and portfolio-backtesting modules, including the SPY benchmark equity curve.
-    \item \textbf{Market and macro proxies:} The implemented feature matrix includes S\&P 500 return/volatility, VIX level/change, and a 10-year Treasury yield proxy over the same July-to-June feature window.
-    \item \textbf{Supplemental data references:} Some appendix experiments reference Fama-MacBeth, DAV/EGARCH-X, and network diagnostics. Where the repository does not contain a parseable source table, the report treats the associated outputs as deferred validation items rather than confirmed findings.
-\end{itemize}
+The empirical design combines textual disclosures, market data, macro-market proxies, model outputs, and validation artifacts. Table~\ref{tab:data_architecture} summarizes the role of each dataset. The full experimental run underlying the report uses a 2006--2024 risk-year panel. Each dataset is documented by source, frequency, granularity, purpose, and transformation so that the research design can be audited without confusing raw data, engineered features, model outputs, and validation diagnostics.
 
-\subsection{Sample Description}
-All models in this study are trained and validated on the same unified dataset to ensure comparability across approaches. We construct a single, comprehensive sample that serves all modeling tasks.
+\begin{table}[H]
+\centering
+\caption{Data architecture used by the final research pipeline.}
+\label{tab:data_architecture}
+\vspace{0.2cm}
+\renewcommand{\arraystretch}{1.16}
+\small
+\begin{tabularx}{\textwidth}{@{}L{2.9cm}L{2.5cm}L{2.2cm}Y@{}}
+\toprule
+\textbf{Dataset} & \textbf{Source / Frequency} & \textbf{Granularity} & \textbf{Purpose and Transformations} \\
+\midrule
+SEC Item 1A risk text & SEC EDGAR 10-K filings; annual & Paragraph / firm-year & Extract Item 1A, remove table-of-contents noise, retain headings, subheadings, and paragraph text for taxonomy construction and classification. \\
+Dynamic taxonomy artifacts & Annual taxonomy construction outputs; 2006--2024 & Risk factor / category / year & Builds a 2006 base taxonomy and evolves it through annual deviation detection, ADD/MERGE/REORGANIZE actions, and LLM-assisted labels. \\
+Risk exposure matrices & Classified Item 1A paragraphs; annual & Firm-year $\times$ category & Converts paragraph labels into normalized Macro and Meso exposure vectors used for graph construction. \\
+Equity market data & Yahoo Finance / \texttt{yfinance}; daily & Ticker-day then firm-year & Builds backward-looking volatility, momentum, moving-average, liquidity, and forward target variables. \\
+Macro-market proxies & Yahoo Finance proxies; daily & Year-level overlay & Adds S\&P 500 return/volatility, VIX level/change, and 10-year Treasury yield proxy variables over the same feature window. \\
+Graph snapshots & Exposure vectors and financial matrix; annual & Node-year graph & Constructs thresholded cosine-similarity peer graphs and identity baselines for ST-GAT evaluation. \\
+Forecast outputs & ST-GAT scripts; annual panel & Firm-year prediction & Stores return and volatility predictions for ST-GAT and identity baseline models. \\
+Portfolio data & Forecast panel and monthly prices; monthly & Strategy-month / holding & Converts annual forecasts into monthly rebalanced long-only and long-short academic backtests. \\
+Validation outputs & Robust OOS, portfolio inference, DAV/FMB/SAR scripts & Table / figure & Supports OOS diagnostics, portfolio inference, and conservative appendix validation. \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
-\textbf{Sample Construction.} The current repository artifacts cover the 2006--2024 risk-year panel. The macro and meso risk-score matrices contain 2,387 firm-year rows across 485 unique tickers, and the enhanced financial feature/target matrix contains 2,367 firm-year rows across 482 unique tickers after target-availability filtering. These counts are taken from the current CSV artifacts under \codepath{data/interim/scoring_outputs}. This sample size is sufficient for:
-\begin{itemize}
-    \item Training the ST-GAT model with adequate historical sequence data.
-    \item Performing validation across diverse firm types and time periods.
-    \item Constructing meaningful risk networks with sufficient node connectivity.
-\end{itemize}
+For clarity, each data source has a distinct econometric role. SEC Item 1A text is annual, paragraph-level, and firm-specific; it matters because it records management's own description of risk exposure before the forecast target window. Equity prices and volumes are daily observations transformed into annual firm-year features and forward labels; they matter because they supply the quantitative target variables and the non-textual controls needed for a fair ablation. Macro-market proxies are daily market-wide series collapsed into the same July-to-June window; they matter because broad volatility, equity-market, and rate regimes affect all firms simultaneously. Graph snapshots are derived annual objects, not raw data; they matter because the ST-GAT tests whether firms with similar textual risk exposure should exchange information. Forecast and portfolio outputs are generated artifacts; they matter because they connect statistical prediction to economic usefulness under explicit timing and transaction-cost assumptions.
 
-\textbf{Sample Attributes.}
-\begin{itemize}
-    \item Time Period: 2006-2024 (18 years)
-    \item Number of Firms: 485 tickers in the risk-score matrices; 482 tickers in the enhanced financial matrix
-    \item Risk-score Firm-Year Observations: 2,387
-    \item Financial feature/target Firm-Year Observations: 2,367
-    \item Paragraph-level corpus: stored in the interim master risk-factor file; the final report does not make a standalone paragraph-count claim because the validation suite focuses on firm-year exposure matrices.
-\end{itemize}
+The temporal scope is also source-specific. The taxonomy artifacts cover annual disclosures from 2006 through 2024. The ST-GAT report tables use the exported 2006--2024 risk-year panel, with training years 2006--2016, validation years 2017--2020, and OOS years 2021--2024. Portfolio returns are monthly and are mapped from annual forecasts into their July-to-June holding windows. Supplemental DAV, Fama-MacBeth, and SAR modules are retained as validation designs unless their source tables are present and auditable.
 
-\textbf{Data Quality Assurance.} To ensure data quality:
-\begin{itemize}
-    \item Pre-2018 filings with non-standard HTML are bypassed due to parsing inconsistencies.
-    \item Survivorship bias is partially mitigated where historical constituents and delisted tickers are available; a fully survivorship-bias-free reconstruction remains a limitation of the academic data environment.
-    \item Duplicate filings (amendments, corrected versions) are identified by accession number and deduplicated, retaining only the most recent version.
-    \item Irrecoverable filings are excluded from the sample and documented.
-\end{itemize}
-
-\textbf{Market Timing Convention.} The implemented ST-GAT task is annual rather than event-day based. For risk year $t$, annual risk exposures and financial features are aligned to the July-to-June feature window, and forward targets are measured over the following July-to-June window. Filing-date event timing is not used in the current ST-GAT output files and should not be interpreted as part of the validated forecasting design.
-
-\subsection{Data Pipeline: Four-Stage Extraction Process}
-The data pipeline consists of four sequential stages, each designed to progressively refine raw SEC filings into structured, analyzable risk disclosures.
-
-\textbf{Stage 1: Data Acquisition (Downloading HTML)} \\
-\textbf{Objective:} Download the complete annual reports (10-K forms) for a target list of major companies. \\
-\textbf{Source:} SEC's EDGAR database at data.sec.gov. \\
-\textbf{Input:} A curated list of company tickers (e.g., AAPL, MSFT, TSLA) and their corresponding CIK numbers (unique identifiers used by the SEC). \\
-\textbf{Process:} The script sends an HTTP request to the SEC API for each company's submissions history; finds the most recent filing where the form type is 10-K; extracts the URL for the primary HTML document; downloads the entire HTML content. \\
-\textbf{Output:} Raw HTML files saved locally (e.g., AAPL\_10K.html).\\
-
-\textbf{Stage 2: Data Extraction (Isolating ``Item 1A'')} \\
-\textbf{Objective:} Extract only the ``Item 1A: Risk Factors'' section from the large 10-K HTML files. \\
-\textbf{Why this is needed:} A 10-K filing is very large; we need to discard irrelevant sections. \\
-\textbf{Process:} Read HTML using an HTML parser; find boundaries with patterns like ``Item 1A Risk Factors''; remove Table of Contents references; locate end point (next item, usually ``Item 1B''); extract HTML elements between boundaries. \\
-\textbf{Output:} New HTML files containing only the Risk Factors section. \\
-
-\textbf{Stage 3: Data Structuring (Separating Headings from Descriptions)} \\
-\textbf{Step 3.1: Structural Formatting Analysis.} Parse the HTML structure; identify bold text, italic/underlined text, and regular text. Group consecutive bold text as potential Risk Title, following regular text as Risk Description. \\
-\textbf{Step 3.2: Frequency-Based Validation (Format Frequency Heuristic).} Filter false positives (section numbers, introductory phrases, legal qualifiers, boilerplate) by analyzing frequency of each formatting type across the document. Core principle: frequency inversely indicates hierarchical level---bolded text appears least frequently (main headings), bold-italic or underlined appears moderately (subheadings), regular text appears most frequently (descriptions). Implementation: count formatting types; classify lowest frequency as main headings, medium as subheadings, highest as descriptions; filter identical repeated phrases; cross-validate with position. \\
-
-\textbf{Stage 4: Data Export (Creating CSV Files)} \\
-Iterate files, parse and clean text, flatten hierarchical data into a table, aggregate into a master CSV. Output includes individual CSV files per company, a master CSV with all risks, and summary reports. Final columns: Filename, Company Ticker, Year, Risk Heading, Paragraph Text. \\
-
-\subsection{Macro-Financial Feature Space}
-The final ST-GAT feature matrix contains $F=12$ node-level inputs. Firm-level features are computed over the July-to-June feature window associated with each risk year, while market-wide overlays are computed over the same window and shared across firms in that year.
-
-\textbf{Idiosyncratic Metrics (Firm-Specific):}
-\begin{itemize}
-    \item Annualized realized volatility over the feature window (Vol).
-    \item Annualized downside volatility computed from negative daily log returns (\texttt{Downside\_Vol}).
-    \item Price deviation from the trailing 200-day moving average (\texttt{MA\_200\_Ratio}).
-    \item Eleven-month momentum, excluding the most recent month (\texttt{Momentum\_11M}).
-    \item Average dollar trading volume (\texttt{Dollar\_Volume}).
-    \item Log-transformed dollar trading volume (\texttt{Log\_Dollar\_Volume}).
-\end{itemize}
-
-\textbf{Market and Macro Proxies:}
-\begin{itemize}
-    \item S\&P 500 cumulative return and realized volatility: \texttt{SP500\_Ret} and \texttt{SP500\_Vol}.
-    \item Average VIX level and VIX change over the feature window: \texttt{VIX\_Avg} and \texttt{VIX\_Change}.
-    \item Average 10-year Treasury yield proxy and yield change: \texttt{TenY\_Yield\_Avg} and \texttt{TenY\_Yield\_Change}.
-\end{itemize}
-
-\textbf{Forward Targets.} The target variables are one-period-ahead cumulative return and annualized volatility over the following July-to-June window. Thus, for risk year $t$, input features and risk topology are observed over July $t$ to June $t+1$, while $\text{Target\_Ret}$ and $\text{Target\_Vol}$ are measured over July $t+1$ to June $t+2$.
-
-\textbf{Feature Standardization.} To prevent look-ahead bias, all node features are standardized using the training split only. Means, standard deviations, and median-imputation values are fitted on 2006--2016 data and then applied unchanged to validation and test regimes.
-
-\section{CONSTRUCTION OF BASE YEAR TAXONOMY AND DYNAMIC UPDATE TAXONOMY}
-
-\subsection{Conceptual Framework of the Dynamic Taxonomy}
-
-The core innovation of this research lies in the transition from static, industry-defined risk classifications to a Dynamic Taxonomy. Traditional classification models frequently suffer from ``semantic decay,'' a phenomenon where emergent risks—such as the rapid rise of generative Artificial Intelligence (AI) or evolving Environmental, Social and Governance (ESG) mandates—are misclassified into broad, outdated categories that fail to capture their specific implications. Furthermore, traditional systems often require intensive manual intervention from financial experts to define and update default risk categories, a process that is both time-consuming and prone to subjective bias.
-
-To address this, we propose a dynamic taxonomy with two components: (i) a base taxonomy constructed from a reference year (2006) using unsupervised hierarchical clustering, and (ii) an evolutionary update mechanism that processes new annual data to add, merge, or reorganize categories when semantic deviation exceeds a threshold ($\theta = 0.45$ cosine similarity). This framework ensures the taxonomy remains data-driven without manual intervention.
-
-\subsection{Base Year Taxonomy Construction}
-
-The base taxonomy is built via a multi-stage pipeline, as detailed below.
-
-\subsubsection{Contextual Encoding}
-
-Each risk factor is represented by concatenating its Headings, Subheadings, and Raw Text fields into a full\_context string. This preserves the structural hierarchy of the 10-K disclosure. We then generate 384-dimensional embeddings using the all-MiniLM-L6-v2 sentence transformer, following the sentence-embedding approach introduced by \citet{reimers2019sentencebert}. This model balances computational efficiency with semantic sensitivity.
-
-\subsubsection{Two-Stage Hierarchical Clustering}
-\textbf{Macro-level clustering:}
-\begin{itemize}
-\item Dimensionality Reduction: UMAP with n\_neighbors=15, min\_dist=0.1, and n\_components=5 is utilized to compress the 384-dimension embeddings into a lower-dimensional manifold (5 components). UMAP is designed to preserve local manifold structure, which is essential for effective density detection \citep{mcinnes2018umap}.
-\item Density-based clustering: HDBSCAN with min\_cluster\_size=10 and min\_samples=5 is applied to identify clusters of varying densities and shapes \citep{campello2013density}.
-\item This yields macro risk categories (e.g., ``Supply Chain Risk'', ``Regulatory Compliance'').
-\end{itemize}
-\textbf{Meso-level clustering (within each macro cluster):}
-\begin{itemize}
-\item For each macro cluster, we extract its embeddings and apply UMAP again (n\_neighbors=8, min\_dist=0.2, n\_components=8).
-
-\item HDBSCAN with min\_cluster\_size=5 and min\_samples=3 identifies meso subcategories.
-
-\item Meso categories are specific risk themes (e.g., ``Cross-Border Data Transfer'', ``Technology Standardization'').
-\end{itemize}
-
-\subsubsection{Refined Hybrid Centroids}
-
-For each discovered category (macro or meso), we compute a hybrid centroid that combines data-driven and semantic signals:
-
+\subsection{Sample and Timing Convention}
+The project is an annual prediction exercise rather than an event-day study. Let $t$ denote the risk disclosure year. The feature window is
 \begin{equation}
-\mathbf{C}_{\text{refined}} = 0.7 \times \mathbf{X}_{\text{mean}} + 0.3 \times \mathbf{X}_{\text{LLM}}
+\mathcal{D}^{feat}_{t}=\{\text{trading days from July 1 of }t\text{ through June 30 of }t+1\},
+\end{equation}
+and the target window is
+\begin{equation}
+\mathcal{D}^{target}_{t}=\{\text{trading days from July 1 of }t+1\text{ through June 30 of }t+2\}.
+\end{equation}
+Thus, the model sees Item 1A risk topology and financial features available by the end of the feature window and predicts strictly forward return and volatility over the next July-to-June window. This convention aligns annual corporate disclosures with annual asset-pricing targets and prevents future target information from entering feature construction. Filing-date microstructure effects are outside the validated ST-GAT design.
+
+\subsection{SEC Item 1A Extraction Pipeline}
+The textual pipeline has four stages. First, the SEC EDGAR downloader identifies annual 10-K filings for the target CIK/ticker list and downloads the primary HTML document. Second, the parser isolates Item 1A by detecting ``Item 1A Risk Factors'' boundaries, removing table-of-contents references, and stopping at the next item boundary. Third, HTML formatting cues are used to separate main headings, subheadings, and paragraph bodies. The intuition is simple: a 10-K is not a flat text file; headings and subheadings carry important semantic context, so the classifier should see both the local paragraph and its surrounding risk heading. Fourth, the parser exports a paragraph-level master file with company, year, sequence number, heading fields, paragraph text, and a concatenated \texttt{full\_text} field.
+
+\subsection{Financial Feature and Target Construction}
+Daily adjusted prices $P_{i,d}$ are converted into log returns
+\begin{equation}
+r_{i,d}=\log\left(\frac{P_{i,d}}{P_{i,d-1}}\right).
+\end{equation}
+The feature-window realized volatility and downside volatility are
+\begin{equation}
+\sigma^{feat}_{i,t}=\sqrt{252}\,\operatorname{sd}\left(\{r_{i,d}:d\in\mathcal{D}^{feat}_{t}\}\right),
+\end{equation}
+\begin{equation}
+\sigma^{down}_{i,t}=\sqrt{252}\,\operatorname{sd}\left(\{r_{i,d}:d\in\mathcal{D}^{feat}_{t}, r_{i,d}<0\}\right).
+\end{equation}
+The moving-average feature compares the end-of-window price to the trailing 200-day average:
+\begin{equation}
+\operatorname{MA200Ratio}_{i,t}=\frac{P_{i,\text{end}(t)}}{\frac{1}{200}\sum_{d\in\mathcal{D}^{feat}_{t,200}}P_{i,d}}-1.
+\end{equation}
+The eleven-month momentum variable is
+\begin{equation}
+\operatorname{Momentum11M}_{i,t}=\frac{P_{i,\text{May }31,t+1}}{P_{i,\text{July }1,t}}-1,
+\end{equation}
+where the endpoint is chosen before the forward target window. Liquidity is measured by average dollar volume and its logarithmic transform:
+\begin{equation}
+\operatorname{DollarVolume}_{i,t}=\frac{1}{|\mathcal{D}^{feat}_{t}|}\sum_{d\in\mathcal{D}^{feat}_{t}}P_{i,d}V_{i,d},\qquad
+\operatorname{LogDollarVolume}_{i,t}=\log\left(1+\operatorname{DollarVolume}_{i,t}\right).
 \end{equation}
 
-where:
+The two supervised targets are forward cumulative return and forward annualized realized volatility:
+\begin{equation}
+R^{target}_{i,t}=\frac{P_{i,\text{end}(\mathcal{D}^{target}_{t})}}{P_{i,\text{start}(\mathcal{D}^{target}_{t})}}-1,
+\end{equation}
+\begin{equation}
+\sigma^{target}_{i,t}=\sqrt{252}\,\operatorname{sd}\left(\{r_{i,d}:d\in\mathcal{D}^{target}_{t}\}\right).
+\end{equation}
+The market overlay uses the same formulas for S\&P 500 return and volatility, while VIX and the 10-year Treasury yield proxy enter through feature-window averages and changes. These variables control broad market regime, volatility regime, and interest-rate environment so the graph model is not forced to infer all common macro variation from text alone.
+
+\subsection{Train-Only Imputation and Standardization}
+All preprocessing statistics are fitted using only the training years 2006--2016. For feature $f$, define the training median, mean, and standard deviation as $\widetilde{x}^{train}_{f}$, $\mu^{train}_{f}$, and $\sigma^{train}_{f}$. Missing active-node features are imputed by
+\begin{equation}
+x^{imp}_{i,t,f}=
+\begin{cases}
+x_{i,t,f}, & x_{i,t,f}\text{ observed},\\
+\widetilde{x}^{train}_{f}, & x_{i,t,f}\text{ missing},
+\end{cases}
+\end{equation}
+and standardized as
+\begin{equation}
+\widetilde{x}_{i,t,f}=\frac{x^{imp}_{i,t,f}-\mu^{train}_{f}}{\max(\sigma^{train}_{f},\epsilon)}.
+\end{equation}
+Here $\epsilon$ is a small numerical guard used conceptually when a training feature has near-zero dispersion. The implementation replaces zero standard deviations with one. This design is central for research integrity: validation and OOS years never influence imputation or scaling.
+
+\section{DYNAMIC RISK TAXONOMY CONSTRUCTION}
+
+The taxonomy is the conceptual bridge between unstructured disclosure text and quantitative modelling. Its purpose is to convert heterogeneous Item 1A paragraphs into a stable, interpretable, and measurable hierarchy of corporate risk themes. A static taxonomy would make the downstream modelling problem easier to audit, but it would also impose the assumption that the language of corporate risk remains fixed from 2006 to 2024. This assumption is implausible in a period containing the global financial crisis, cloud-computing adoption, cybersecurity escalation, COVID-19, supply-chain disruptions, inflation shocks, cryptocurrency risk, and generative-AI disclosures. The methodology therefore uses a dynamic macro--meso taxonomy: it preserves continuity across years while allowing new disclosure language to modify the category system when the existing semantic structure no longer fits the data.
+
+\subsection{Motivation: Why a Dynamic Taxonomy is Needed}
+Fixed dictionaries are attractive because they are transparent, but they fail when corporate language changes. A category set designed before cloud computing, generative AI, COVID-19, or cryptocurrency risk may force genuinely new disclosures into broad residual labels. This phenomenon is semantic decay: the text remains observable, but the old category system no longer describes it precisely. In a forecasting problem, semantic decay is not merely a labelling inconvenience. If firms discussing materially different risks are assigned to the same broad category, their exposure vectors become artificially similar, the graph creates misleading peer links, and the ST-GAT attention mechanism aggregates information from the wrong neighborhood.
+
+The hierarchy has two levels. \textbf{Macro} categories describe broad risk families, such as regulation, supply chain, financial reporting, or governance. \textbf{Meso} categories describe narrower themes within those families. The Meso layer is the primary forecasting input because it preserves enough semantic resolution to distinguish, for example, general regulatory risk from antitrust remedy risk, environmental compliance risk, concession-renewal risk, or sector-specific operating-license risk. The Macro layer remains useful for interpretation and robustness checks, but the graph-forecasting problem requires a finer notion of textual peer similarity.
+
+\subsection{Text Encoding: From Risk Paragraphs to Vectors}
+Each risk paragraph $p$ is first converted into a contextual string that preserves disclosure structure:
+\begin{equation}
+c_{p}=\operatorname{concat}\left(\text{Heading}_{p},\text{Subheading}_{p},\text{RawText}_{p}\right).
+\end{equation}
+The sentence-transformer encoder maps this text into a fixed-dimensional semantic vector:
+\begin{equation}
+\mathbf{e}_{p}=f_{\phi}(c_{p})\in\mathbb{R}^{384}.
+\end{equation}
+The encoder is \texttt{all-MiniLM-L6-v2}, a sentence-transformer model that maps each paragraph into a 384-dimensional embedding. It is smaller than maximum-capacity transformer encoders, but the trade-off is appropriate for a longitudinal taxonomy pipeline that must process hundreds of thousands of paragraphs. The important property is contextual semantic encoding: two paragraphs that discuss similar risks should point in similar directions in embedding space even if they do not use identical keywords. The pipeline compares those directions using cosine similarity:
+\begin{equation}
+\operatorname{cos}(\mathbf{a},\mathbf{b})=
+\frac{\mathbf{a}^{\top}\mathbf{b}}{\|\mathbf{a}\|_{2}\|\mathbf{b}\|_{2}}.
+\end{equation}
+
+\subsection{Base-Year Construction}
+The base taxonomy is constructed from 2006 disclosures. The pipeline filters extremely long paragraphs, embeds the full-context strings, and applies a two-stage clustering design. The base year is not chosen because it is assumed to be economically special; it is chosen because it is the first full annual disclosure cross-section in the empirical panel. All later years are then treated as sequential updates to this initial semantic map.
+
+\textbf{Macro clustering.} The 384-dimensional embeddings are projected with Uniform Manifold Approximation and Projection (UMAP):
+\begin{equation}
+\mathbf{u}^{macro}_{p}=g^{macro}_{UMAP}(\mathbf{e}_{p})\in\mathbb{R}^{5}.
+\end{equation}
+HDBSCAN then assigns a broad cluster label,
+\begin{equation}
+z^{macro}_{p}=h^{macro}_{HDBSCAN}(\mathbf{u}^{macro}_{p}),
+\end{equation}
+where $z=-1$ denotes noise. The default base-year hyperparameters are UMAP $n\_neighbors=15$, HDBSCAN macro \texttt{min\_cluster\_size}=50, and \texttt{min\_samples}=5.
+
+\textbf{Meso clustering.} Within each macro cluster $m$, the pipeline repeats dimensionality reduction and density clustering:
+\begin{equation}
+\mathbf{u}^{meso}_{p}=g^{meso}_{UMAP,m}(\mathbf{e}_{p})\in\mathbb{R}^{8}, \qquad
+z^{meso}_{p}=h^{meso}_{HDBSCAN,m}(\mathbf{u}^{meso}_{p}).
+\end{equation}
+The default Meso minimum cluster size is 15. This choice favors categories that have enough disclosure support to be meaningful rather than single-paragraph labels that would be unstable year to year. Methodologically, this is a bias--variance trade-off: smaller clusters preserve more specificity but increase the risk of fragile categories, while larger clusters improve stability but can blur economically different risks.
+
+\subsection{LLM-Assisted Labeling and Hybrid Centroids}
+For each discovered cluster $k$, a large language model (LLM) receives representative disclosure samples and returns a category name, a formal definition, and a short centroid summary. The centroid used for future classification combines empirical and semantic anchors:
+\begin{equation}
+\mathbf{c}_{k}=0.7\left(\frac{1}{|\mathcal{C}_{k}|}\sum_{p\in\mathcal{C}_{k}}\mathbf{e}_{p}\right)
++0.3 f_{\phi}\left(\operatorname{Summary}_{k}\right).
+\end{equation}
+The first term keeps the category grounded in actual disclosure text. The second term makes the centroid less sensitive to outlier paragraphs by anchoring it to a concise human-readable summary. This is a hybrid design: clustering discovers structure from data, while the LLM provides interpretable labels and semantic summaries.
+
+Noise handling is deliberately conservative. If HDBSCAN does not assign a paragraph to a Meso cluster, the paragraph is assigned to the nearest Meso centroid:
+\begin{equation}
+k^{*}(p)=\arg\max_{k}\operatorname{cos}(\mathbf{e}_{p},\mathbf{c}_{k}).
+\end{equation}
+This produces complete exposure vectors for downstream modeling while preserving the ability to audit which points were originally density-clustering noise.
+
+\subsection{Year-over-Year Dynamic Evolution}
+For every year after 2006, the previous year's taxonomy is loaded and the new year's disclosures are embedded. Each new paragraph is first classified by nearest Meso centroid:
+\begin{equation}
+k^{*}_{p,t}=\arg\max_{k\in\mathcal{K}_{t-1}}\operatorname{cos}(\mathbf{e}_{p,t},\mathbf{c}_{k,t-1}),
+\qquad
+s^{*}_{p,t}=\max_{k\in\mathcal{K}_{t-1}}\operatorname{cos}(\mathbf{e}_{p,t},\mathbf{c}_{k,t-1}).
+\end{equation}
+A paragraph is marked as a semantic deviation when
+\begin{equation}
+D_{p,t}=\mathbf{1}\{s^{*}_{p,t}<\theta\}, \qquad \theta=0.45.
+\end{equation}
+Here $\mathbf{1}\{\cdot\}$ is an indicator function. The default threshold is $\theta=0.45$ and is recorded in the annual run logs.
+
+When enough deviations exist, the deviation embeddings are clustered with UMAP and HDBSCAN. For each deviation cluster $q$, the LLM receives representative texts, the top three nearest existing categories, and a taxonomy summary. It then selects one of three implemented actions:
 \begin{itemize}
-\item $\mathbf{X}_{\text{mean}}$ represents the arithmetic mean of all embeddings assigned to the category.
-\item $\mathbf{X}_{\text{LLM}}$ represents the embedding of a Centroid Summary generated by an LLM (DeepSeek) from a sample of category members. The prompt asks the LLM to produce a 50-word synthesis of the category's core ``DNA''.
+    \item \textbf{ADD:} create a new Meso category under an appropriate Macro parent.
+    \item \textbf{MERGE:} absorb the cluster into an existing Meso category and update its centroid.
+    \item \textbf{REORGANIZE:} move an existing Meso category to a different Macro parent.
 \end{itemize}
-The weights (0.7 / 0.3) are heuristic; they prioritize empirical data while anchoring the centroid to human-interpretable semantics, preventing drift caused by outliers.
+A fourth governance action, \textbf{REMOVE}, is conceptually useful for stale categories but is not used in the reported empirical pipeline. Keeping this distinction explicit avoids overstating the taxonomy engine: the current design can add, merge, and reorganize categories, while deletion remains a conservative future extension.
 
-\subsubsection{Handling Unclassified (“Noise”) Points}
+The ADD and MERGE centroid updates are:
+\begin{equation}
+\mathbf{c}^{ADD}_{new}=0.7\left(\frac{1}{|\mathcal{D}_{q}|}\sum_{p\in\mathcal{D}_{q}}\mathbf{e}_{p,t}\right)
++0.3f_{\phi}\left(\operatorname{Name}_{new}\right),
+\end{equation}
+\begin{equation}
+\mathbf{c}_{k,t}=0.8\mathbf{c}_{k,t-1}+0.2\left(\frac{1}{|\mathcal{D}_{q}|}\sum_{p\in\mathcal{D}_{q}}\mathbf{e}_{p,t}\right).
+\end{equation}
+The MERGE rule is intentionally slow-moving: it lets existing categories absorb moderate semantic drift without letting one noisy year overwrite the historical meaning of the category.
 
-After meso clustering, any risk factor not assigned to a meso category is force-assigned to the nearest meso centroid using cosine similarity. This ensures 100\% coverage for downstream risk exposure vector construction.
+\subsection{Risk Exposure Vectors}
+After classification, each firm-year is represented by normalized paragraph shares. Let $n_{i,t,k}$ be the number of Item 1A paragraphs for firm $i$ in year $t$ assigned to category $k$, and let $N_{i,t}=\sum_{k}n_{i,t,k}$. The exposure vector is
+\begin{equation}
+r_{i,t,k}=\frac{n_{i,t,k}}{N_{i,t}},\qquad
+\mathbf{r}_{i,t}=(r_{i,t,1},\ldots,r_{i,t,K}).
+\end{equation}
+Macro vectors aggregate by broad parent category; Meso vectors retain the granular category level. These vectors are the bridge between textual NLP and quantitative finance: they convert qualitative disclosure emphasis into numerical exposures that can define graph edges, regressions, and portfolio signals.
 
-\subsection{Dynamic Taxonomy Update (Year-over-Year)}
+\subsection{Empirical Taxonomy Evolution Diagnostics}
+The default dynamic taxonomy is supported by annual run logs from 2006 through 2024. The base 2006 run contains 3,382 risk factors, 17 Macro clusters, 126 Meso clusters, 77.23\% macro non-noise coverage, and 100\% final Meso assignment after nearest-centroid noise resolution. The evolved taxonomy reaches 475 Meso categories by 2024. Across the annual logs, 349 ADD actions and 56 MERGE actions are recorded, with no REORGANIZE actions executed.
 
-The evolutionary pipeline processes new-year data (e.g., 2007) and updates the taxonomy from the previous year (e.g., 2006). The workflow consists of four steps.
-
-\subsubsection{Initial Classification and Deviation Detection}
-
-Each new risk factor is embedded and compared to all existing meso centroids from the base taxonomy. The highest cosine similarity is recorded. If that similarity falls below a predefined threshold $\theta = 0.45$, the factor is flagged as a semantic deviation. The threshold was chosen empirically based on the 5th percentile of intra-category similarities in the training set.
-
-\subsubsection{Clustering Deviations}
-
-All deviation points are collected. If the number of deviations is at least the configured minimum meso cluster size of five, they are projected via UMAP and clustered with HDBSCAN. Each resulting cluster represents a candidate new risk theme.
-
-\subsubsection{LLM-Driven Evolution Decision}
-
-For each deviation cluster, we provide the LLM with:
-\begin{itemize}
-\item Sample texts from the cluster,
-\item The top-3 closest existing categories (by cosine similarity),
-\item A summary of the current taxonomy.
-\end{itemize}
-The LLM chooses one of three actions (coded as A, B, C in the prompt):
-
-\begin{table}[h]
+\begin{table}[H]
 \centering
-\caption{Decision types for taxonomy evolution}
-\begin{tabular}{@{}clp{8cm}@{}}
+\caption{Selected diagnostics from the default dynamic-taxonomy annual run logs.}
+\label{tab:taxonomy_update_diagnostics}
+\vspace{0.2cm}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabular}{ccccc}
 \toprule
-\textbf{Decision} & \textbf{Action} & \textbf{Description} \\
+\textbf{Year} & \textbf{Deviation Rate} & \textbf{ADD} & \textbf{MERGE} & \textbf{Final Meso Categories} \\
 \midrule
-A & ADD & Create a new meso category. The LLM provides a recommended name and parent macro category. \\
-B & MERGE & Absorb the deviation cluster into the closest existing category. The existing centroid is updated via an exponential moving average (80\% old, 20\% new) to reflect drift. \\
-C & REORGANIZE & Move an existing meso category to a different macro parent. The LLM specifies the target category name and the new parent macro. \\
+2006 base & -- & -- & -- & 126 \\
+2008 & 18.70\% & 64 & 2 & 190 \\
+2012 & 4.68\% & 25 & 10 & 243 \\
+2016 & 3.60\% & 61 & 7 & 365 \\
+2020 & 1.32\% & 10 & 1 & 459 \\
+2024 & 0.86\% & 3 & 2 & 475 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsubsection{Execution and Persistence}
-\begin{itemize}
-\item \textbf{ADD:} A new meso category is appended to the taxonomy with a refined hybrid centroid ($0.7 \times$ math centroid of the cluster $+ 0.3 \times$ embedding of the LLM-recommended name). All deviation points in that cluster are labeled with the new category.
-
-\item \textbf{MERGE:} The closest existing category's centroid is updated to $0.8 \times$ old\_centroid $+ 0.2 \times$ cluster\_math\_centroid, preserving stability while adapting to new data.
-
-\item \textbf{REORGANIZE:} The parent\_macro field of the target category is updated.
-\end{itemize}
-
-\subsection{Validation Design and Deferred Coverage Audit}
-
-To evaluate the effectiveness of the proposed dynamic taxonomy, the intended design compares the base taxonomy (built from 2022 data) against the evolved taxonomy (after processing 2024 data). Two validation approaches are specified: (i) a quantitative coverage analysis measuring the reduction of ambiguous classifications, and (ii) a qualitative firm-level case study illustrating how risk profiles shift over time.
-
-\textbf{Repository verification note.} The repository contains the taxonomy JSON/CSV and a coverage-improvement figure, but it does not contain the standalone source table or script output required to reproduce the percentage labels in that figure. The final review report therefore uses the figure only as a conceptual diagnostic of the intended audit and does not treat the specific percentages as headline evidence.
-
-\subsubsection{Coverage Improvement: Baseline vs. Evolved Taxonomy}
-
-For each risk factor in a given year, the intended coverage audit computes cosine similarity to the closest meso-category centroid. A factor is flagged as ``ambiguous/outlier'' if its maximum similarity falls below the deviation threshold $\theta = 0.45$ (as defined in Section 4.3.1). The percentage of factors with similarity $\ge 0.45$ would then provide a direct measure of taxonomic coverage. Because the source table behind the current coverage figure is absent from the reproducibility manifest, this report does not claim a verified coverage improvement value. A full reproducible taxonomy-coverage audit is left as a final validation extension.
-
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{taxonomy_coverage_improvement.png}
-    \caption{Taxonomy coverage improvement--baseline (2022) vs. evolved (2024). This existing figure is retained as a conceptual diagnostic of the intended audit; the final report does not use its percentage labels as headline evidence without the standalone source table.}
-    \label{fig:example}
+    \includegraphics[width=0.95\textwidth]{taxonomy_semantic_decay_deviation_rate.jpg}
+    \caption[Taxonomy semantic-deviation rate]{Semantic-deviation rate in the default dynamic taxonomy. The 2008 financial crisis generates the largest deviation spike, consistent with a regime in which new risk language falls outside pre-existing categories.}
+    \label{fig:taxonomy_semantic_decay}
 \end{figure}
 
-\subsubsection{Firm-Level Risk Profile Evolution: Case Study}
+The most important interpretation is not that every new category is economically priced; it is that annual disclosures contain detectable semantic novelty. The 2008 spike is a useful stress test because crisis-related disclosures introduced language that the 2006--2007 taxonomy could not fully absorb.
 
-Beyond aggregate metrics, the dynamic taxonomy enables tracking of individual firms' risk exposure vectors over time. For each year, a firm-level risk exposure vector can be constructed by normalizing the count of risk factors assigned to each meso category by the firm's total number of risk factors. The earlier AAPL migration example is not treated as an empirical result in this final report because the regenerated radar chart and source table are absent from the reproducibility manifest. It is retained only as a description of a feasible case-study design: once regenerated, the analysis should compare AAPL's 2022 and 2024 meso exposure vectors directly and report the exact categories, weights, and source rows.
+\subsection{Full-Window Sensitivity Design}
+A base-year-only sensitivity table can indicate whether the initial clustering solution is stable, but it cannot answer the stronger research question in this project: whether taxonomy hyperparameters remain consequential after annual evolution from 2006 through 2024, and whether downstream ST-GAT and portfolio conclusions are robust to the resulting alternative exposure vectors. The sensitivity analysis is therefore defined over complete taxonomy paths, not isolated base-year clusterings.
 
-\subsubsection{Discussion of Validation}
+The implemented sensitivity grid now contains the default taxonomy plus expanded Macro, Meso, UMAP, HDBSCAN, centroid-weight, merge-weight, LLM-sampling, and random-seed variants. In compact notation, each variant is indexed by
+\begin{equation}
+h=\left(m_{M},m_{m},s_{M},s_{m},n_{M},n_{m},d_{M},d_{m},\theta,w_{LLM},\rho,q,\xi\right),
+\end{equation}
+where $m$ denotes HDBSCAN minimum cluster size, $s$ denotes HDBSCAN minimum samples, $n$ denotes UMAP neighbor count, $d$ denotes UMAP dimensionality, $\theta$ denotes the semantic-deviation threshold, $w_{LLM}$ denotes the LLM-summary weight in centroid construction, $\rho$ denotes the old-centroid retention weight in MERGE updates, $q$ denotes the number of representative paragraphs sent to the LLM prompt, and $\xi$ denotes the random seed. The default setting is
+\begin{equation}
+h_0=(50,15,5,3,15,8,5,8,0.45,0.30,0.80,5,42).
+\end{equation}
 
-Subject to regeneration of the coverage source table and firm-level case-study plot, the taxonomy validation extension would test whether:
-\begin{itemize}
-\item a fixed taxonomy loses coverage over a multi-year horizon;
-\item the evolutionary mechanism mitigates semantic decay by detecting deviation clusters and applying ADD/MERGE/REORGANIZE decisions; and
-\item evolved risk exposure vectors become more specialized in ways that reflect actual changes in disclosure content.
-\end{itemize}
-Limitations: The validation is limited to two time points (2022 and 2024). A full longitudinal study (e.g., rolling updates from 2015 to 2024) would be required to assess long-term stability. Additionally, the coverage metric relies on the fixed similarity threshold (0.45); sensitivity analysis on this threshold is left for future work.
+\begin{table}[H]
+\centering
+\caption{Expanded full-window taxonomy sensitivity axes implemented in the pipeline.}
+\label{tab:taxonomy_sensitivity_axes}
+\vspace{0.2cm}
+\renewcommand{\arraystretch}{1.16}
+\small
+\begin{tabularx}{\textwidth}{@{}L{4.2cm}L{7.9cm}L{2.4cm}@{}}
+\toprule
+\textbf{Axis} & \textbf{Tested values or named variants} & \textbf{Role} \\
+\midrule
+Macro HDBSCAN cluster size & 20, 30, 40, 50, 70, 90 & Base-year broadness \\
+Meso HDBSCAN cluster size & 8, 10, 15, 20, 25 & Within-macro granularity \\
+Base UMAP neighbor count & 8, 10, 15, 20, 30 & Local/global manifold balance \\
+Deviation threshold $\theta$ & 0.35, 0.40, 0.45, 0.50, 0.55 & Novelty gate \\
+HDBSCAN minimum samples & Macro 3/5/8; Meso 1/3/5 & Density conservatism \\
+UMAP dimensionality and Meso neighbors & 3, 5, 8, 10 components; Meso neighbors 5/8/12 & Projection geometry \\
+Centroid and MERGE weights & $w_{LLM}=0.20,0.30,0.40$; $\rho=0.75,0.80,0.90$ & Semantic anchoring and drift speed \\
+LLM prompt sample size and seed & 5-sample default; seed 42/43 & Label stability \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+For a variant $h\in\mathcal{H}$, the intended full-window taxonomy path is
+\begin{equation}
+\mathcal{K}^{h}_{2006}\rightarrow\mathcal{K}^{h}_{2007}\rightarrow\cdots\rightarrow\mathcal{K}^{h}_{2024},
+\end{equation}
+where each year loads the previous year's evolved taxonomy rather than restarting from the base year. Each completed path produces paired Macro and Meso exposure matrices. Those matrices are then passed into the same ST-GAT evaluation design, so the downstream robustness estimands are:
+\begin{equation}
+\Delta^{h,\ell}_{error}=
+\operatorname{Error}\left(\text{Identity};\mathcal{K}^{h,\ell}\right)
+-\operatorname{Error}\left(\text{ST-GAT};\mathcal{K}^{h,\ell}\right),
+\qquad
+\Delta^{h,\ell}_{rank}=
+\rho\left(\text{ST-GAT};\mathcal{K}^{h,\ell}\right)
+-\rho\left(\text{Identity};\mathcal{K}^{h,\ell}\right),
+\end{equation}
+where $\ell\in\{\text{Macro},\text{Meso}\}$. Positive error improvement means ST-GAT has lower RMSE or MAE than the matched identity baseline; positive rank improvement means ST-GAT has higher Spearman rank correlation. In plain English, the sensitivity test asks whether the graph advantage survives when the taxonomy-building parameters and semantic resolution are changed. Among the full-window variants with complete taxonomy, paired Macro/Meso forecast, and portfolio artifacts in this manuscript, the $\theta=0.40$ path is the central sensitivity comparison. It processes the same 578,516 risk factors as the default $\theta=0.45$ path but admits fewer semantic deviations. It produces 258 final Meso categories by 2024, compared with 475 under the default taxonomy. The lower threshold is stricter: a paragraph must be farther from existing centroids before it can trigger deviation clustering.
+
+\begin{table}[H]
+\centering
+\caption{Full-window taxonomy sensitivity: default dynamic taxonomy versus $\theta=0.40$ variant.}
+\label{tab:taxonomy_full_window_sensitivity}
+\vspace{0.2cm}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Variant} & \textbf{Final Meso} & \textbf{ADD} & \textbf{MERGE} & \textbf{REORGANIZE} \\
+\midrule
+Default $\theta=0.45$ & 475 & 349 & 56 & 0 \\
+Sensitivity $\theta=0.40$ & 258 & 132 & 69 & 3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Figure \ref{fig:taxonomy_category_evolution} shows why this parameter matters. The default threshold accepts more year-over-year novelty and therefore accumulates more categories. The $\theta=0.40$ variant absorbs more new paragraphs into existing semantic centroids, producing a coarser but less fragmented Meso space. This is not simply a question of interpretability. Because graph edges are constructed from cosine similarity between exposure vectors, a more fragmented taxonomy can reduce overlap between firms and create an extremely sparse peer graph. A moderately coarser taxonomy can increase graph connectivity and improve information sharing, especially for volatility forecasting.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.96\textwidth]{taxonomy_category_evolution_default_theta040.png}
+    \caption[Taxonomy category evolution]{Full-window comparison between the default dynamic taxonomy and the $\theta=0.40$ sensitivity path. The lower threshold produces fewer final Meso categories and lower annual semantic-deviation rates because new paragraphs must be more distant from existing centroids before triggering taxonomy evolution.}
+    \label{fig:taxonomy_category_evolution}
+\end{figure}
+
+\subsection{Best-Tested Taxonomy Coverage and Topological Structure}
+Among the completed downstream paths, the $\theta=0.40$ taxonomy is the best forecasting taxonomy because it is the only tested path where the Meso ST-GAT improves averaged RMSE, averaged MAE, and averaged Spearman rank relative to its matched identity baseline. Its interpretability is different from the default taxonomy. The default path is more granular: by 2024, its largest Macro family is Regulatory and Operational License Risk, covering 29.57\% of assigned paragraphs, followed by Property Operations \& Revenue Dynamics at 22.03\% and Corporate Governance \& Anti-Takeover Provisions at 21.91\%. The $\theta=0.40$ path is more concentrated: Operational and External Event Risk covers 56.21\% of 2024 paragraphs, followed by Corporate Governance \& Anti-Takeover Provisions at 8.80\%, Market and Credit Risk Management at 6.30\%, and Accounting Changes and Share-Based Compensation at 5.55\%.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{taxonomy_macro_coverage_comparison.png}
+    \caption[Macro-category coverage comparison]{Coverage comparison for the final 2024 default and $\theta=0.40$ taxonomies. Coverage is measured as the share of assigned Item 1A risk paragraphs in each Macro category.}
+    \label{fig:taxonomy_macro_coverage}
+\end{figure}
+
+This coverage shift explains why the two taxonomies behave differently. The default taxonomy spreads risk text across many narrower categories, preserving detailed interpretation but reducing overlap between firm exposure vectors. The $\theta=0.40$ taxonomy covers more text with fewer broad Macro families and fewer Meso leaves. This coarser coverage makes the exposure vectors smoother and raises graph connectivity, but it also increases the risk of grouping economically distinct narratives under a common parent. In other words, the best-tested taxonomy is not simply ``more accurate'' in a linguistic sense; it chooses a different point on the coverage--resolution frontier.
+
+The topology view in Figure \ref{fig:taxonomy_topology_theta040} makes this frontier visible. Macro nodes are sized by 2024 paragraph coverage and Meso nodes show the largest child themes under the dominant Macro families. The graph is not a forecasting graph between firms; it is the taxonomy graph itself. It motivates the firm-graph analysis in Section 5 because it shows how a small change in semantic-deviation governance can reshape the hierarchy that later determines firm-to-firm similarity.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{taxonomy_topology_theta040.png}
+    \caption[Taxonomy hierarchy topology]{Topological structure of the best-tested $\theta=0.40$ 2024 taxonomy. Macro nodes are broad risk families and Meso nodes are the largest child categories within the most-covered families.}
+    \label{fig:taxonomy_topology_theta040}
+\end{figure}
+
+The full sensitivity grid is therefore treated as a downstream experimental design rather than a cosmetic NLP ablation. For every completed taxonomy path $h$, the empirical workflow records category growth, deviation rate, paired Macro/Meso graph density, forecast-error improvement relative to the identity baseline, rank-correlation improvement, long-short Sharpe ratio, and top-minus-bottom spread. This makes taxonomy selection a disciplined model-selection problem: a taxonomy is preferable only if it improves both semantic coherence and downstream economic validation without inducing excessive category fragmentation or overconnected broad-category graphs.
+
+\subsection{Firm-Level Taxonomy Validation: Case Studies}
+Firm-level case studies are used as interpretability checks rather than as portfolio results. The question is whether the taxonomy records intuitive changes in disclosure emphasis as each firm's operating environment changes. Figure \ref{fig:taxonomy_case_study_macro_profiles} compares the $\theta=0.40$ Macro exposure profiles for several firms with the longest available histories in the reconstructed taxonomy panel. The case-study heat map shows that the dynamic taxonomy can represent both persistent firm identity and time variation: real-estate and gaming names concentrate in property, governance, operational-event, and market-credit families, while shifts in the heat map identify periods when disclosures move toward different risk families.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{taxonomy_case_study_macro_profiles.png}
+    \caption[Firm-level taxonomy case studies]{Firm-level Macro risk exposure case studies under the $\theta=0.40$ taxonomy. Each row is a firm-year and each cell is the exposure share assigned to a Macro family.}
+    \label{fig:taxonomy_case_study_macro_profiles}
+\end{figure}
+
+The Las Vegas Sands (LVS) diagnostic over 2008--2024 provides a deeper single-firm view. It is used as an interpretability check rather than as a portfolio result. The question is whether the taxonomy records intuitive changes in LVS disclosure emphasis as its operating environment changes.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{taxonomy_lvs_composition_shift.jpg}
+    \caption[LVS risk-composition shift]{LVS risk-composition shift over 2008--2024. The stacked-area chart illustrates how a firm-level exposure vector can move across Meso categories over time.}
+    \label{fig:lvs_composition_shift}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{taxonomy_lvs_emerging_declining_risks.jpg}
+    \caption[LVS emerging and declining risks]{LVS emerging and declining risk categories between 2008 and 2024. The figure is used as a taxonomy interpretability diagnostic, not as an investment signal.}
+    \label{fig:lvs_emerging_declining}
+\end{figure}
+
+The LVS figures show how the taxonomy can be audited at the firm level: emerging categories include legal, concession, brand, and business-interruption themes, while declining categories include some earlier financial-statement and fixed-obligation categories. This kind of case study helps non-expert readers understand the purpose of the taxonomy. It does not by itself prove predictive power; predictive value is evaluated later through the identity-matrix ST-GAT ablation and portfolio diagnostics.
+
+\subsection{Validation Limits}
+Several taxonomy limitations remain. The default deviation threshold $\theta=0.45$ is only one governance choice; the $\theta=0.40$ sensitivity path shows that category counts, graph density, forecast errors, and portfolio ranking can all change when the threshold changes. LLM labels can introduce semantic style drift, even when centroids remain data-driven. Category deletion is not implemented, so the taxonomy may accumulate stale categories over long horizons. Finally, firm-level case studies validate interpretability but should not be treated as cross-sectional proof. These limitations are carried into the empirical design by requiring identity-baseline ablations, graph-density diagnostics, and downstream taxonomy sensitivity checks.
 
 % ==========================================
 \section{MATHEMATICAL FORMULATION OF THE SPATIO-TEMPORAL ARCHITECTURE}
@@ -675,9 +817,9 @@ Because the global universe contains firms that are not active in every year, th
 where $\ell_{\delta}$ is the Huber loss with $\delta=1.0$. The first output dimension $\widehat{R}_{i,t}$ denotes predicted one-year-ahead cumulative return, and the second output dimension $\widehat{\sigma}_{i,t}$ denotes predicted one-year-ahead annualized volatility. Return and volatility are optimized jointly with equal weight, while evaluation reports target-specific RMSE, MAE, and Spearman rank correlation.
 
 % ==========================================
-\section{DATA PIPELINE AND MULTI-DIMENSIONAL TENSOR STRUCTURE}
+\section{ST-GAT EXPERIMENTAL SETUP AND TENSOR CONSTRUCTION}
 % ==========================================
-The ST-GAT pipeline converts annual risk-score matrices and financial features into a sequence of graph snapshots. Each snapshot contains node features, sparse graph edges, optional edge attributes, forward targets, and an active mask. This section describes the tensor construction and the procedures used to avoid look-ahead bias.
+This section consolidates the experimental setup for the ST-GAT analysis. Section 3 documents the data sources and economic transformations; the present section describes how those data are converted into supervised graph tensors, how the chronological split is imposed, how hyperparameters are selected, and how the strict identity baseline is defined. The separation is important: Section 3 answers what the data are, while this section answers how the data enter the forecasting experiment.
 
 \subsection{Node Feature Engineering and Train-Only Standardization}
 For each node $v_i$ and year $t$, the feature vector $\mathbf{x}_{i,t}\in\mathbb{R}^{12}$ consists of six firm-level features and six market or macro proxy features. The twelve inputs are Vol, Downside\_Vol, MA\_200\_Ratio, Momentum\_11M, Dollar\_Volume, Log\_Dollar\_Volume, SP500\_Ret, SP500\_Vol, VIX\_Avg, VIX\_Change, TenY\_Yield\_Avg, and TenY\_Yield\_Change.
@@ -706,7 +848,7 @@ Interest-rate proxy & \texttt{TenY\_Yield\_Avg}; \texttt{TenY\_Yield\_Change} & 
 \subsection{Feature-Target Alignment}
 The data pipeline follows a July-to-June alignment. For risk year $t$, financial and market features are measured from July 1 of year $t$ to June 30 of year $t+1$. Forward targets are measured from July 1 of year $t+1$ to June 30 of year $t+2$. This matches the annual disclosure cycle while ensuring that the prediction target is strictly forward-looking.
 
-The review-submission results use the current exported 2021--2024 OOS panel, including 2024 rows already present in the repository outputs. Because the risk-year 2024 target window extends to 2026-06-30, final archival results can be refreshed after that window closes; this does not change the review-version comparison logic or the chronological split.
+The archived empirical panel contains 2021--2024 OOS rows. Because the risk-year 2024 target window extends to 2026-06-30, those rows should be treated as provisional until the window fully closes; this caveat affects final archival updating but not the relative comparison between ST-GAT and identity baselines within the same exported panel.
 
 \subsection{Graph Snapshot Tensor Structure}
 For each year $t$, the graph builder produces:
@@ -724,13 +866,13 @@ The complete supervised panel is then represented as:
 Unlike a random mini-batch design, training is performed on the full chronological graph panel with masked losses. This is appropriate because the graph topology and temporal convolution depend on ordered annual snapshots.
 
 \subsection{Reproducibility and Output Verification}
-The repository includes a lightweight validation script that checks canonical artifact paths, CSV schemas, required columns, duplicate firm-years, chronological split labels, train-only preprocessing statistics, graph self-loop logic, identity-baseline edges, portfolio timing, transaction-cost conversion, and deterministic random-number generation:
+The repository includes a validation script that checks canonical artifact paths, CSV schemas, required columns, duplicate firm-years, chronological split labels, train-only preprocessing statistics, graph self-loop logic, identity-baseline edges, portfolio timing, transaction-cost conversion, and deterministic random-number generation:
 
 \begin{verbatim}
-.venv/bin/python scripts/validate_pipeline.py --as-of 2026-04-27
+.venv/bin/python scripts/validate_pipeline.py --as-of 2026-05-03
 \end{verbatim}
 
-The current validation result is 45 passed checks, 2 warnings, and 0 failures. The warnings are: (i) four missing feature values in the enhanced financial matrix are imputed downstream using training-year medians, and (ii) the review panel includes 2024 rows whose final archival target window closes on 2026-06-30. Table \ref{tab:verification_map} summarizes the main source artifacts behind the reported results; exact repository paths are listed in \codepath{docs/output_manifest.md}.
+The validation result for the empirical artifacts audited in this study is 35 passed checks, 7 warnings, and 0 failures. The warnings are transparent artifact-scope and research caveats: optional multi-seed, DAV, and taxonomy-interim files are not used as headline evidence; four missing feature values in the enhanced financial matrix are imputed downstream using training-year medians; and the exported panel includes 2024 rows whose final archival target window closes on 2026-06-30. Table \ref{tab:verification_map} summarizes the main source artifacts behind the reported results; exact repository paths are listed in \codepath{docs/output_manifest.md}.
 
 \begin{table}[H]
 \centering
@@ -785,11 +927,11 @@ Deferred validation \\
 \end{table}
 
 % ==========================================
-\section{EXPERIMENTAL DESIGN AND ALGORITHMIC TUNING}
+\subsection{Forecast Experiment Design and Algorithmic Tuning}
 % ==========================================
 The empirical design evaluates whether textual risk topology improves one-year-ahead return and volatility prediction under strict chronological splitting. Random cross-sectional splits are avoided because they would leak future macro regimes into model selection.
 
-\subsection{Strict Chronological Data Splitting}
+\subsubsection{Strict Chronological Data Splitting}
 The sample is split into three non-overlapping temporal regimes:
 \begin{itemize}
     \item \textbf{Training Set (2006--2016):} Used to fit model weights, feature standardization statistics, and median imputation values.
@@ -797,7 +939,7 @@ The sample is split into three non-overlapping temporal regimes:
     \item \textbf{Out-of-Sample Test Set (2021--2024):} Used only for final evaluation.
 \end{itemize}
 
-\subsection{Dual-Level Spatial Ablation Framework}
+\subsubsection{Dual-Level Spatial Ablation Framework}
 Three graph settings are evaluated:
 \begin{enumerate}
     \item \textbf{Macro-Level Topology:} Edges are constructed from broad first-level risk category exposure vectors.
@@ -806,7 +948,7 @@ Three graph settings are evaluated:
 \end{enumerate}
 This design tests both whether textual peer topology improves forecasting and whether semantic resolution affects the quality of that topology.
 
-\subsection{Algorithmic Tuning and Optimization}
+\subsubsection{Algorithmic Tuning and Optimization}
 Macro and Meso graphs have different densities and information bandwidths, so they are tuned independently. We use Optuna with a Tree-structured Parzen Estimator sampler and a Median Pruner, following modern automated hyperparameter optimization practice \citep{akiba2019optuna}. Each study runs 50 trials. The objective minimizes validation Huber loss over 2017--2020, with maximum 200 epochs per trial, patience of 25 epochs, gradient clipping at $1.0$, and early pruning of weak trials. The final forecast models are trained with maximum 300 epochs, patience of 40 epochs, and restoration of the best validation checkpoint.
 
 \begin{table}[H]
@@ -832,50 +974,48 @@ Best Validation Huber Loss & -- & $0.0378$ & $0.0347$ \\
 }
 \end{table}
 
-\begin{figure}[H]
-    \centering
-    \begin{minipage}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{GAT_output_macro/optuna_optimization_history_macro.png}
-        \caption{Optimization History (Macro Level)}
-    \end{minipage}\hfill
-    \begin{minipage}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{GAT_output_meso/optuna_optimization_history_meso.png}
-        \caption{Optimization History (Meso Level)}
-    \end{minipage}
-    \label{fig:optuna_history}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \begin{minipage}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{GAT_output_macro/optuna_param_importances_macro.png}
-        \caption{Hyperparameter Importance (Macro Level)}
-    \end{minipage}\hfill
-    \begin{minipage}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{GAT_output_meso/optuna_param_importances_meso.png}
-        \caption{Hyperparameter Importance (Meso Level)}
-    \end{minipage}
-    \label{fig:param_importance}
-\end{figure}
+The numerical best-parameter table above is the auditable hyperparameter record for this study. For taxonomy-variant robustness, the same validation-selected forecast procedure is applied to each completed full-window taxonomy path. This preserves comparability: when taxonomy hyperparameters change, the experiment asks whether the induced graph topology improves forecasting relative to its matched identity baseline, rather than whether an entirely different neural-network search procedure happens to perform better.
 
 % ==========================================
 \section{OUT-OF-SAMPLE PERFORMANCE AND EMPIRICAL RESULTS}
 % ==========================================
-This section reports OOS predictive performance on the currently exported 2021--2024 review panel. Performance is measured by RMSE, MAE, and Spearman rank correlation. Spearman rank is particularly important because the portfolio extension relies on cross-sectional ranking rather than point forecasts alone.
+This section reports OOS predictive performance on the 2021--2024 panel under completed full-window taxonomy specifications. The empirical analysis includes paired Macro and Meso downstream evidence for two taxonomy paths: the default dynamic taxonomy with $\theta=0.45$, and the stricter semantic-deviation variant with $\theta=0.40$. For each taxonomy path and each semantic level, ST-GAT is compared with a matched identity baseline that uses the same node features, targets, split, and model family but removes all off-diagonal textual peer links. This design ensures that the estimated graph contribution is not confounded with feature engineering, target construction, or the choice to report only one taxonomy level.
+
+Performance is measured by RMSE, MAE, and Spearman rank correlation. RMSE and MAE evaluate point accuracy, while Spearman rank correlation evaluates cross-sectional ordering. The distinction is central in quantitative finance: a model can reduce forecast error without producing a superior trading rank, and a model can produce useful rankings even when point forecasts remain noisy.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.98\textwidth]{oos_metric_comparison.png}
-    \caption[OOS metric comparison]{Empirical OOS metric comparison generated from \texttt{goodness\_of\_fit\_metrics\_macro\_OOS.csv} and \texttt{goodness\_of\_fit\_metrics\_meso\_OOS.csv}. Lower RMSE is better; higher Spearman rank correlation is better.}
+    \caption[OOS metric comparison]{Empirical OOS metric comparison for Macro and Meso ST-GAT specifications under the default and $\theta=0.40$ taxonomy paths. Lower RMSE is better; higher Spearman rank correlation is better.}
     \label{fig:oos_metric_comparison}
 \end{figure}
 
+\subsection{Paired Macro--Meso Sensitivity Results}
+Table \ref{tab:paired_macro_meso_sensitivity} is the direct Section 7 counterpart to the full-window taxonomy sensitivity design in Section 4. For every completed taxonomy path, the experiment is run at both semantic levels. This comparison is important because Macro graphs and Meso graphs fail in different ways. Macro categories create many peer links, but they can over-connect firms that share broad disclosure language for economically different reasons. Meso categories preserve semantic specificity, but they can become too sparse if the taxonomy fragments excessively.
+
+\begin{table}[H]
+\centering
+\caption{Paired Macro and Meso OOS sensitivity results. Positive improvement favors ST-GAT over its matched identity baseline.}
+\label{tab:paired_macro_meso_sensitivity}
+\vspace{0.2cm}
+\renewcommand{\arraystretch}{1.18}
+\small
+\begin{tabularx}{\textwidth}{@{}L{2.25cm}L{1.45cm}cccc@{}}
+\toprule
+\textbf{Taxonomy} & \textbf{Level} & \textbf{Avg. RMSE Imp.} & \textbf{Avg. MAE Imp.} & \textbf{Vol. RMSE Imp.} & \textbf{Mean OOS Density} \\
+\midrule
+Default $\theta=0.45$ & Macro & -0.0933 & -0.0640 & -0.1760 & 40.756\% \\
+Default $\theta=0.45$ & Meso & -0.0073 & -0.0021 & -0.0106 & 0.114\% \\
+$\theta=0.40$ & Macro & -0.0478 & -0.0385 & -0.0719 & 74.743\% \\
+$\theta=0.40$ & Meso & \textbf{0.0347} & \textbf{0.0535} & \textbf{0.0527} & 0.488\% \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The paired comparison is sharp. Macro graphs are far denser than Meso graphs, with mean OOS directed-edge densities of 40.756\% under the default taxonomy and 74.743\% under $\theta=0.40$. Yet both Macro ST-GAT runs underperform their identity baselines on averaged RMSE and MAE. This indicates that broad category coverage alone is not enough; excessive graph density can transmit noisy peer information. The best-tested specification is therefore the $\theta=0.40$ Meso graph: it is denser than the default Meso graph but still selective enough to avoid the overconnected Macro topology.
+
 \subsection{Robust Baseline Comparison}
-To avoid over-interpreting point estimates, the repository now includes a robustness addendum generated by \codepath{scripts/evaluate_oos_robustness.py}. The script compares ST-GAT against the identity baseline using paired firm-year errors, year-block bootstrap intervals, and annual-block loss-difference tests. Because the OOS window contains only four risk years, these tests are diagnostic rather than definitive.
+To avoid over-interpreting point estimates, the OOS comparison uses paired firm-year errors, year-block bootstrap intervals, and annual-block loss-difference tests. Because the OOS window contains only four risk years, these tests are diagnostic rather than definitive. The relevant estimand is not the unconditional accuracy of ST-GAT, but the paired improvement of ST-GAT over the identity baseline under the same taxonomy path.
 
 \begin{table}[H]
 \centering
@@ -886,66 +1026,40 @@ To avoid over-interpreting point estimates, the repository now includes a robust
 \resizebox{\textwidth}{!}{
 \begin{tabular}{llccc}
 \toprule
-\textbf{Level} & \textbf{Target} & \textbf{RMSE Improvement} & \textbf{MAE Improvement} & \textbf{Spearman Improvement} \\
+\textbf{Variant} & \textbf{Target} & \textbf{RMSE Improvement} & \textbf{MAE Improvement} & \textbf{Spearman Improvement} \\
 \midrule
-Macro & Return & 0.0087 [$-0.0024$, 0.0151] & 0.0101 [$-0.0134$, 0.0311] & 0.1269 [$-0.1769$, 0.2031] \\
-Macro & Volatility & $-0.0011$ [$-0.0555$, 0.0348] & $-0.0026$ [$-0.0572$, 0.0335] & $-0.0477$ [$-0.2456$, 0.1001] \\
-Meso & Return & 0.0013 [$-0.0092$, 0.0130] & 0.0059 [$-0.0015$, 0.0138] & 0.0558 [$-0.0361$, 0.1971] \\
-Meso & Volatility & \textbf{0.0675 [0.0381, 0.0897]} & \textbf{0.0588 [0.0155, 0.0850]} & \textbf{0.3121 [0.2915, 0.6190]} \\
+Default & Return & $-0.0041$ [$-0.0152$, 0.0078] & 0.0072 [$-0.0142$, 0.0315] & 0.0086 [$-0.0625$, 0.0706] \\
+Default & Volatility & $-0.0106$ [$-0.0333$, 0.0153] & $-0.0115$ [$-0.0343$, 0.0106] & $-0.0418$ [$-0.1616$, 0.3194] \\
+$\theta=0.40$ & Return & 0.0167 [$-0.0053$, 0.0427] & \textbf{0.0552 [0.0221, 0.0854]} & $-0.0201$ [$-0.1649$, 0.1310] \\
+$\theta=0.40$ & Volatility & \textbf{0.0527 [0.0265, 0.0802]} & \textbf{0.0517 [0.0249, 0.0776]} & \textbf{0.3118 [0.2382, 0.5365]} \\
 \bottomrule
 \end{tabular}
 }
 \end{table}
 
-The robust addendum strengthens the main interpretation while narrowing it. The most stable OOS gain is Meso volatility forecasting: all bootstrap confidence intervals are positive, and the annual-block squared-error improvement has a diagnostic $p$-value of 0.040. Return-forecast improvements are directionally positive, especially for rank correlation, but their bootstrap intervals cross zero. Therefore, the strongest statistically defensible claim is not that ST-GAT uniformly dominates the identity baseline across all targets, but that granular Meso topology provides a particularly robust volatility-forecasting advantage and a suggestive return-ranking signal.
+The robustness diagnostics materially change the interpretation. Under the default Meso taxonomy, the ST-GAT graph does not deliver a statistically stable OOS improvement over the identity baseline. Under the $\theta=0.40$ Meso taxonomy, the strongest evidence is volatility forecasting: RMSE, MAE, and Spearman bootstrap intervals are all positive, and the annual-block squared-error test has a diagnostic $p$-value of 0.043. Return results remain weaker: the $\theta=0.40$ Meso graph improves return RMSE and MAE, but rank correlation declines slightly.
+
+The Macro-level robustness output reinforces this conclusion by negative example. The default Macro and $\theta=0.40$ Macro graphs are much denser, yet both have negative averaged RMSE improvement relative to identity. Broad coverage therefore does not automatically imply useful information transfer. The defensible claim is conditional, not universal: graph topology is useful when the taxonomy evolution setting produces a semantic level that is neither too fragmented nor too broad, especially for volatility.
 
 \subsection{Seed-Stability Check}
-Neural-network results can be sensitive to random initialization. To avoid selecting a favorable seed ex post, the repository includes an optional seed-stability protocol in \codepath{scripts/run_multi_seed_forecasts.py}. The protocol reruns the final forecast stage using the validation-selected Optuna hyperparameters and writes outputs to \codepath{outputs/gat/multi_seed/}, leaving the canonical headline output files unchanged. The current addendum uses seeds 41, 42, and 43.
-
-\begin{table}[H]
-\centering
-\caption{Final-forecast seed stability across seeds 41, 42, and 43. Values are mean $\pm$ standard deviation.}
-\label{tab:seed_stability}
-\vspace{0.2cm}
-\renewcommand{\arraystretch}{1.18}
-\resizebox{\textwidth}{!}{
-\begin{tabular}{llcccc}
-\toprule
-\textbf{Level} & \textbf{Target} & \textbf{ST-GAT RMSE} & \textbf{Identity RMSE} & \textbf{ST-GAT Spearman} & \textbf{Identity Spearman} \\
-\midrule
-Macro & Averaged & $0.3127\pm0.0106$ & $0.3333\pm0.0147$ & $0.0515\pm0.0263$ & $0.0331\pm0.0609$ \\
-Meso & Return & $0.4472\pm0.0045$ & $0.4516\pm0.0057$ & $0.1208\pm0.0378$ & $0.1243\pm0.0243$ \\
-Meso & Volatility & $0.1589\pm0.0139$ & $0.2022\pm0.0206$ & $0.0829\pm0.1231$ & $-0.0039\pm0.1208$ \\
-Meso & Averaged & $0.3030\pm0.0058$ & $0.3269\pm0.0079$ & $0.1018\pm0.0778$ & $0.0602\pm0.0710$ \\
-\bottomrule
-\end{tabular}
-}
-\end{table}
-
-The seed-stability check further supports the error-reduction claim, especially for Meso volatility and averaged Meso metrics. It also moderates the return-ranking interpretation: Meso return Spearman is comparable to, but not consistently above, the identity baseline across these three seeds. This is why the portfolio evidence is treated as a ranking/backtest diagnostic rather than as proof of a universally stable return alpha signal.
+Neural-network results can be sensitive to random initialization. To avoid selecting a favorable seed ex post, the project defines a seed-stability protocol in \codepath{scripts/run_multi_seed_forecasts.py}. The protocol reruns the final forecast stage using fixed hyperparameters and writes outputs to a separate multi-seed directory, leaving the canonical headline output files unchanged. Multi-seed replication is therefore part of the reproducibility design, while the reported numerical tables are restricted to the fully regenerated single-seed forecast panels used consistently in the portfolio stage.
 
 \subsection{Neural Network Convergence Dynamics}
-The final training stage uses validation early stopping and best-checkpoint restoration. Both full ST-GAT models and identity baselines are trained under the same chronological split, masked Huber loss, and gradient clipping. The convergence plots show training and validation Huber loss for the Macro and Meso experiments.
+The final training stage uses validation early stopping and best-checkpoint restoration. Both full ST-GAT models and identity baselines are trained under the same chronological split, masked Huber loss, and gradient clipping. Figure \ref{fig:stgat_convergence} compares validation-loss trajectories for the default and $\theta=0.40$ taxonomy paths. The purpose of the figure is not to identify a visually pleasing training curve, but to check whether the reported OOS differences are consistent with validation behavior during training.
 
 \begin{figure}[H]
     \centering
-    \begin{minipage}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{GAT_output_macro/loss_convergence_curve_macro.png}
-        \caption{Loss Convergence (Macro Experiment)}
-    \end{minipage}\hfill
-    \begin{minipage}{0.48\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{GAT_output_meso/loss_convergence_curve_meso.png}
-        \caption{Loss Convergence (Meso Experiment)}
-    \end{minipage}
-    \label{fig:convergence}
+    \includegraphics[width=0.96\textwidth]{stgat_convergence_default_theta040.png}
+    \caption[ST-GAT convergence comparison]{Validation Huber-loss convergence for ST-GAT and identity-baseline models under the default and $\theta=0.40$ dynamic taxonomies. Dots mark the best validation checkpoints restored for OOS evaluation.}
+    \label{fig:stgat_convergence}
 \end{figure}
 
-\subsection{Experiment 1: Macro-Level Systemic Risk Topology}
+The $\theta=0.40$ path exhibits a lower best validation loss for ST-GAT than the default path, while its identity baseline also improves. This is consistent with the interpretation that the stricter threshold changes the information geometry of the exposure matrix rather than merely benefiting the graph model. The key empirical question is therefore paired improvement: whether ST-GAT benefits more from the altered topology than the identity baseline benefits from the same target and feature panel.
+
+\subsection{Experiment 1: Default Meso Taxonomy}
 \begin{table}[H]
 \centering
-\caption{OOS Performance: Macro-Level ST-GAT vs. Identity Baseline (2021--2024)}
+\caption{OOS Performance: Default Meso ST-GAT vs. Identity Baseline (2021--2024)}
 \label{tab:macro_results}
 \vspace{0.2cm}
 \renewcommand{\arraystretch}{1.25}
@@ -953,24 +1067,24 @@ The final training stage uses validation early stopping and best-checkpoint rest
 \toprule
 \textbf{Target} & \textbf{Model} & \textbf{RMSE} ($\downarrow$) & \textbf{MAE} ($\downarrow$) & \textbf{Spearman} ($\uparrow$) \\
 \midrule
-Returns & ST-GAT & \textbf{0.4469} & \textbf{0.2700} & \textbf{0.0873} \\
-Returns & Identity Baseline & 0.4557 & 0.2801 & -0.0396 \\
+Returns & ST-GAT & 0.4816 & \textbf{0.2813} & \textbf{0.1650} \\
+Returns & Identity Baseline & \textbf{0.4775} & 0.2885 & 0.1564 \\
 \midrule
-Volatility & ST-GAT & 0.1984 & 0.1653 & -0.0356 \\
-Volatility & Identity Baseline & \textbf{0.1973} & \textbf{0.1627} & \textbf{0.0121} \\
+Volatility & ST-GAT & 0.1731 & 0.1523 & 0.1245 \\
+Volatility & Identity Baseline & \textbf{0.1625} & \textbf{0.1408} & \textbf{0.1662} \\
 \midrule
-\textbf{Averaged} & \textbf{ST-GAT} & \textbf{0.3227} & \textbf{0.2177} & \textbf{0.0258} \\
-Averaged & Identity Baseline & 0.3265 & 0.2214 & -0.0138 \\
+\textbf{Averaged} & ST-GAT & 0.3274 & 0.2168 & 0.1447 \\
+Averaged & Identity Baseline & \textbf{0.3200} & \textbf{0.2147} & \textbf{0.1613} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The Macro graph improves return ranking relative to the identity baseline but is weaker for volatility. This suggests that broad first-level risk categories capture some market-wide return information but may over-connect firms when the target is future volatility.
+The default Meso graph improves return MAE and return rank correlation, but it does not dominate the identity baseline on averaged RMSE, averaged MAE, or volatility rank correlation. This result is theoretically meaningful. A very granular taxonomy can improve interpretability by separating risk themes, but it can also fragment firm exposure vectors. If two firms discuss economically related risks using categories that split into nearby but distinct Meso labels, their cosine similarity falls and the graph may fail to form a useful peer edge. The default taxonomy therefore provides a high-resolution semantic map but an extremely sparse OOS graph.
 
-\subsection{Experiment 2: Meso-Level Granular Risk Topology}
+\subsection{Experiment 2: Full-Window \texorpdfstring{$\theta=0.40$}{theta=0.40} Taxonomy Sensitivity}
 \begin{table}[H]
 \centering
-\caption{OOS Performance: Meso-Level ST-GAT vs. Identity Baseline (2021--2024)}
+\caption{OOS Performance: $\theta=0.40$ Meso ST-GAT vs. Identity Baseline (2021--2024)}
 \label{tab:meso_results}
 \vspace{0.2cm}
 \renewcommand{\arraystretch}{1.25}
@@ -978,55 +1092,66 @@ The Macro graph improves return ranking relative to the identity baseline but is
 \toprule
 \textbf{Target} & \textbf{Model} & \textbf{RMSE} ($\downarrow$) & \textbf{MAE} ($\downarrow$) & \textbf{Spearman} ($\uparrow$) \\
 \midrule
-Returns & ST-GAT & \textbf{0.4437} & \textbf{0.2661} & \textbf{0.1631} \\
-Returns & Identity Baseline & 0.4450 & 0.2719 & 0.1072 \\
+Returns & ST-GAT & \textbf{0.4797} & \textbf{0.2701} & 0.0898 \\
+Returns & Identity Baseline & 0.4964 & 0.3252 & \textbf{0.1099} \\
 \midrule
-Volatility & ST-GAT & \textbf{0.1565} & \textbf{0.1321} & \textbf{0.1770} \\
-Volatility & Identity Baseline & 0.2240 & 0.1909 & -0.1351 \\
+Volatility & ST-GAT & \textbf{0.1555} & \textbf{0.1323} & \textbf{0.1212} \\
+Volatility & Identity Baseline & 0.2082 & 0.1841 & -0.1906 \\
 \midrule
-\textbf{Averaged} & \textbf{ST-GAT} & \textbf{0.3001} & \textbf{0.1991} & \textbf{0.1701} \\
-Averaged & Identity Baseline & 0.3345 & 0.2314 & -0.0139 \\
+\textbf{Averaged} & \textbf{ST-GAT} & \textbf{0.3176} & \textbf{0.2012} & \textbf{0.1055} \\
+Averaged & Identity Baseline & 0.3523 & 0.2546 & -0.0403 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The Meso topology outperforms the identity baseline across every target and metric. The largest improvement appears in volatility forecasting, where the ST-GAT reduces RMSE from 0.2240 to 0.1565 and reverses Spearman rank from -0.1351 to 0.1770. This indicates that granular textual peer links contain predictive information not captured by each equity's own financial data alone.
+The $\theta=0.40$ sensitivity run is stronger for forecast errors. It improves averaged RMSE and MAE, and the largest improvement appears in volatility forecasting, where the ST-GAT reduces RMSE from 0.2082 to 0.1555 and improves Spearman rank from -0.1906 to 0.1212. The mechanism is consistent with the taxonomy diagnostics in Section 4. The stricter threshold produces fewer final categories, reduces category fragmentation, and increases exposure overlap across firms. That creates a denser semantic peer graph, allowing the attention layer to aggregate more cross-sectional information.
 
-\subsection{Graph Density Diagnostics: Macro versus Meso Topology}
-Graph diagnostics explain why semantic resolution matters. In the OOS period, the Macro graph is much denser than the Meso graph, creating thousands of off-diagonal links per year. The Meso graph instead retains a small number of high-confidence links.
+The result also reveals the economic limit of the improvement. Return ranking remains weaker than the identity baseline, which indicates that the $\theta=0.40$ topology is better at identifying shared risk-state information than at ordering expected winners and losers. Volatility is more naturally linked to common risk exposure and contagion, while realized returns contain a larger idiosyncratic component and are more sensitive to valuation, earnings surprises, and market timing.
+
+\subsection{Graph Density Diagnostics: Default versus \texorpdfstring{$\theta=0.40$}{theta=0.40} Topology}
+Graph diagnostics explain why taxonomy sensitivity matters. The default Meso graph is extremely sparse in the OOS period. Lowering the semantic-deviation threshold to $\theta=0.40$ creates fewer final categories but a denser OOS peer topology, because more paragraphs are absorbed into existing categories and firm exposure vectors become less fragmented.
 
 \begin{table}[H]
 \centering
-\caption{OOS graph-density comparison between Macro and Meso risk topologies.}
+\caption{OOS graph-density comparison between default and $\theta=0.40$ Meso risk topologies.}
 \label{tab:graph_density}
 \vspace{0.2cm}
 \renewcommand{\arraystretch}{1.25}
 \begin{tabular}{ccccc}
 \toprule
-\textbf{Year} & \textbf{Macro Edges} & \textbf{Macro Density} & \textbf{Meso Edges} & \textbf{Meso Density} \\
+\textbf{Year} & \textbf{Default Edges} & \textbf{Default Density} & \textbf{$\theta=0.40$ Edges} & \textbf{$\theta=0.40$ Density} \\
 \midrule
-2021 & 3,900 & 5.45\% & 38 & 0.053\% \\
-2022 & 4,282 & 5.33\% & 82 & 0.102\% \\
-2023 & 4,450 & 5.17\% & 74 & 0.086\% \\
-2024 & 4,460 & 5.14\% & 118 & 0.136\% \\
+2021 & 32 & 0.061\% & 630 & 1.196\% \\
+2022 & 50 & 0.086\% & 198 & 0.342\% \\
+2023 & 96 & 0.154\% & 154 & 0.247\% \\
+2024 & 92 & 0.154\% & 100 & 0.167\% \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The Macro graph contains roughly 38--103 times more off-diagonal directed edges than the Meso graph during the OOS window. Combined with the forecasting results, this supports the interpretation that broad Macro categories may over-propagate generic disclosure noise, while granular Meso categories form a sparse, high-confidence semantic peer network.
+The $\theta=0.40$ graph is especially denser in 2021, with 630 off-diagonal directed edges versus 32 for the default taxonomy. This helps explain why the sensitivity run can improve volatility forecast errors: it gives the ST-GAT more peer information to aggregate. It also warns that taxonomy hyperparameters affect both interpretability and model behavior.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.92\textwidth]{graph_density_macro_meso.png}
-    \caption[Macro versus Meso graph density]{Empirical graph-density comparison for the OOS years, generated from the Macro and Meso graph-diagnostics CSV files.}
+    \caption[Taxonomy sensitivity graph density]{Empirical graph-density comparison for the OOS years, generated from the paired Macro and Meso graph-diagnostics CSV files under the default and $\theta=0.40$ taxonomy paths.}
     \label{fig:graph_density_macro_meso}
+\end{figure}
+
+Figure \ref{fig:taxonomy_downstream_dashboard} summarizes the taxonomy-to-forecast propagation. Among the completed full-window variants, $\theta=0.40$ is the better forecasting specification because it improves averaged RMSE and volatility RMSE relative to its identity baseline. It is not unambiguously the better investment specification, because its return-only long-short Sharpe is similar but its raw top-minus-bottom spread is smaller than under the default taxonomy. This divergence is an important empirical finding: the taxonomy that best supports volatility information transfer is not necessarily the taxonomy that maximizes return-ranking separation.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.96\textwidth]{taxonomy_downstream_sensitivity_dashboard.png}
+    \caption[Downstream taxonomy sensitivity dashboard]{Downstream sensitivity dashboard for completed full-window taxonomy paths. Positive RMSE improvement indicates that ST-GAT outperforms its matched identity baseline. Graph density is averaged across 2021--2024 OOS years.}
+    \label{fig:taxonomy_downstream_dashboard}
 \end{figure}
 
 % ==========================================
 % ==========================================
 \section{DYNAMIC PORTFOLIO BACKTESTING EXTENSION}
 % ==========================================
-The forecasting results establish that the Meso topology-only ST-GAT improves cross-sectional return and volatility prediction relative to the identity baseline. However, a statistically better forecast does not automatically imply a tradable investment strategy. To evaluate whether the model produces economically meaningful signals, we extend the forecasting output into a monthly rebalanced portfolio backtest. This section formalizes the signal timing, portfolio construction rules, transaction-cost assumptions, score ablations, benchmark comparison, and top-minus-bottom spread diagnostic.
+The forecasting results show that Meso topology can matter, but also that the effect depends on taxonomy settings and target choice. A statistically better forecast does not automatically imply a tradable investment strategy. To evaluate whether the model produces economically meaningful signals, we extend the forecasting output into a monthly rebalanced portfolio backtest. This section formalizes the signal timing, portfolio construction rules, transaction-cost assumptions, score ablations, benchmark comparison, top-minus-bottom spread diagnostic, and downstream taxonomy sensitivity result.
 
 % --- PORTFOLIO SIGNAL-TIMING TIMELINE ---
 \begin{figure}[H]
@@ -1078,7 +1203,7 @@ The forecasting results establish that the Meso topology-only ST-GAT improves cr
 \end{figure}
 
 \subsection{Objective and Signal Choice}
-The portfolio extension is designed to answer whether the ST-GAT prediction panel can separate future winners from losers after accounting for realistic implementation frictions. The primary signal source is the Meso ST-GAT output because it is the strongest forecasting specification in Section 8. The identity-baseline predictions are retained as a portfolio benchmark, allowing the analysis to test whether textual peer topology improves allocation quality, not merely predictive loss.
+The portfolio extension is designed to answer whether the ST-GAT prediction panel can separate future winners from losers after accounting for realistic implementation frictions. The primary signal source is the Meso forecast panel because Meso exposures are the most semantically informative graph inputs. The identity-baseline predictions are retained as a portfolio benchmark, allowing the analysis to test whether textual peer topology improves allocation quality, not merely predictive loss.
 
 For each firm-year $(i,t)$, the forecast panel contains two model outputs:
 \begin{equation}
@@ -1145,11 +1270,11 @@ This treatment penalizes both initial portfolio formation and subsequent monthly
 Portfolio performance is evaluated using total return, annualized return, annualized volatility, Sharpe ratio, Sortino ratio, maximum drawdown, hit rate, average monthly turnover, alpha and beta against SPY, information ratio, and correlation with the benchmark. The Sharpe ratio is the standard mean-variance reward-to-risk measure, while the Sortino ratio focuses on downside risk \citep{sharpe1966mutual, sortino1994performance}.
 
 \subsection{Portfolio Performance Results}
-Table \ref{tab:portfolio_results} reports the headline strategies for the metrics currently exported by the backtesting engine. The strongest long-short strategy ranks stocks by predicted return only, rather than by predicted return divided by predicted volatility. This finding is important: although predicted volatility improves the forecasting task, using volatility directly in the denominator can over-penalize high-return opportunities. The return-only signal is therefore the cleanest ranking signal in the current backtest.
+Table \ref{tab:portfolio_results} reports the headline strategies under the default dynamic Meso taxonomy. The strongest long-short ST-GAT strategy ranks stocks by predicted return only, rather than by predicted return divided by predicted volatility. This finding is important: although predicted volatility can improve the forecasting task, using volatility directly in the denominator can over-penalize high-return opportunities.
 
 \begin{table}[H]
 \centering
-\caption{Key portfolio backtest results for Meso ST-GAT signals, generated from \texttt{portfolio\_performance\_summary\_ranked.csv}.}
+\caption{Key portfolio backtest results for default dynamic Meso ST-GAT signals.}
 \label{tab:portfolio_results}
 \vspace{0.2cm}
 \renewcommand{\arraystretch}{1.18}
@@ -1158,24 +1283,24 @@ Table \ref{tab:portfolio_results} reports the headline strategies for the metric
 \toprule
 \textbf{Strategy} & \textbf{Ann. Ret.} & \textbf{Ann. Vol.} & \textbf{Sharpe} & \textbf{Sortino} & \textbf{Max DD} \\
 \midrule
-GAT Long-Short Return-Only & 7.93\% & 7.47\% & \textbf{1.06} & \textbf{2.01} & \textbf{-6.90\%} \\
-GAT Long-Only Return-Only & \textbf{22.71\%} & 21.76\% & 1.04 & 2.24 & -13.99\% \\
+GAT Long-Short Return-Only & 7.31\% & 8.34\% & \textbf{0.88} & \textbf{1.52} & \textbf{-8.06\%} \\
+GAT Long-Only Return-Only & \textbf{23.55\%} & 23.81\% & 0.99 & 2.04 & -17.85\% \\
 SPY Benchmark & 10.74\% & 16.56\% & 0.65 & 1.19 & -23.93\% \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-The GAT long-short return-only portfolio achieves 7.93\% annualized return with 7.47\% annualized volatility, producing a Sharpe ratio of 1.06 and Sortino ratio of 2.01. Its maximum drawdown is -6.90\%, lower than SPY's -23.93\% over the same exported backtest window. Its beta against SPY is approximately 0.24, indicating that the strategy is not merely a levered market exposure. The GAT long-only return-only portfolio also performs strongly in this academic backtest, generating 22.71\% annualized return, a Sharpe ratio of 1.04, maximum drawdown of -13.99\%, and annualized alpha of approximately 9.85\% against SPY.
+The GAT long-short return-only portfolio achieves 7.31\% annualized return with 8.34\% annualized volatility, producing a Sharpe ratio of 0.88 and Sortino ratio of 1.52. Its maximum drawdown is -8.06\%, lower than SPY's -23.93\% over the same exported backtest window. Its beta against SPY is approximately 0.30, indicating that the strategy is not merely a one-for-one market exposure. The GAT long-only return-only portfolio generates 23.55\% annualized return and a Sharpe ratio of 0.99, but its beta is 1.32 and correlation with SPY is 0.93; this is economically useful but less clean as a pure textual-risk ranking test than the long-short portfolio.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{GAT_portfolio_output/portfolio_equity_curves.png}
+    \includegraphics[width=0.9\textwidth]{portfolio_backtest_comparison.png}
     \caption[Portfolio equity curves]{Monthly rebalanced ST-GAT and identity-baseline portfolio equity curves.}
     \label{fig:portfolio_equity}
 \end{figure}
 
 \subsection{Score Ablation Interpretation}
-The score ablation shows that the ST-GAT return-only ranking is more effective than the return-over-volatility ranking. This does not contradict the volatility-forecasting improvement documented in Section 8. Rather, it indicates that the predicted volatility output is useful for understanding and controlling risk, but the most direct source of cross-sectional alpha is the predicted return ranking. The composite score performs between the return-only and return-over-volatility specifications, suggesting that moderate volatility penalization is preferable to mechanically dividing by predicted volatility.
+The score ablation shows that the ST-GAT return-only ranking is more effective than the return-over-volatility ranking. This does not contradict the volatility-forecasting improvement documented in Section 7. Rather, it indicates that the predicted volatility output is useful for understanding and controlling risk, but the most direct source of cross-sectional alpha is the predicted return ranking. The composite score performs between the return-only and return-over-volatility specifications, suggesting that moderate volatility penalization is preferable to mechanically dividing by predicted volatility.
 
 This result also clarifies the difference between forecast evaluation and trading evaluation. RMSE and MAE measure point-forecast accuracy, while a portfolio primarily depends on the ordinal separation of expected winners and losers. Therefore, the portfolio section emphasizes Sharpe ratio, drawdown, beta, turnover, and top-minus-bottom spread in addition to predictive metrics.
 
@@ -1192,25 +1317,52 @@ To directly test whether the predicted rankings separate future winners from los
 \toprule
 \textbf{Signal} & \textbf{Annualized Spread} & \textbf{$t$-stat} & \textbf{$p$-value} & \textbf{Positive Spread Rate} \\
 \midrule
-ST-GAT Return-Only & \textbf{17.69\%} & \textbf{2.18} & \textbf{0.034} & \textbf{65.2\%} \\
-Identity Return-Only & 6.62\% & 1.34 & 0.189 & -- \\
+ST-GAT Return-Only & \textbf{16.26\%} & \textbf{1.79} & \textbf{0.080} & \textbf{63.0\%} \\
+Identity Return-Only & 11.47\% & 1.30 & 0.199 & 63.0\% \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The ST-GAT return-only signal produces a nominally significant 17.69\% annualized top-minus-bottom spread, with $t=2.18$ and $p=0.034$ before adjustment for multiple score/model comparisons. The spread is positive in 65.2\% of evaluated months. By contrast, the identity baseline return-only signal produces a smaller 6.62\% annualized spread with $t=1.34$ and $p=0.189$, which is not statistically significant at conventional levels.
+The ST-GAT return-only signal produces a 16.26\% annualized top-minus-bottom spread, with $t=1.79$ and $p=0.080$ before adjustment for multiple score/model comparisons. The spread is positive in 63.0\% of evaluated months. The identity baseline return-only signal produces a smaller 11.47\% annualized spread with $t=1.30$ and $p=0.199$.
 
-A robustness addendum generated by \codepath{scripts/evaluate_portfolio_inference.py} recomputes spread inference using HAC/Newey-West standard errors with three lags and Benjamini-Hochberg q-values across the six model/score spread tests. Under this more conservative diagnostic, the ST-GAT return-only spread has HAC $t=2.54$, $p=0.011$, and $q=0.049$. This preserves the interpretation that the Meso textual-risk topology improves economic separability, but the evidence should still be read as academic backtest evidence because the sample is short and the exercise is not a live-trading deployment.
+A robustness addendum generated by \codepath{scripts/evaluate_portfolio_inference.py} recomputes spread inference using HAC/Newey-West standard errors with three lags and Benjamini-Hochberg q-values across the six model/score spread tests. Under this diagnostic, the default ST-GAT return-only spread has HAC $t=2.11$, $p=0.034$, and $q=0.076$. This supports a nominal ranking signal but does not survive a strict 5\% Benjamini-Hochberg threshold. The evidence should therefore be read as academic backtest evidence, not as a live-trading claim.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.72\textwidth]{portfolio_top_bottom_spread.png}
-    \caption[Top-minus-bottom spread comparison]{Return-only top-minus-bottom spread diagnostic generated from \texttt{top\_bottom\_spread\_diagnostics.csv}. The reported $p$-values are nominal and not adjusted for multiple score/model comparisons.}
+    \caption[Top-minus-bottom spread comparison]{Return-only top-minus-bottom spread comparison for ST-GAT and identity-baseline signals. The reported $p$-values are nominal and not adjusted for multiple score/model comparisons.}
     \label{fig:portfolio_top_bottom_spread}
 \end{figure}
 
-\subsection{Portfolio-Level Implications}
-The portfolio extension supports three conclusions within an academic backtest setting. First, the Meso ST-GAT signal is economically suggestive: it improves not only statistical forecast metrics but also cross-sectional ranking diagnostics. Second, the best-performing allocation uses predicted return directly, showing that the strongest signal is embedded in the return forecast rather than the return-volatility ratio. Third, monthly rebalancing is compatible with annual predictions when the signal is interpreted as a persistent 12-month forecast and rebalancing is used for risk control and execution rather than signal refresh. These findings motivate further testing of LLM-derived semantic risk topology as an input to systematic equity selection, but they should not be interpreted as live-trading evidence.
+\subsection{Portfolio Sensitivity and Economic Interpretation}
+Table \ref{tab:portfolio_taxonomy_sensitivity} compares the return-only long-short strategy across the completed full-window taxonomy paths. The table reports both realized portfolio performance and the model-agnostic top-minus-bottom spread. This distinction matters because a long-short portfolio includes inverse-volatility sizing, caps, turnover, and transaction costs, while the spread diagnostic isolates ranking quality.
+
+\begin{table}[H]
+\centering
+\caption{Return-only long-short portfolio sensitivity across completed taxonomy paths.}
+\label{tab:portfolio_taxonomy_sensitivity}
+\vspace{0.2cm}
+\renewcommand{\arraystretch}{1.18}
+\small
+\begin{tabularx}{\textwidth}{@{}L{2.15cm}L{2.55cm}ccccc@{}}
+\toprule
+\textbf{Taxonomy} & \textbf{Model} & \textbf{Ann. Ret.} & \textbf{Sharpe} & \textbf{Max DD} & \textbf{Spread} & \textbf{HAC $p$ / BH $q$} \\
+\midrule
+Default $\theta=0.45$ & ST-GAT & 7.31\% & 0.88 & -8.06\% & 16.26\% & 0.034 / 0.076 \\
+Default $\theta=0.45$ & Identity & 5.40\% & 0.62 & -8.29\% & 11.47\% & 0.133 / 0.199 \\
+$\theta=0.40$ & ST-GAT & 4.41\% & 0.92 & -3.24\% & 9.33\% & 0.007 / 0.044 \\
+$\theta=0.40$ & Identity & 6.00\% & 0.79 & -6.98\% & 11.68\% & 0.092 / 0.170 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The $\theta=0.40$ taxonomy improves ST-GAT forecast errors, but its portfolio results are more mixed. The ST-GAT return-only long-short strategy earns 4.41\% annualized return with 4.80\% annualized volatility, a Sharpe ratio of 0.92, maximum drawdown of -3.24\%, and beta of 0.13. Its top-minus-bottom spread is 9.33\% annualized. By contrast, the matched identity-baseline return-only spread is 11.68\% annualized. HAC inference still gives the ST-GAT return-only spread a positive diagnostic result ($t=2.68$, $p=0.007$, $q=0.044$), but the lower raw spread relative to the identity baseline means the variant should not be interpreted as a stronger portfolio result.
+
+This mismatch between forecast and portfolio sensitivity is economically informative. Forecast RMSE rewards point accuracy, while the long-short portfolio rewards ordinal separation of winners and losers. The $\theta=0.40$ graph appears useful for volatility and point-error reduction because the coarser taxonomy produces denser peer neighborhoods. However, return ranking is a sharper cross-sectional task. A taxonomy that groups firms into smoother exposure clusters can reduce volatility noise while simultaneously weakening the distinction between firms with similar risk language but different expected-return implications. In other words, the best taxonomy for volatility information transfer need not be the best taxonomy for alpha ranking.
+
+The default taxonomy has the opposite strength. It is more fragmented and therefore weaker on averaged forecast-error metrics, but its higher semantic specificity produces the largest raw return-only top-minus-bottom spread. The evidence therefore suggests a taxonomy-resolution trade-off: coarser dynamic taxonomies may improve graph connectivity and volatility forecasting, while more granular taxonomies may retain sharper cross-sectional return information when enough peer links survive.
+
+The portfolio extension supports three conclusions within an academic backtest setting. First, the default Meso ST-GAT signal is economically suggestive but not definitive. Second, the best-performing ST-GAT allocation uses predicted return directly, showing that the strongest ranking signal is embedded in the return forecast rather than the return-volatility ratio. Third, monthly rebalancing is compatible with annual predictions when the signal is interpreted as a persistent 12-month forecast and rebalancing is used for risk control and execution rather than signal refresh. These findings motivate further testing of LLM-derived semantic risk topology as an input to systematic equity selection, but they should not be interpreted as live-trading evidence.
 
 % ==========================================
 % 9: LIMITATIONS
@@ -1223,7 +1375,7 @@ Second, the supplemental DAV experiment illustrates the difficulty of mapping an
 
 Third, the predictive efficacy of the spatial graph topology is bounded by disclosure quality. Firms with boilerplate or near-zero-drift disclosures can introduce persistent but weakly informative links into the adjacency matrix. The strict identity-matrix ablation and the Macro-versus-Meso comparison partially address this issue, but a future implementation should explicitly filter low-drift firms or down-weight stale disclosures when constructing graph topology.
 
-Fourth, the dynamic taxonomy framework relies on a fixed semantic-deviation threshold ($\theta=0.45$). A full longitudinal coverage audit and threshold-sensitivity analysis would be needed to assess stability across the entire 2006--2024 period. There is also residual risk of LLM-induced semantic drift when categories are repeatedly added, merged, or reorganized.
+Fourth, the dynamic taxonomy framework is sensitive to semantic-deviation threshold choice. The full-window sensitivity design covers alternative Macro, Meso, UMAP, and threshold settings, and the empirical manuscript reports complete downstream evidence for the default $\theta=0.45$ and stricter $\theta=0.40$ paths. The remaining grid points require the same long-horizon LLM-assisted evolution procedure before they can be interpreted as empirical results. There is also residual risk of LLM-induced semantic drift when categories are repeatedly added, merged, or reorganized.
 
 Fifth, secondary validations such as the Spatial Autoregressive network analysis remain constrained by extreme matrix sparsity and small sample sizes. This highlights the difficulty of modeling continuous market dynamics strictly through annualized semantic linkages.
 
@@ -1239,13 +1391,13 @@ Finally, the portfolio backtest remains an academic backtest rather than a live-
 
 This study develops a comprehensive, LLM-driven framework for transforming lengthy and unstructured SEC Item 1A risk disclosures into quantitative forecasting and portfolio-construction signals. The pipeline extracts risk paragraphs from 10-K filings, maps them into a hierarchical macro--meso taxonomy, converts firm-year disclosures into normalized risk exposure vectors, and uses those vectors to construct dynamic semantic peer graphs.
 
-The central modeling contribution is a topology-only Spatio-Temporal Graph Attention Network with a strict identity-matrix ablation. The full model uses $\mathbf{A}^{full}_{t}=\mathbf{I}+\mathbf{A}^{risk}_{t}$, while the baseline uses $\mathbf{A}^{base}_{t}=\mathbf{I}$. This design isolates the incremental value of textual peer topology beyond each equity's own financial features. In the 2021--2024 OOS period, the Meso ST-GAT outperforms the identity baseline across return and volatility forecasting metrics, improving averaged RMSE from 0.3345 to 0.3001 and averaged Spearman rank from -0.0139 to 0.1701. The strongest improvement occurs in volatility forecasting, where RMSE falls from 0.2240 to 0.1565 and Spearman rank improves from -0.1351 to 0.1770.
+The central modeling contribution is a topology-only Spatio-Temporal Graph Attention Network with a strict identity-matrix ablation. The full model uses $\mathbf{A}^{full}_{t}=\mathbf{I}+\mathbf{A}^{risk}_{t}$, while the baseline uses $\mathbf{A}^{base}_{t}=\mathbf{I}$. This design isolates the incremental value of textual peer topology beyond each equity's own financial features. In the 2021--2024 OOS panel, the default Meso taxonomy produces mixed results: return MAE and return rank correlation improve, but averaged RMSE and volatility rank do not. The $\theta=0.40$ Meso sensitivity taxonomy produces stronger forecast-error evidence, improving averaged RMSE from 0.3523 to 0.3176 and averaged MAE from 0.2546 to 0.2012, with the largest gain in volatility RMSE. Macro-level paired experiments are much denser but perform worse than identity baselines, so the evidence favors selective Meso topology rather than broad Macro peer aggregation.
 
-Graph diagnostics further clarify why semantic resolution matters. The Macro graph is relatively dense during the OOS period, retaining roughly 3,900--4,460 off-diagonal directed edges per year, while the Meso graph retains only 38--118 edges. The superior performance of the sparse Meso graph supports the interpretation that granular textual-risk categories form high-confidence semantic peer links, whereas broad Macro categories can over-propagate generic disclosure noise.
+Graph diagnostics further clarify why taxonomy sensitivity matters. The default Meso graph retains 32--96 OOS off-diagonal directed edges per year, while the $\theta=0.40$ Meso variant retains 100--630. Macro graphs retain tens of thousands of off-diagonal directed edges over the same OOS years, which is too broad to improve forecast errors. This change in graph density explains why taxonomy evolution settings must be validated downstream rather than treated as cosmetic NLP parameters.
 
-The portfolio extension demonstrates that the Meso ST-GAT forecasts are statistically useful and economically suggestive in an academic backtest. Annual predictions are held fixed over their July-to-June forecast window and portfolios are rebalanced monthly to control drift, turnover, and implementation costs. The strongest long-short strategy ranks stocks by predicted return, holds the top quintile long and bottom quintile short, and achieves a Sharpe ratio of 1.06, Sortino ratio of 2.01, maximum drawdown of -6.90\%, and beta of 0.24 against SPY. The top-minus-bottom spread diagnostic is nominally significant before multiple-testing adjustment, with a 17.69\% annualized spread, $t=2.18$, and $p=0.034$, compared with an insignificant identity-baseline return-only spread.
+The portfolio extension demonstrates that the Meso ST-GAT forecasts are economically suggestive but sensitive. Annual predictions are held fixed over their July-to-June forecast window and portfolios are rebalanced monthly to control drift, turnover, and implementation costs. Under the default taxonomy, the return-only long-short strategy achieves a Sharpe ratio of 0.88, Sortino ratio of 1.52, maximum drawdown of -8.06\%, and beta of 0.30 against SPY. Its 16.26\% annualized top-minus-bottom spread has conventional $p=0.080$ and HAC/Newey-West $p=0.034$ before multiple-testing adjustment. Under $\theta=0.40$, forecast errors improve but the portfolio ranking advantage weakens relative to the identity baseline. The correct conclusion is that semantic risk topology is promising, but its investment interpretation requires taxonomy-sensitivity controls.
 
-Supplemental DAV, Fama-MacBeth, and SAR analyses provide additional economic context but are not treated as verified headline evidence unless their source outputs are regenerated and added to the output manifest. The newly summarized DAV peak diagnostics support only a narrow, event-local interpretation and do not establish broad DAV dominance. The central verified result remains the strict identity-matrix ablation showing that granular Meso textual-risk topology improves the exported ST-GAT forecast panel and portfolio ranking diagnostics relative to own-firm features alone.
+Supplemental DAV, Fama-MacBeth, and SAR analyses provide additional economic context but are not treated as headline evidence unless their source tables are archived and auditable. The DAV peak diagnostics support only a narrow, event-local interpretation and do not establish broad DAV dominance. The central verified result is the strict identity-matrix ablation plus the full-window sensitivity workflow showing where granular textual-risk topology helps, where it fails to dominate, and how taxonomy choices propagate into forecast and portfolio outcomes.
 
 Future work should extend the framework in four directions. First, historical constituent reconstruction and delisting-aware price histories should be improved to further mitigate survivorship bias. Second, disclosure staleness and boilerplate intensity should be integrated directly into edge weighting or edge filtering. Third, monthly or quarterly textual/event signals could be added to support genuinely higher-frequency forecasts. Finally, the portfolio engine should be expanded to include borrow constraints, beta-neutral optimization, liquidity-aware execution, and transaction-cost stress testing.
 \newpage
@@ -1327,6 +1479,105 @@ Future work should extend the framework in four directions. First, historical co
 
 \appendix
 \renewcommand{\thesection}{\Alph{section}}
+
+% ==========================================
+\section{Formula Compendium and Evaluation Metrics}
+% ==========================================
+This appendix collects supplementary equations used across the report. They are placed here to preserve main-text readability while keeping the methodology fully explicit.
+
+\subsection{Forecast Error and Ranking Metrics}
+For $n$ evaluated firm-years with observed value $y_i$ and prediction $\hat{y}_i$, the mean squared error (MSE), root mean squared error (RMSE), and mean absolute error (MAE) are:
+\begin{equation}
+\operatorname{MSE}=\frac{1}{n}\sum_{i=1}^{n}(y_i-\hat{y}_i)^2,\qquad
+\operatorname{RMSE}=\sqrt{\frac{1}{n}\sum_{i=1}^{n}(y_i-\hat{y}_i)^2},
+\end{equation}
+\begin{equation}
+\operatorname{MAE}=\frac{1}{n}\sum_{i=1}^{n}|y_i-\hat{y}_i|.
+\end{equation}
+Spearman rank correlation is the Pearson correlation between ranks:
+\begin{equation}
+\rho_S=\operatorname{Corr}\left(\operatorname{rank}(y_i),\operatorname{rank}(\hat{y}_i)\right).
+\end{equation}
+If an $R^2$ diagnostic is computed in future extensions, it is:
+\begin{equation}
+R^2=1-\frac{\sum_{i=1}^{n}(y_i-\hat{y}_i)^2}{\sum_{i=1}^{n}(y_i-\bar{y})^2}.
+\end{equation}
+
+\subsection{Graph Diagnostics}
+For an active graph with $N_t^{act}$ active nodes and $E_t^{risk}$ off-diagonal directed risk edges, density and degree statistics are:
+\begin{equation}
+\operatorname{Density}_t=\frac{E_t^{risk}}{N_t^{act}(N_t^{act}-1)},\qquad
+d^{out}_{i,t}=\sum_{j\neq i}A^{risk}_{ij,t},\qquad
+\bar{d}^{out}_{t}=\frac{1}{N_t^{act}}\sum_i d^{out}_{i,t}.
+\end{equation}
+The identity baseline has no off-diagonal risk links:
+\begin{equation}
+E_{t,base}^{risk}=0,\qquad \mathbf{A}^{base}_{t}=\mathbf{I}_N.
+\end{equation}
+
+\subsection{Loss and Regularization}
+The scalar Huber loss for residual $u=y-\hat{y}$ is:
+\begin{equation}
+\ell_{\delta}(u)=
+\begin{cases}
+\frac{1}{2}u^2, & |u|\leq \delta,\\
+\delta\left(|u|-\frac{1}{2}\delta\right), & |u|>\delta.
+\end{cases}
+\end{equation}
+With model parameters $\Theta$ and weight decay $\lambda$, the regularized training objective is:
+\begin{equation}
+\mathcal{J}(\Theta)=\mathcal{L}_{Huber}(\Theta)+\lambda\|\Theta\|_2^2.
+\end{equation}
+
+\subsection{Portfolio Metrics}
+For monthly net portfolio returns $R_{p,m}$ and annualization factor $A=12$, cumulative and annualized returns are:
+\begin{equation}
+R^{cum}_{p}=\prod_{m=1}^{M}(1+R_{p,m})-1,\qquad
+R^{ann}_{p}=(1+R^{cum}_{p})^{A/M}-1.
+\end{equation}
+Annualized volatility, Sharpe ratio, and Sortino ratio are:
+\begin{equation}
+\sigma^{ann}_{p}=\sqrt{A}\operatorname{sd}(R_{p,m}),\qquad
+\operatorname{Sharpe}=\frac{R^{ann}_{p}-R_f^{ann}}{\sigma^{ann}_{p}},
+\end{equation}
+\begin{equation}
+\operatorname{Sortino}=\frac{R^{ann}_{p}-R_f^{ann}}{\sqrt{A}\operatorname{sd}(\min(R_{p,m}-R_f/ A,0))}.
+\end{equation}
+The report uses $R_f=0$ for the academic backtest unless otherwise stated. Maximum drawdown is computed from the equity curve $C_m=\prod_{s=1}^{m}(1+R_{p,s})$:
+\begin{equation}
+\operatorname{MDD}=\min_m\left(\frac{C_m}{\max_{s\leq m}C_s}-1\right).
+\end{equation}
+Benchmark beta against SPY is:
+\begin{equation}
+\beta_p=\frac{\operatorname{Cov}(R_{p,m},R_{b,m})}{\operatorname{Var}(R_{b,m})}.
+\end{equation}
+Portfolio return, turnover, and transaction-cost adjustment are:
+\begin{equation}
+R^{gross}_{p,m+1}=\sum_i w^{target}_{i,m}R_{i,m+1},\qquad
+\operatorname{Turnover}_{m}=\sum_i |w^{target}_{i,m}-w^{pre}_{i,m}|,
+\end{equation}
+\begin{equation}
+R^{net}_{p,m+1}=R^{gross}_{p,m+1}-c\operatorname{Turnover}_{m},\qquad c=0.0015.
+\end{equation}
+
+\subsection{Statistical Validation}
+For a statistic $\hat{\theta}$ estimated from annual or monthly blocks, a percentile bootstrap confidence interval with $B$ resamples is:
+\begin{equation}
+CI_{1-\alpha}=\left[q_{\alpha/2}\left(\hat{\theta}^{*(1)},\ldots,\hat{\theta}^{*(B)}\right),
+q_{1-\alpha/2}\left(\hat{\theta}^{*(1)},\ldots,\hat{\theta}^{*(B)}\right)\right].
+\end{equation}
+For a time-series mean $\bar{x}$ with autocovariance estimates $\hat{\Gamma}_{\ell}$ and Newey-West lag $L$, the HAC variance estimator is:
+\begin{equation}
+\widehat{\operatorname{Var}}_{NW}(\bar{x})=\frac{1}{T}\left[\hat{\Gamma}_0+
+2\sum_{\ell=1}^{L}\left(1-\frac{\ell}{L+1}\right)\hat{\Gamma}_{\ell}\right].
+\end{equation}
+In the Fama-MacBeth setting, monthly cross-sectional premiums $\hat{\lambda}_{k,t}$ are averaged as:
+\begin{equation}
+\bar{\lambda}_{k}=\frac{1}{T}\sum_{t=1}^{T}\hat{\lambda}_{k,t},\qquad
+t_{NW}(\bar{\lambda}_k)=\frac{\bar{\lambda}_k}{\sqrt{\widehat{\operatorname{Var}}_{NW}(\bar{\lambda}_k)}}.
+\end{equation}
+
+\newpage
 
 % ==========================================
 \section{Econometric Baseline Specification (DAV Model)}
@@ -1482,7 +1733,7 @@ Where:
 \end{itemize}
 
 \subsection{Validation Status and Interpretation}
-No source output table for the SAR result is present in the current output manifest, so the final report does not report SAR coefficients, $p$-values, or explanatory power as empirical findings. The SAR framework remains useful as a future network-validation extension: a documented rerun can test whether firms connected by textual-risk similarity also exhibit volatility co-movement after appropriate controls. In the current submission, the SAR appendix is therefore a methodological bridge between semantic peer construction and econometric network validation, not confirmatory evidence.
+No source output table for the SAR result is present in the output manifest, so the report does not present SAR coefficients, $p$-values, or explanatory power as empirical findings. The SAR framework remains useful as a future network-validation extension: a documented rerun can test whether firms connected by textual-risk similarity also exhibit volatility co-movement after appropriate controls. In this study, the SAR appendix is therefore a methodological bridge between semantic peer construction and econometric network validation, not confirmatory evidence.
 
 \newpage
 
