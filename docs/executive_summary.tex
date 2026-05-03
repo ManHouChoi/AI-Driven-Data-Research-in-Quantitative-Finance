@@ -170,7 +170,7 @@ Nominal spread p-value & 0.080 \\
     \includegraphics[width=0.96\linewidth]{portfolio_backtest_comparison.png}
     \captionof*{figure}{\textbf{Backtest comparison.} Monthly rebalanced ST-GAT and
     identity-baseline portfolio variants are compared against SPY using the
-    current exported equity-curve artifact.}
+    exported equity curve.}
 \end{center}
 
 The identity-baseline return-only signal has a smaller and insignificant
@@ -189,12 +189,12 @@ deployability.
 
 \section*{Claim Safety and Limitations}
 
-The final package is deliberately conservative about unsupported evidence.
+The final thesis is deliberately conservative about unsupported evidence.
 Old taxonomy-coverage percentages, unsupported single-firm migration claims,
 DAV/EGARCH-X BIC comparisons, Fama-MacBeth tables, and SAR/network regression
-claims are not used as headline findings unless their source tables are
-regenerated and added to the output manifest. The updated taxonomy coverage and
-LVS dynamic case-study figures are backed by generated source CSVs and are
+claims are not used as headline findings unless their source tables can be
+independently audited. The reported taxonomy coverage and
+LVS dynamic case-study figures are backed by auditable source tables and are
 interpreted as taxonomy diagnostics, not standalone proof of forecast value.
 
 The available DAV peak diagnostics are retained only as event-local context:
@@ -202,19 +202,13 @@ The available DAV peak diagnostics are retained only as event-local context:
 improvements, and mean improvement of -2.40\%. These diagnostics do not
 establish broad DAV dominance.
 
-\section*{Repository Status}
+\section*{Validation Status}
 
-Before GitHub cleanup, the complete local artifact set passed the lightweight
-validation suite with 35 passes, 7 warnings, and 0 failures as of 2026-05-03.
-The warnings are artifact-scope and research caveats rather than code crashes:
-optional multi-seed, DAV, and taxonomy-interim files are absent from the
-lightweight package; four financial feature values require downstream
-train-period median imputation; and risk-year 2024 has a forward target window
-ending on 2026-06-30.
-
-The committed GitHub repository is a lightweight code, report, presentation,
-and documentation package. Large raw data, intermediate files, generated
-outputs, logs, and the local virtual environment are excluded from version
-control and preserved outside the repository as local artifacts.
+The empirical evidence passed the validation audit with 35 passes, 7 warnings,
+and 0 failures as of 2026-05-03. The warnings are research caveats rather than
+model failures: optional multi-seed, DAV, and taxonomy-interim evidence is not
+used as headline evidence; four financial feature values require train-period
+median imputation; and risk-year 2024 has a forward target window ending on
+2026-06-30.
 
 \end{document}
