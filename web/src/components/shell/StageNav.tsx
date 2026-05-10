@@ -16,7 +16,7 @@ export function StageNav() {
             QF
           </span>
           <span className="hidden text-sm font-medium text-mercury-starlight sm:inline">
-            Quant Finance Research Demo
+            AI-Driven Data Research
           </span>
         </a>
         <div className="thin-scrollbar flex max-w-[72vw] gap-2 overflow-x-auto rounded-full bg-apple-fog p-1">

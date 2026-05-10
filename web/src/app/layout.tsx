@@ -3,8 +3,9 @@ import "katex/dist/katex.min.css";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
-  title: "Quant Finance Research Demo",
-  description: "Interactive ST-GAT and NLP risk taxonomy research demo"
+  title: "AI-Driven Data Research in Quantitative Finance",
+  description:
+    "Interactive ST-GAT and NLP risk taxonomy demo for AI-driven quantitative finance research"
 };
 
 export default function RootLayout({

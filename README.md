@@ -1,8 +1,6 @@
+# AI-Driven Data Research in Quantitative Finance
 
-
-# IEDA4920 FYP: AI-Driven Data Research in Quantitative Finance
-
-This repository contains the codebase and report materials for the IEDA4920 Final Year Project, **AI-Driven Data Research in Quantitative Finance**, developed as a corporate project with WorldQuant Consulting (Beijing) Co., Ltd.
+This repository contains the codebase and report materials for the IEDA4920 Final Year Project **AI-Driven Data Research in Quantitative Finance**, developed as a corporate project with WorldQuant Consulting (Beijing) Co., Ltd.
 
 The project converts SEC Item 1A `Risk Factors` disclosures into quantitative risk signals, dynamic semantic peer networks, graph neural network forecasts, econometric validation outputs, and portfolio backtesting results.
 
@@ -30,9 +28,9 @@ The research pipeline consists of six major components:
 
 ## Demo and Overview Media
 
-[![ST-GAT semantic peer network demo](docs/assets/overview/st-gat-demo.png)](https://web-2vkfru0n5-marco-choi-s-projects.vercel.app/)
+[![ST-GAT semantic peer network demo](docs/assets/overview/st-gat-demo.png)](https://web-git-codex-research-taxonomy-upgrade-marco-choi-s-projects.vercel.app/)
 
-- **Live demo:** [Interactive research dashboard](https://web-2vkfru0n5-marco-choi-s-projects.vercel.app/).
+- **Live demo:** [Interactive research dashboard](https://web-git-codex-research-taxonomy-upgrade-marco-choi-s-projects.vercel.app/).
 - **Video overview:** [Project overview MP4](docs/assets/overview/project-overview.mp4).
 - **Static previews:** reusable README/report screenshots are stored in `docs/assets/overview/`.
 
