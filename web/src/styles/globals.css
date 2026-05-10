@@ -1,0 +1,218 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --color-mercury-blue: #5266eb;
+  --color-ghost-blue: #cdddff;
+  --color-deep-space: #171721;
+  --color-midnight-slate: #1e1e2a;
+  --color-graphite: #272735;
+  --color-lead: #70707d;
+  --color-starlight: #ededf3;
+  --color-silver: #c3c3cc;
+  --color-fog: #f5f5f7;
+  --color-snow: #ffffff;
+  --color-ink: #1d1d1f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--color-snow);
+  color: var(--color-ink);
+  font-family: Inter, Manrope, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: 0;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  letter-spacing: 0;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+::selection {
+  background: rgba(82, 102, 235, 0.42);
+}
+
+.chart-surface {
+  background: #ffffff;
+  color: #1d1d1f;
+}
+
+.frosted {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px);
+}
+
+.thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(195, 195, 204, 0.32) transparent;
+}
+
+.thin-scrollbar::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(195, 195, 204, 0.32);
+  border-radius: 999px;
+}
+
+@keyframes methodology-scan {
+  0% {
+    transform: translateY(-28px);
+    opacity: 0;
+  }
+  18%,
+  82% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(168px);
+    opacity: 0;
+  }
+}
+
+@keyframes methodology-bar {
+  0% {
+    transform: scaleY(0.54);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@keyframes methodology-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(220px, -96px, 0) scale(1.18);
+  }
+}
+
+@keyframes methodology-pulse {
+  0%,
+  100% {
+    transform: scale(0.96);
+    opacity: 0.72;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
+
+@keyframes methodology-orbit {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(180deg) scale(1.08);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg) scale(1);
+  }
+}
+
+@keyframes methodology-score {
+  0% {
+    transform: scaleX(0.82);
+  }
+  55% {
+    transform: scaleX(1);
+  }
+  100% {
+    transform: scaleX(0.94);
+  }
+}
+
+@keyframes pipeline-dash {
+  0% {
+    stroke-dashoffset: 18;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes pipeline-node-rise {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.03);
+  }
+}
+
+.methodology-scan {
+  animation: methodology-scan 3s ease infinite;
+}
+
+.methodology-bar {
+  animation: methodology-bar 1.4s ease-in-out infinite alternate;
+  transform-origin: bottom;
+}
+
+.methodology-drift {
+  animation: methodology-drift 4.2s ease-in-out infinite;
+}
+
+.methodology-pulse {
+  animation: methodology-pulse 3.2s ease-in-out infinite;
+}
+
+.methodology-orbit {
+  animation: methodology-orbit 8s ease-in-out infinite;
+}
+
+.methodology-score {
+  animation: methodology-score 3.8s ease-in-out infinite;
+  transform-origin: left center;
+}
+
+.pipeline-dash {
+  animation: pipeline-dash 1.8s linear infinite;
+  stroke-dasharray: 7 5;
+}
+
+.pipeline-node-rise {
+  animation: pipeline-node-rise 2.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .methodology-scan,
+  .methodology-bar,
+  .methodology-drift,
+  .methodology-pulse,
+  .methodology-orbit,
+  .methodology-score,
+  .pipeline-dash,
+  .pipeline-node-rise {
+    animation: none;
+  }
+}

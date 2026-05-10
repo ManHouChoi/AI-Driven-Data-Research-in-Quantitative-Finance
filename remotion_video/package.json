@@ -1,0 +1,23 @@
+{
+  "name": "quant-nlp-risk-remotion-video",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "render": "remotion render src/index.jsx QuantNlpRiskVideo ../output/remotion_quant_nlp_interactive.mp4 --codec=h264 --pixel-format=yuv420p --image-format=jpeg --concurrency=1 --crf=20 --overwrite",
+    "preview": "remotion studio src/index.jsx --port=3010"
+  },
+  "dependencies": {
+    "@fontsource/instrument-serif": "^5.2.8",
+    "@remotion/cli": "4.0.457",
+    "katex": "^0.16.45",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.457"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "typescript": "^5.7.3"
+  }
+}

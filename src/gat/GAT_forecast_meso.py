@@ -26,6 +26,10 @@ def env_int(name: str, default: int) -> int:
     return int(os.getenv(name, str(default)))
 
 
+def env_float(name: str, default: float) -> float:
+    return float(os.getenv(name, str(default)))
+
+
 CONFIG = {
     "level": "meso",
     "output_dir": os.getenv(
@@ -41,13 +45,15 @@ CONFIG = {
     ),
     "tau": 0.8292405886628869,
     "heads": 2,
-    "dropout": 0.49791072318567436,
-    "lr": 0.008075511825009362,
+    "dropout": env_float("FYP_GAT_DROPOUT", 0.49791072318567436),
+    "lr": env_float("FYP_GAT_LR", 0.008075511825009362),
     "spatial_dim": 8,
     "max_epochs": env_int("FYP_GAT_MAX_EPOCHS", 300),
     "patience": env_int("FYP_GAT_PATIENCE", 40),
-    "min_delta": 1e-6,
-    "weight_decay": 5.831734725781999e-05,
+    "min_delta": env_float("FYP_GAT_MIN_DELTA", 1e-6),
+    "min_epochs": env_int("FYP_GAT_MIN_EPOCHS", 0),
+    "early_stop_smooth_window": env_int("FYP_GAT_EARLY_STOP_SMOOTH_WINDOW", 1),
+    "weight_decay": env_float("FYP_GAT_WEIGHT_DECAY", 5.831734725781999e-05),
     "grad_clip": 1.0,
     "seed": env_int("FYP_GAT_SEED", 42),
     "train_end_year": env_int("FYP_TRAIN_END_YEAR", 2016),
@@ -77,6 +83,14 @@ def load_best_params_if_available() -> None:
     for key in ("tau", "heads", "dropout", "lr", "spatial_dim", "weight_decay"):
         if key in best_params:
             CONFIG[key] = best_params[key]
+    env_overrides = {
+        "FYP_GAT_DROPOUT": ("dropout", float),
+        "FYP_GAT_LR": ("lr", float),
+        "FYP_GAT_WEIGHT_DECAY": ("weight_decay", float),
+    }
+    for env_name, (key, caster) in env_overrides.items():
+        if env_name in os.environ:
+            CONFIG[key] = caster(os.environ[env_name])
     print(f"Loaded Meso Optuna best parameters from {params_path}.")
 
 
@@ -223,9 +237,16 @@ def train_and_extract(risk_csv_path: str, fin_csv_path: str) -> None:
         "base_train_loss": [],
         "gat_val_loss": [],
         "base_val_loss": [],
+        "gat_val_monitor": [],
+        "base_val_monitor": [],
     }
 
-    print("Training full ST-GAT and identity baseline with validation early stopping...")
+    monitor_window = max(1, int(CONFIG["early_stop_smooth_window"]))
+    min_epochs = max(0, int(CONFIG["min_epochs"]))
+    print(
+        "Training full ST-GAT and identity baseline with validation early stopping "
+        f"(monitor window={monitor_window}, min epochs={min_epochs})..."
+    )
     for epoch in range(CONFIG["max_epochs"]):
         gat_model.train()
         base_model.train()
@@ -258,20 +279,24 @@ def train_and_extract(risk_csv_path: str, fin_csv_path: str) -> None:
         history["base_train_loss"].append(loss_base.item())
         history["gat_val_loss"].append(val_loss_gat.item())
         history["base_val_loss"].append(val_loss_base.item())
+        gat_monitor = float(np.mean(history["gat_val_loss"][-monitor_window:]))
+        base_monitor = float(np.mean(history["base_val_loss"][-monitor_window:]))
+        history["gat_val_monitor"].append(gat_monitor)
+        history["base_val_monitor"].append(base_monitor)
 
         improved = False
-        if val_loss_gat.item() < best_gat_val - CONFIG["min_delta"]:
-            best_gat_val = val_loss_gat.item()
+        if gat_monitor < best_gat_val - CONFIG["min_delta"]:
+            best_gat_val = gat_monitor
             best_gat_state = copy.deepcopy(gat_model.state_dict())
             improved = True
 
-        if val_loss_base.item() < best_base_val - CONFIG["min_delta"]:
-            best_base_val = val_loss_base.item()
+        if base_monitor < best_base_val - CONFIG["min_delta"]:
+            best_base_val = base_monitor
             best_base_state = copy.deepcopy(base_model.state_dict())
             improved = True
 
         stale_epochs = 0 if improved else stale_epochs + 1
-        if stale_epochs >= CONFIG["patience"]:
+        if (epoch + 1) >= min_epochs and stale_epochs >= CONFIG["patience"]:
             print(f"Early stopping at epoch {epoch + 1}.")
             break
 

@@ -1,0 +1,26 @@
+{
+  "firms": [
+    {"id":"aapl","ticker":"AAPL","name":"Apple","sector":"Technology"},
+    {"id":"msft","ticker":"MSFT","name":"Microsoft","sector":"Technology"},
+    {"id":"nvda","ticker":"NVDA","name":"NVIDIA","sector":"Semiconductors"},
+    {"id":"jpm","ticker":"JPM","name":"JPMorgan Chase","sector":"Financials"},
+    {"id":"bac","ticker":"BAC","name":"Bank of America","sector":"Financials"},
+    {"id":"xom","ticker":"XOM","name":"Exxon Mobil","sector":"Energy"},
+    {"id":"cvx","ticker":"CVX","name":"Chevron","sector":"Energy"},
+    {"id":"unh","ticker":"UNH","name":"UnitedHealth","sector":"Healthcare"},
+    {"id":"pfe","ticker":"PFE","name":"Pfizer","sector":"Healthcare"},
+    {"id":"wmt","ticker":"WMT","name":"Walmart","sector":"Consumer"}
+  ],
+  "matrix": [
+    [0.00,0.71,0.64,0.18,0.16,0.11,0.10,0.22,0.18,0.34],
+    [0.68,0.00,0.59,0.20,0.19,0.12,0.11,0.25,0.21,0.29],
+    [0.61,0.55,0.00,0.15,0.13,0.17,0.16,0.20,0.23,0.27],
+    [0.19,0.18,0.16,0.00,0.82,0.31,0.29,0.22,0.18,0.24],
+    [0.17,0.20,0.14,0.79,0.00,0.28,0.27,0.21,0.17,0.23],
+    [0.10,0.12,0.19,0.30,0.27,0.00,0.86,0.13,0.15,0.18],
+    [0.11,0.13,0.18,0.27,0.29,0.84,0.00,0.12,0.14,0.16],
+    [0.22,0.25,0.18,0.21,0.20,0.12,0.11,0.00,0.66,0.19],
+    [0.19,0.22,0.21,0.17,0.18,0.15,0.13,0.62,0.00,0.16],
+    [0.33,0.28,0.25,0.24,0.21,0.17,0.18,0.20,0.15,0.00]
+  ]
+}

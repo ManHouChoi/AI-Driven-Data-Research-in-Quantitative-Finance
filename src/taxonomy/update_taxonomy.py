@@ -12,7 +12,7 @@ Logic:
  4. Consult LLM: "Is this a NEW category, or a DRIFT of an existing one?"
  5. Update Taxonomy (Add new nodes or update existing centroids).
 
-Author: Marco (FYP) - Adapted from Advanced Logic
+Maintainer: IEDA4920 FYP research team
 """
 
 import pandas as pd

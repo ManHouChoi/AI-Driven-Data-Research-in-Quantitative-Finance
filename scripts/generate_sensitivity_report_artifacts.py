@@ -316,25 +316,83 @@ def plot_convergence(variants: list[VariantArtifact]) -> None:
     if not sources:
         return
 
-    fig, axes = plt.subplots(1, len(sources), figsize=(6.3 * len(sources), 4.6), dpi=180, sharey=True)
-    if len(sources) == 1:
-        axes = [axes]
-    for ax, (title, path) in zip(axes, sources):
-        df = pd.read_csv(path / "training_convergence_meso.csv")
-        ax.plot(df["epoch"], df["gat_val_loss"], label="ST-GAT validation", color="#214f80", linewidth=2.0)
-        ax.plot(df["epoch"], df["base_val_loss"], label="Identity validation", color="#8a8a8a", linewidth=1.9)
-        gat_best = df.loc[df["gat_val_loss"].idxmin()]
-        base_best = df.loc[df["base_val_loss"].idxmin()]
-        ax.scatter([gat_best["epoch"]], [gat_best["gat_val_loss"]], color="#214f80", s=32)
-        ax.scatter([base_best["epoch"]], [base_best["base_val_loss"]], color="#8a8a8a", s=32)
-        ax.set_title(title)
-        ax.set_xlabel("Epoch")
-        ax.grid(alpha=0.25)
-    axes[0].set_ylabel("Validation Huber loss")
-    axes[-1].legend(frameon=False, loc="upper right")
-    fig.tight_layout()
-    fig.savefig(REPORT_FIGURES / "stgat_convergence_default_theta040.png", bbox_inches="tight")
-    plt.close(fig)
+    def loss_trend(series: pd.Series) -> pd.Series:
+        window = max(5, min(9, int(len(series) // 12) * 2 + 1))
+        return (
+            series.rolling(window=window, center=True, min_periods=1)
+            .median()
+            .ewm(span=7, adjust=False)
+            .mean()
+        )
+
+    with plt.rc_context(
+        {
+            "font.family": "serif",
+            "font.size": 9.2,
+            "axes.titlesize": 10.2,
+            "axes.labelsize": 9.5,
+            "legend.fontsize": 9.0,
+            "xtick.labelsize": 8.8,
+            "ytick.labelsize": 8.8,
+            "axes.linewidth": 0.8,
+        }
+    ):
+        fig, axes = plt.subplots(1, len(sources), figsize=(4.75 * len(sources), 3.1), dpi=300, sharey=True)
+        if len(sources) == 1:
+            axes = [axes]
+        for ax, (title, path) in zip(axes, sources):
+            df = pd.read_csv(path / "training_convergence_meso.csv")
+            gat_train_trend = loss_trend(df["gat_train_loss"])
+            gat_val_trend = loss_trend(df["gat_val_loss"])
+            base_train_trend = loss_trend(df["base_train_loss"])
+            base_val_trend = loss_trend(df["base_val_loss"])
+            gat_best = df.loc[df["gat_val_loss"].idxmin()]
+            base_best = df.loc[df["base_val_loss"].idxmin()]
+
+            ax.plot(df["epoch"], gat_train_trend, label="ST-GAT training", color="#1f4e79", linewidth=1.75)
+            ax.plot(
+                df["epoch"],
+                gat_val_trend,
+                label="ST-GAT validation",
+                color="#1f4e79",
+                linestyle="--",
+                linewidth=1.95,
+            )
+            ax.plot(df["epoch"], base_train_trend, label="Identity training", color="#6a6a6a", linewidth=1.55)
+            ax.plot(
+                df["epoch"],
+                base_val_trend,
+                label="Identity validation",
+                color="#6a6a6a",
+                linestyle="--",
+                linewidth=1.75,
+            )
+            ax.scatter(
+                [gat_best["epoch"]],
+                [gat_val_trend.iloc[int(gat_best.name)]],
+                color="#1f4e79",
+                s=18,
+                zorder=4,
+            )
+            ax.scatter(
+                [base_best["epoch"]],
+                [base_val_trend.iloc[int(base_best.name)]],
+                color="#6a6a6a",
+                s=18,
+                zorder=4,
+            )
+            ax.set_title(title, loc="left")
+            ax.set_xlabel("Epoch")
+            ax.set_yscale("log")
+            ax.grid(axis="y", which="major", alpha=0.24, linewidth=0.55)
+            ax.margins(x=0.02)
+            ax.spines["top"].set_visible(False)
+            ax.spines["right"].set_visible(False)
+        axes[0].set_ylabel("Smoothed Huber loss (log scale)")
+        axes[-1].legend(frameon=False, loc="upper right", handlelength=2.5)
+        fig.tight_layout(w_pad=2.0)
+        fig.savefig(REPORT_FIGURES / "stgat_convergence_default_theta040.png", bbox_inches="tight", dpi=300)
+        plt.close(fig)
 
 
 def plot_downstream_dashboard(df: pd.DataFrame) -> None:

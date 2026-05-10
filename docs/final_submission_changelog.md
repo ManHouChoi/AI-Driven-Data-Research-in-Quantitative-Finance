@@ -42,30 +42,12 @@
   - "Deferred audit"
   - "Deferred validation"
 
-## Presentation Deck Construction
+## Repository Overview Media
 
-- Added `scripts/generate_final_presentation.py`.
-- Added `python-pptx>=1.0.2` to `requirements.txt`.
-- Generated `report/IEDA4920_Final_Presentation.pptx`.
-- Regenerated the final deck after inspecting the newer reference deck `report/IEDA4000E_Presentation_Deck_1126.pptx`.
-- Added a data-derived cover background at `report/figures/final_deck_cover_background.png`, generated from the current ST-GAT long-short return series.
-- Built a 28-slide final research presentation with the requested storyline:
-  - motivation and problem statement;
-  - data sources, SEC extraction, risk scoring, and financial feature/target construction;
-  - taxonomy and risk-vector construction;
-  - semantic peer graphs and topology-only ST-GAT;
-  - identity baseline and chronological split;
-  - OOS forecasting results;
-  - graph density diagnostics;
-  - portfolio setup, equity curves, and spread diagnostics;
-  - limitations, validation, conclusion, and Q&A.
-- Reworked the deck style toward the newer reference's presentation rhythm:
-  - finance-style dark cover;
-  - Times New Roman typography;
-  - navy/gold accent system;
-  - assertion-style slide titles;
-  - evidence-led chart/table layouts;
-  - bottom takeaway lines instead of repetitive footer navigation.
+- Added `docs/assets/overview/project-overview.mp4` as the compact GitHub README video overview.
+- Added `docs/assets/overview/st-gat-demo.png`, `docs/assets/overview/st-gat-network.png`, and `docs/assets/overview/taxonomy-demo.png` as static repository overview previews.
+- Linked the deployed interactive dashboard from `README.md`.
+- Removed the generated presentation deck from the GitHub commit surface; the final public package keeps the report PDF, video overview, and demo instead.
 
 ## Validation Results
 
@@ -73,8 +55,7 @@
 - Pipeline validation passed with 35 passed checks, 7 warnings, and 0 failures after the expanded Macro/Meso sensitivity edit.
 - GitHub readiness check passed.
 - Python compile check passed.
-- PPTX package integrity check passed.
-- Final report and final deck were scanned for the required WIP-marker phrases.
+- Final report and repository overview files were scanned for the required WIP-marker phrases.
 
 ## Repository Cleanup For GitHub
 
@@ -85,6 +66,7 @@
   - `logs/`
 - Removed `.DS_Store`, LaTeX auxiliary files, and pre-finalization report backups from the repository folder.
 - Preserved the expected folder structure with lightweight `.gitkeep` placeholders under `data/` and `outputs/`.
+- Removed the generated presentation deck from Git tracking and ignored future `.pptx` files.
 
 ## Remaining Limitations
 

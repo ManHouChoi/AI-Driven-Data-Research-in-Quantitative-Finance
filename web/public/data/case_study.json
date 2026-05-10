@@ -1,0 +1,1725 @@
+{
+  "tickers": [
+    {
+      "ticker": "LVS",
+      "name": "Las Vegas Sands",
+      "shockYears": [
+        2008,
+        2009,
+        2019,
+        2022
+      ],
+      "trajectory": [
+        {
+          "year": 2008,
+          "macroCategory": "Internal Control Over Financial Reporting and Disclosure Controls",
+          "macroShare": 0.1237715803452856,
+          "mesoCategory": "Debt Maturity and Repayment Schedule Risk",
+          "mesoShare": 0.058964143426295,
+          "vectorDistance": 0.12,
+          "nearestPeer": "ULTA",
+          "nearestPeerCosine": 0.5587751852289088,
+          "x": 0.587,
+          "y": 0.362,
+          "peers": [
+            {
+              "ticker": "ULTA",
+              "cosine": 0.5587751852289088,
+              "x": 0.707,
+              "y": 0.262
+            },
+            {
+              "ticker": "CPRT",
+              "cosine": 0.07685267550074336,
+              "x": 0.827,
+              "y": 0.162
+            },
+            {
+              "ticker": "PSA",
+              "cosine": 0.03462665547958859,
+              "x": 0.947,
+              "y": 0.062
+            }
+          ]
+        },
+        {
+          "year": 2009,
+          "macroCategory": "Operational and External Event Risk",
+          "macroShare": 0.2596955658504309,
+          "mesoCategory": "Integrated Resort Operations and Development Risk",
+          "mesoShare": 0.1298477829252156,
+          "vectorDistance": 0.48991938798371926,
+          "nearestPeer": "UHS",
+          "nearestPeerCosine": 0.3014308032219468,
+          "x": 0.732,
+          "y": 0.394,
+          "peers": [
+            {
+              "ticker": "UHS",
+              "cosine": 0.3014308032219468,
+              "x": 0.852,
+              "y": 0.294
+            },
+            {
+              "ticker": "ULTA",
+              "cosine": 0.239271068347619,
+              "x": 0.972,
+              "y": 0.194
+            },
+            {
+              "ticker": "CPRT",
+              "cosine": 0.04784327761071399,
+              "x": 1.092,
+              "y": 0.094
+            },
+            {
+              "ticker": "PSA",
+              "cosine": 0.009704191031855991,
+              "x": 1.212,
+              "y": -0.006
+            }
+          ]
+        },
+        {
+          "year": 2012,
+          "macroCategory": "Operational and External Event Risk",
+          "macroShare": 0.1965346534653465,
+          "mesoCategory": "Casino Resort Operational Competition Risk",
+          "mesoShare": 0.060891089108911,
+          "vectorDistance": 0.24300080365724352,
+          "nearestPeer": "DVN",
+          "nearestPeerCosine": 0.4631210384637279,
+          "x": -0.472,
+          "y": 0.305,
+          "peers": [
+            {
+              "ticker": "DVN",
+              "cosine": 0.4631210384637279,
+              "x": -0.352,
+              "y": 0.205
+            },
+            {
+              "ticker": "TECH",
+              "cosine": 0.44186864491646216,
+              "x": -0.232,
+              "y": 0.105
+            },
+            {
+              "ticker": "PAYX",
+              "cosine": 0.43525151249945065,
+              "x": -0.112,
+              "y": 0.005
+            },
+            {
+              "ticker": "TMO",
+              "cosine": 0.43281132718428283,
+              "x": 0.008,
+              "y": -0.095
+            }
+          ]
+        },
+        {
+          "year": 2013,
+          "macroCategory": "Operational and External Event Risk",
+          "macroShare": 0.6590909090909092,
+          "mesoCategory": "Casino Resort Operational Competition Risk",
+          "mesoShare": 0.2500000000000001,
+          "vectorDistance": 0.47241613316691067,
+          "nearestPeer": "KIM",
+          "nearestPeerCosine": 0.15875015875023796,
+          "x": -0.478,
+          "y": -0.037,
+          "peers": [
+            {
+              "ticker": "KIM",
+              "cosine": 0.15875015875023796,
+              "x": -0.358,
+              "y": -0.137
+            },
+            {
+              "ticker": "PSA",
+              "cosine": 0.15633479971477823,
+              "x": -0.238,
+              "y": -0.237
+            },
+            {
+              "ticker": "ESS",
+              "cosine": 0.13457262205049766,
+              "x": -0.118,
+              "y": -0.337
+            },
+            {
+              "ticker": "CPRT",
+              "cosine": 0.11415022934616105,
+              "x": 0.002,
+              "y": -0.437
+            }
+          ]
+        },
+        {
+          "year": 2014,
+          "macroCategory": "Operational and External Event Risk",
+          "macroShare": 0.6521739130434783,
+          "mesoCategory": "Casino Resort Operational Competition Risk",
+          "mesoShare": 0.2391304347826088,
+          "vectorDistance": 0.0157490157485235,
+          "nearestPeer": "HLT",
+          "nearestPeerCosine": 0.3570079589861492,
+          "x": -1.019,
+          "y": -0.186,
+          "peers": [
+            {
+              "ticker": "HLT",
+              "cosine": 0.3570079589861492,
+              "x": -0.899,
+              "y": -0.286
+            },
+            {
+              "ticker": "CNP",
+              "cosine": 0.25131096861113944,
+              "x": -0.779,
+              "y": -0.386
+            },
+            {
+              "ticker": "KKR",
+              "cosine": 0.23592535771038753,
+              "x": -0.659,
+              "y": -0.486
+            },
+            {
+              "ticker": "AWK",
+              "cosine": 0.22972504081512307,
+              "x": -0.539,
+              "y": -0.586
+            }
+          ]
+        },
+        {
+          "year": 2015,
+          "macroCategory": "Operational and External Event Risk",
+          "macroShare": 0.6444444444444445,
+          "mesoCategory": "Casino Resort Operational Competition Risk",
+          "mesoShare": 0.2222222222222223,
+          "vectorDistance": 0.04503542718625353,
+          "nearestPeer": "HLT",
+          "nearestPeerCosine": 0.36003209124704505,
+          "x": -0.878,
+          "y": -0.554,
+          "peers": [
+            {
+              "ticker": "HLT",
+              "cosine": 0.36003209124704505,
+              "x": -0.758,
+              "y": -0.654
+            },
+            {
+              "ticker": "KEYS",
+              "cosine": 0.2710163730195261,
+              "x": -0.638,
+              "y": -0.754
+            },
+            {
+              "ticker": "EMR",
+              "cosine": 0.2708381313869477,
+              "x": -0.518,
+              "y": -0.854
+            },
+            {
+              "ticker": "AFL",
+              "cosine": 0.247814566968382,
+              "x": -0.398,
+              "y": -0.954
+            }
+          ]
+        },
+        {
+          "year": 2018,
+          "macroCategory": "Operational and External Event Risk",
+          "macroShare": 0.6666666666666666,
+          "mesoCategory": "Casino Resort Operational Competition Risk",
+          "mesoShare": 0.2857142857142857,
+          "vectorDistance": 0.08246673856666609,
+          "nearestPeer": "HLT",
+          "nearestPeerCosine": 0.34069257193462354,
+          "x": 0.481,
+          "y": -0.951,
+          "peers": [
+            {
+              "ticker": "HLT",
+              "cosine": 0.34069257193462354,
+              "x": 0.601,
+              "y": -1.051
+            },
+            {
+              "ticker": "PLD",
+              "cosine": 0.24763401617197725,
+              "x": 0.721,
+              "y": -1.151
+            },
+            {
+              "ticker": "ROP",
+              "cosine": 0.21597969886241553,
+              "x": 0.841,
+              "y": -1.251
+            },
+            {
+              "ticker": "DHI",
+              "cosine": 0.21597969886241544,
+              "x": 0.961,
+              "y": -1.351
+            }
+          ]
+        },
+        {
+          "year": 2019,
+          "macroCategory": "Operational and External Event Risk",
+          "macroShare": 0.4731182795698924,
+          "mesoCategory": "Debt Maturity and Repayment Schedule Risk",
+          "mesoShare": 0.1182795698924732,
+          "vectorDistance": 0.5056805415286758,
+          "nearestPeer": "EXE",
+          "nearestPeerCosine": 0.5847838208453433,
+          "x": 1.41,
+          "y": -0.965,
+          "peers": [
+            {
+              "ticker": "EXE",
+              "cosine": 0.5847838208453433,
+              "x": 1.53,
+              "y": -1.065
+            },
+            {
+              "ticker": "LH",
+              "cosine": 0.4165844008891872,
+              "x": 1.65,
+              "y": -1.165
+            },
+            {
+              "ticker": "ZTS",
+              "cosine": 0.3973041697606907,
+              "x": 1.77,
+              "y": -1.265
+            },
+            {
+              "ticker": "DHI",
+              "cosine": 0.3963948924870606,
+              "x": 1.89,
+              "y": -1.365
+            }
+          ]
+        },
+        {
+          "year": 2022,
+          "macroCategory": "Operational and External Event Risk",
+          "macroShare": 0.7272727272727273,
+          "mesoCategory": "Casino Resort Operational Competition Risk",
+          "mesoShare": 0.1818181818181818,
+          "vectorDistance": 0.43257429211490905,
+          "nearestPeer": "A",
+          "nearestPeerCosine": 0.42666686972054957,
+          "x": 1.719,
+          "y": 0.297,
+          "peers": [
+            {
+              "ticker": "A",
+              "cosine": 0.42666686972054957,
+              "x": 1.839,
+              "y": 0.197
+            },
+            {
+              "ticker": "TTD",
+              "cosine": 0.3688626719822609,
+              "x": 1.959,
+              "y": 0.097
+            },
+            {
+              "ticker": "SLB",
+              "cosine": 0.3650793650793652,
+              "x": 2.079,
+              "y": -0.003
+            },
+            {
+              "ticker": "TMO",
+              "cosine": 0.36380343755449945,
+              "x": 2.199,
+              "y": -0.103
+            }
+          ]
+        },
+        {
+          "year": 2023,
+          "macroCategory": "Operational and External Event Risk",
+          "macroShare": 0.6470588235294118,
+          "mesoCategory": "Casino Resort Operational Competition Risk",
+          "mesoShare": 0.147058823529412,
+          "vectorDistance": 0.19671456523105424,
+          "nearestPeer": "NSC",
+          "nearestPeerCosine": 0.32652708569842065,
+          "x": 1.186,
+          "y": 0.813,
+          "peers": [
+            {
+              "ticker": "NSC",
+              "cosine": 0.32652708569842065,
+              "x": 1.306,
+              "y": 0.713
+            },
+            {
+              "ticker": "ROP",
+              "cosine": 0.32489314482696496,
+              "x": 1.426,
+              "y": 0.613
+            },
+            {
+              "ticker": "EPAM",
+              "cosine": 0.3068974527617126,
+              "x": 1.546,
+              "y": 0.513
+            },
+            {
+              "ticker": "TDG",
+              "cosine": 0.2975308222082784,
+              "x": 1.666,
+              "y": 0.413
+            }
+          ]
+        },
+        {
+          "year": 2024,
+          "macroCategory": "Operational and External Event Risk",
+          "macroShare": 0.7272727272727273,
+          "mesoCategory": "Casino Resort Operational Competition Risk",
+          "mesoShare": 0.2424242424242425,
+          "vectorDistance": 0.1047262142142481,
+          "nearestPeer": "TMO",
+          "nearestPeerCosine": 0.2791452631195413,
+          "x": 0.568,
+          "y": 1.154,
+          "peers": [
+            {
+              "ticker": "TMO",
+              "cosine": 0.2791452631195413,
+              "x": 0.688,
+              "y": 1.054
+            },
+            {
+              "ticker": "ROP",
+              "cosine": 0.25517727194137024,
+              "x": 0.808,
+              "y": 0.954
+            },
+            {
+              "ticker": "DVN",
+              "cosine": 0.25386324826872597,
+              "x": 0.928,
+              "y": 0.854
+            },
+            {
+              "ticker": "TDG",
+              "cosine": 0.2529289702131094,
+              "x": 1.048,
+              "y": 0.754
+            }
+          ]
+        }
+      ],
+      "archetype": "Pandemic/Regulatory"
+    },
+    {
+      "ticker": "NVDA",
+      "name": "NVIDIA",
+      "archetype": "Supply Chain/Tech",
+      "shockYears": [
+        2018,
+        2020,
+        2021,
+        2022,
+        2024
+      ],
+      "trajectory": [
+        {
+          "year": 2008,
+          "macroCategory": "Technology product cycle and channel risk",
+          "macroShare": 0.208144,
+          "mesoCategory": "Gaming and datacenter demand cyclicality",
+          "mesoShare": 0.12068,
+          "vectorDistance": 0.305476,
+          "nearestPeer": "AMD",
+          "nearestPeerCosine": 0.680046,
+          "x": 2.123,
+          "y": -0.18,
+          "peers": [
+            {
+              "ticker": "AMD",
+              "cosine": 0.32,
+              "x": 2.243,
+              "y": -0.28
+            },
+            {
+              "ticker": "TSM",
+              "cosine": 0.598418,
+              "x": 2.363,
+              "y": -0.38
+            },
+            {
+              "ticker": "ASML",
+              "cosine": 0.551905,
+              "x": 2.483,
+              "y": -0.48
+            },
+            {
+              "ticker": "MSFT",
+              "cosine": 0.15427,
+              "x": 2.603,
+              "y": -0.58
+            }
+          ]
+        },
+        {
+          "year": 2009,
+          "macroCategory": "Technology product cycle and channel risk",
+          "macroShare": 0.339619,
+          "mesoCategory": "Gaming and datacenter demand cyclicality",
+          "mesoShare": 0.187526,
+          "vectorDistance": 0.428558,
+          "nearestPeer": "TSM",
+          "nearestPeerCosine": 0.53684,
+          "x": 2.349,
+          "y": -0.209,
+          "peers": [
+            {
+              "ticker": "AMD",
+              "cosine": 0.673418,
+              "x": 2.469,
+              "y": -0.309
+            },
+            {
+              "ticker": "TSM",
+              "cosine": 0.626905,
+              "x": 2.589,
+              "y": -0.409
+            },
+            {
+              "ticker": "ASML",
+              "cosine": 0.22927,
+              "x": 2.709,
+              "y": -0.509
+            },
+            {
+              "ticker": "MSFT",
+              "cosine": 0.412857,
+              "x": 2.829,
+              "y": -0.609
+            }
+          ]
+        },
+        {
+          "year": 2012,
+          "macroCategory": "Technology product cycle and channel risk",
+          "macroShare": 0.276947,
+          "mesoCategory": "Gaming and datacenter demand cyclicality",
+          "mesoShare": 0.105904,
+          "vectorDistance": 0.350113,
+          "nearestPeer": "ASML",
+          "nearestPeerCosine": 0.477255,
+          "x": 0.96,
+          "y": -0.363,
+          "peers": [
+            {
+              "ticker": "AMD",
+              "cosine": 0.701905,
+              "x": 1.08,
+              "y": -0.463
+            },
+            {
+              "ticker": "TSM",
+              "cosine": 0.30427,
+              "x": 1.2,
+              "y": -0.563
+            },
+            {
+              "ticker": "ASML",
+              "cosine": 0.487857,
+              "x": 1.32,
+              "y": -0.663
+            },
+            {
+              "ticker": "MSFT",
+              "cosine": 0.497748,
+              "x": 1.44,
+              "y": -0.763
+            }
+          ]
+        },
+        {
+          "year": 2013,
+          "macroCategory": "Technology product cycle and channel risk",
+          "macroShare": 0.58,
+          "mesoCategory": "Gaming and datacenter demand cyclicality",
+          "mesoShare": 0.296053,
+          "vectorDistance": 0.115496,
+          "nearestPeer": "MSFT",
+          "nearestPeerCosine": 0.636214,
+          "x": 0.833,
+          "y": -0.743,
+          "peers": [
+            {
+              "ticker": "AMD",
+              "cosine": 0.37927,
+              "x": 0.953,
+              "y": -0.843
+            },
+            {
+              "ticker": "TSM",
+              "cosine": 0.562857,
+              "x": 1.073,
+              "y": -0.943
+            },
+            {
+              "ticker": "ASML",
+              "cosine": 0.572748,
+              "x": 1.193,
+              "y": -1.043
+            },
+            {
+              "ticker": "MSFT",
+              "cosine": 0.212355,
+              "x": 1.313,
+              "y": -1.143
+            }
+          ]
+        },
+        {
+          "year": 2014,
+          "macroCategory": "Technology product cycle and channel risk",
+          "macroShare": 0.58,
+          "mesoCategory": "Gaming and datacenter demand cyclicality",
+          "mesoShare": 0.279251,
+          "vectorDistance": 0.299644,
+          "nearestPeer": "AMD",
+          "nearestPeerCosine": 0.738014,
+          "x": 0.096,
+          "y": -0.922,
+          "peers": [
+            {
+              "ticker": "AMD",
+              "cosine": 0.637857,
+              "x": 0.216,
+              "y": -1.022
+            },
+            {
+              "ticker": "TSM",
+              "cosine": 0.647748,
+              "x": 0.336,
+              "y": -1.122
+            },
+            {
+              "ticker": "ASML",
+              "cosine": 0.287355,
+              "x": 0.456,
+              "y": -1.222
+            },
+            {
+              "ticker": "MSFT",
+              "cosine": 0.370934,
+              "x": 0.576,
+              "y": -1.322
+            }
+          ]
+        },
+        {
+          "year": 2015,
+          "macroCategory": "Technology product cycle and channel risk",
+          "macroShare": 0.58,
+          "mesoCategory": "Gaming and datacenter demand cyclicality",
+          "mesoShare": 0.260559,
+          "vectorDistance": 0.427792,
+          "nearestPeer": "TSM",
+          "nearestPeerCosine": 0.755743,
+          "x": 0.188,
+          "y": -1.268,
+          "peers": [
+            {
+              "ticker": "AMD",
+              "cosine": 0.722748,
+              "x": 0.308,
+              "y": -1.368
+            },
+            {
+              "ticker": "TSM",
+              "cosine": 0.362355,
+              "x": 0.428,
+              "y": -1.468
+            },
+            {
+              "ticker": "ASML",
+              "cosine": 0.445934,
+              "x": 0.548,
+              "y": -1.568
+            },
+            {
+              "ticker": "MSFT",
+              "cosine": 0.51053,
+              "x": 0.668,
+              "y": -1.668
+            }
+          ]
+        },
+        {
+          "year": 2018,
+          "macroCategory": "Technology product cycle and channel risk",
+          "macroShare": 0.58,
+          "mesoCategory": "Gaming and datacenter demand cyclicality",
+          "mesoShare": 0.374486,
+          "vectorDistance": 0.399856,
+          "nearestPeer": "ASML",
+          "nearestPeerCosine": 0.710215,
+          "x": 1.747,
+          "y": -1.604,
+          "peers": [
+            {
+              "ticker": "AMD",
+              "cosine": 0.512355,
+              "x": 1.867,
+              "y": -1.704
+            },
+            {
+              "ticker": "TSM",
+              "cosine": 0.595934,
+              "x": 1.987,
+              "y": -1.804
+            },
+            {
+              "ticker": "ASML",
+              "cosine": 0.66053,
+              "x": 2.107,
+              "y": -1.904
+            },
+            {
+              "ticker": "MSFT",
+              "cosine": 0.34309,
+              "x": 2.227,
+              "y": -2.004
+            }
+          ]
+        },
+        {
+          "year": 2019,
+          "macroCategory": "Technology product cycle and channel risk",
+          "macroShare": 0.502612,
+          "mesoCategory": "Gaming and datacenter demand cyclicality",
+          "mesoShare": 0.162644,
+          "vectorDistance": 0.123006,
+          "nearestPeer": "MSFT",
+          "nearestPeerCosine": 0.543706,
+          "x": 2.907,
+          "y": -1.559,
+          "peers": [
+            {
+              "ticker": "AMD",
+              "cosine": 0.595934,
+              "x": 3.027,
+              "y": -1.659
+            },
+            {
+              "ticker": "TSM",
+              "cosine": 0.66053,
+              "x": 3.147,
+              "y": -1.759
+            },
+            {
+              "ticker": "ASML",
+              "cosine": 0.34309,
+              "x": 3.267,
+              "y": -1.859
+            },
+            {
+              "ticker": "MSFT",
+              "cosine": 0.323489,
+              "x": 3.387,
+              "y": -1.959
+            }
+          ]
+        },
+        {
+          "year": 2022,
+          "macroCategory": "Semiconductor supply and AI platform demand risk",
+          "macroShare": 0.58,
+          "mesoCategory": "GPU supply chain capacity and export control exposure",
+          "mesoShare": 0.282056,
+          "vectorDistance": 0.338709,
+          "nearestPeer": "AMD",
+          "nearestPeerCosine": 0.495506,
+          "x": 3.385,
+          "y": -0.326,
+          "peers": [
+            {
+              "ticker": "AMD",
+              "cosine": 0.81053,
+              "x": 3.505,
+              "y": -0.426
+            },
+            {
+              "ticker": "TSM",
+              "cosine": 0.49309,
+              "x": 3.625,
+              "y": -0.526
+            },
+            {
+              "ticker": "ASML",
+              "cosine": 0.473489,
+              "x": 3.745,
+              "y": -0.626
+            },
+            {
+              "ticker": "MSFT",
+              "cosine": 0.589996,
+              "x": 3.865,
+              "y": -0.726
+            }
+          ]
+        },
+        {
+          "year": 2023,
+          "macroCategory": "Semiconductor supply and AI platform demand risk",
+          "macroShare": 0.58,
+          "mesoCategory": "GPU supply chain capacity and export control exposure",
+          "mesoShare": 0.210556,
+          "vectorDistance": 0.426863,
+          "nearestPeer": "TSM",
+          "nearestPeerCosine": 0.630498,
+          "x": 2.857,
+          "y": 0.215,
+          "peers": [
+            {
+              "ticker": "AMD",
+              "cosine": 0.49309,
+              "x": 2.977,
+              "y": 0.115
+            },
+            {
+              "ticker": "TSM",
+              "cosine": 0.473489,
+              "x": 3.097,
+              "y": 0.015
+            },
+            {
+              "ticker": "ASML",
+              "cosine": 0.589996,
+              "x": 3.217,
+              "y": -0.085
+            },
+            {
+              "ticker": "MSFT",
+              "cosine": 0.320361,
+              "x": 3.337,
+              "y": -0.185
+            }
+          ]
+        },
+        {
+          "year": 2024,
+          "macroCategory": "Semiconductor supply and AI platform demand risk",
+          "macroShare": 0.58,
+          "mesoCategory": "GPU supply chain capacity and export control exposure",
+          "mesoShare": 0.35974,
+          "vectorDistance": 0.40447,
+          "nearestPeer": "ASML",
+          "nearestPeerCosine": 0.760843,
+          "x": 2.13,
+          "y": 0.572,
+          "peers": [
+            {
+              "ticker": "AMD",
+              "cosine": 0.623489,
+              "x": 2.25,
+              "y": 0.472
+            },
+            {
+              "ticker": "TSM",
+              "cosine": 0.739996,
+              "x": 2.37,
+              "y": 0.372
+            },
+            {
+              "ticker": "ASML",
+              "cosine": 0.470361,
+              "x": 2.49,
+              "y": 0.272
+            },
+            {
+              "ticker": "MSFT",
+              "cosine": 0.34647,
+              "x": 2.61,
+              "y": 0.172
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ticker": "BAC",
+      "name": "Bank of America",
+      "archetype": "Credit/Rates",
+      "shockYears": [
+        2008,
+        2009,
+        2012,
+        2020,
+        2023
+      ],
+      "trajectory": [
+        {
+          "year": 2008,
+          "macroCategory": "Credit cycle and capital adequacy risk",
+          "macroShare": 0.300096,
+          "mesoCategory": "Mortgage, capital markets, and regulatory capital exposure",
+          "mesoShare": 0.147317,
+          "vectorDistance": 0.449605,
+          "nearestPeer": "JPM",
+          "nearestPeerCosine": 0.551678,
+          "x": -0.922,
+          "y": 1.266,
+          "peers": [
+            {
+              "ticker": "JPM",
+              "cosine": 0.384,
+              "x": -0.802,
+              "y": 1.166
+            },
+            {
+              "ticker": "C",
+              "cosine": 0.662418,
+              "x": -0.682,
+              "y": 1.066
+            },
+            {
+              "ticker": "WFC",
+              "cosine": 0.615905,
+              "x": -0.562,
+              "y": 0.966
+            },
+            {
+              "ticker": "GS",
+              "cosine": 0.21827,
+              "x": -0.442,
+              "y": 0.866
+            }
+          ]
+        },
+        {
+          "year": 2009,
+          "macroCategory": "Credit cycle and capital adequacy risk",
+          "macroShare": 0.39853,
+          "mesoCategory": "Mortgage, capital markets, and regulatory capital exposure",
+          "mesoShare": 0.206962,
+          "vectorDistance": 0.274281,
+          "nearestPeer": "C",
+          "nearestPeerCosine": 0.697017,
+          "x": -0.899,
+          "y": 1.24,
+          "peers": [
+            {
+              "ticker": "JPM",
+              "cosine": 0.737418,
+              "x": -0.779,
+              "y": 1.14
+            },
+            {
+              "ticker": "C",
+              "cosine": 0.690905,
+              "x": -0.659,
+              "y": 1.04
+            },
+            {
+              "ticker": "WFC",
+              "cosine": 0.29327,
+              "x": -0.539,
+              "y": 0.94
+            },
+            {
+              "ticker": "GS",
+              "cosine": 0.476857,
+              "x": -0.419,
+              "y": 0.84
+            }
+          ]
+        },
+        {
+          "year": 2012,
+          "macroCategory": "Credit cycle and capital adequacy risk",
+          "macroShare": 0.327019,
+          "mesoCategory": "Mortgage, capital markets, and regulatory capital exposure",
+          "mesoShare": 0.137331,
+          "vectorDistance": 0.227969,
+          "nearestPeer": "WFC",
+          "nearestPeerCosine": 0.774875,
+          "x": -1.975,
+          "y": 1.112,
+          "peers": [
+            {
+              "ticker": "JPM",
+              "cosine": 0.765905,
+              "x": -1.855,
+              "y": 1.012
+            },
+            {
+              "ticker": "C",
+              "cosine": 0.36827,
+              "x": -1.735,
+              "y": 0.912
+            },
+            {
+              "ticker": "WFC",
+              "cosine": 0.551857,
+              "x": -1.615,
+              "y": 0.812
+            },
+            {
+              "ticker": "GS",
+              "cosine": 0.561748,
+              "x": -1.495,
+              "y": 0.712
+            }
+          ]
+        },
+        {
+          "year": 2013,
+          "macroCategory": "Credit cycle and capital adequacy risk",
+          "macroShare": 0.58,
+          "mesoCategory": "Mortgage, capital markets, and regulatory capital exposure",
+          "mesoShare": 0.280405,
+          "vectorDistance": 0.391669,
+          "nearestPeer": "GS",
+          "nearestPeerCosine": 0.74291,
+          "x": -2.083,
+          "y": 0.747,
+          "peers": [
+            {
+              "ticker": "JPM",
+              "cosine": 0.37927,
+              "x": -1.963,
+              "y": 0.647
+            },
+            {
+              "ticker": "C",
+              "cosine": 0.562857,
+              "x": -1.843,
+              "y": 0.547
+            },
+            {
+              "ticker": "WFC",
+              "cosine": 0.572748,
+              "x": -1.723,
+              "y": 0.447
+            },
+            {
+              "ticker": "GS",
+              "cosine": 0.212355,
+              "x": -1.603,
+              "y": 0.347
+            }
+          ]
+        },
+        {
+          "year": 2014,
+          "macroCategory": "Credit cycle and capital adequacy risk",
+          "macroShare": 0.58,
+          "mesoCategory": "Mortgage, capital markets, and regulatory capital exposure",
+          "mesoShare": 0.275138,
+          "vectorDistance": 0.413571,
+          "nearestPeer": "JPM",
+          "nearestPeerCosine": 0.64734,
+          "x": -2.516,
+          "y": 0.626,
+          "peers": [
+            {
+              "ticker": "JPM",
+              "cosine": 0.637857,
+              "x": -2.396,
+              "y": 0.526
+            },
+            {
+              "ticker": "C",
+              "cosine": 0.647748,
+              "x": -2.276,
+              "y": 0.426
+            },
+            {
+              "ticker": "WFC",
+              "cosine": 0.287355,
+              "x": -2.156,
+              "y": 0.326
+            },
+            {
+              "ticker": "GS",
+              "cosine": 0.370934,
+              "x": -2.036,
+              "y": 0.226
+            }
+          ]
+        },
+        {
+          "year": 2015,
+          "macroCategory": "Credit cycle and capital adequacy risk",
+          "macroShare": 0.58,
+          "mesoCategory": "Mortgage, capital markets, and regulatory capital exposure",
+          "mesoShare": 0.267317,
+          "vectorDistance": 0.242611,
+          "nearestPeer": "C",
+          "nearestPeerCosine": 0.491671,
+          "x": -2.318,
+          "y": 0.292,
+          "peers": [
+            {
+              "ticker": "JPM",
+              "cosine": 0.722748,
+              "x": -2.198,
+              "y": 0.192
+            },
+            {
+              "ticker": "C",
+              "cosine": 0.362355,
+              "x": -2.078,
+              "y": 0.092
+            },
+            {
+              "ticker": "WFC",
+              "cosine": 0.445934,
+              "x": -1.958,
+              "y": -0.008
+            },
+            {
+              "ticker": "GS",
+              "cosine": 0.51053,
+              "x": -1.838,
+              "y": -0.108
+            }
+          ]
+        },
+        {
+          "year": 2018,
+          "macroCategory": "Credit cycle and capital adequacy risk",
+          "macroShare": 0.58,
+          "mesoCategory": "Mortgage, capital markets, and regulatory capital exposure",
+          "mesoShare": 0.336879,
+          "vectorDistance": 0.182366,
+          "nearestPeer": "WFC",
+          "nearestPeerCosine": 0.522946,
+          "x": -1.122,
+          "y": -0.065,
+          "peers": [
+            {
+              "ticker": "JPM",
+              "cosine": 0.437355,
+              "x": -1.002,
+              "y": -0.165
+            },
+            {
+              "ticker": "C",
+              "cosine": 0.520934,
+              "x": -0.882,
+              "y": -0.265
+            },
+            {
+              "ticker": "WFC",
+              "cosine": 0.58553,
+              "x": -0.762,
+              "y": -0.365
+            },
+            {
+              "ticker": "GS",
+              "cosine": 0.26809,
+              "x": -0.642,
+              "y": -0.465
+            }
+          ]
+        },
+        {
+          "year": 2019,
+          "macroCategory": "Credit cycle and capital adequacy risk",
+          "macroShare": 0.520849,
+          "mesoCategory": "Mortgage, capital markets, and regulatory capital exposure",
+          "mesoShare": 0.185619,
+          "vectorDistance": 0.388158,
+          "nearestPeer": "GS",
+          "nearestPeerCosine": 0.670348,
+          "x": -0.292,
+          "y": -0.019,
+          "peers": [
+            {
+              "ticker": "JPM",
+              "cosine": 0.595934,
+              "x": -0.172,
+              "y": -0.119
+            },
+            {
+              "ticker": "C",
+              "cosine": 0.66053,
+              "x": -0.052,
+              "y": -0.219
+            },
+            {
+              "ticker": "WFC",
+              "cosine": 0.34309,
+              "x": 0.068,
+              "y": -0.319
+            },
+            {
+              "ticker": "GS",
+              "cosine": 0.323489,
+              "x": 0.188,
+              "y": -0.419
+            }
+          ]
+        },
+        {
+          "year": 2022,
+          "macroCategory": "Interest rate, deposit beta, and liquidity risk",
+          "macroShare": 0.58,
+          "mesoCategory": "Commercial credit migration and funding cost pressure",
+          "mesoShare": 0.250281,
+          "vectorDistance": 0.415781,
+          "nearestPeer": "JPM",
+          "nearestPeerCosine": 0.751567,
+          "x": -0.036,
+          "y": 1.377,
+          "peers": [
+            {
+              "ticker": "JPM",
+              "cosine": 0.73553,
+              "x": 0.084,
+              "y": 1.277
+            },
+            {
+              "ticker": "C",
+              "cosine": 0.41809,
+              "x": 0.204,
+              "y": 1.177
+            },
+            {
+              "ticker": "WFC",
+              "cosine": 0.398489,
+              "x": 0.324,
+              "y": 1.077
+            },
+            {
+              "ticker": "GS",
+              "cosine": 0.514996,
+              "x": 0.444,
+              "y": 0.977
+            }
+          ]
+        },
+        {
+          "year": 2023,
+          "macroCategory": "Interest rate, deposit beta, and liquidity risk",
+          "macroShare": 0.58,
+          "mesoCategory": "Commercial credit migration and funding cost pressure",
+          "mesoShare": 0.254039,
+          "vectorDistance": 0.287665,
+          "nearestPeer": "C",
+          "nearestPeerCosine": 0.766893,
+          "x": -0.538,
+          "y": 1.932,
+          "peers": [
+            {
+              "ticker": "JPM",
+              "cosine": 0.55709,
+              "x": -0.418,
+              "y": 1.832
+            },
+            {
+              "ticker": "C",
+              "cosine": 0.537489,
+              "x": -0.298,
+              "y": 1.732
+            },
+            {
+              "ticker": "WFC",
+              "cosine": 0.653996,
+              "x": -0.178,
+              "y": 1.632
+            },
+            {
+              "ticker": "GS",
+              "cosine": 0.384361,
+              "x": -0.058,
+              "y": 1.532
+            }
+          ]
+        },
+        {
+          "year": 2024,
+          "macroCategory": "Interest rate, deposit beta, and liquidity risk",
+          "macroShare": 0.58,
+          "mesoCategory": "Commercial credit migration and funding cost pressure",
+          "mesoShare": 0.302625,
+          "vectorDistance": 0.175116,
+          "nearestPeer": "WFC",
+          "nearestPeerCosine": 0.652746,
+          "x": -1.156,
+          "y": 2.262,
+          "peers": [
+            {
+              "ticker": "JPM",
+              "cosine": 0.548489,
+              "x": -1.036,
+              "y": 2.162
+            },
+            {
+              "ticker": "C",
+              "cosine": 0.664996,
+              "x": -0.916,
+              "y": 2.062
+            },
+            {
+              "ticker": "WFC",
+              "cosine": 0.395361,
+              "x": -0.796,
+              "y": 1.962
+            },
+            {
+              "ticker": "GS",
+              "cosine": 0.27147,
+              "x": -0.676,
+              "y": 1.862
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ticker": "XOM",
+      "name": "Exxon Mobil",
+      "archetype": "Commodities/Energy",
+      "shockYears": [
+        2008,
+        2015,
+        2020,
+        2022,
+        2024
+      ],
+      "trajectory": [
+        {
+          "year": 2008,
+          "macroCategory": "Upstream commodity cycle and refining margin exposure",
+          "macroShare": 0.287629,
+          "mesoCategory": "Exploration, production, and downstream margin volatility",
+          "mesoShare": 0.132604,
+          "vectorDistance": 0.239246,
+          "nearestPeer": "CVX",
+          "nearestPeerCosine": 0.764156,
+          "x": 1.597,
+          "y": 1.464,
+          "peers": [
+            {
+              "ticker": "CVX",
+              "cosine": 0.39,
+              "x": 1.717,
+              "y": 1.364
+            },
+            {
+              "ticker": "COP",
+              "cosine": 0.668418,
+              "x": 1.837,
+              "y": 1.264
+            },
+            {
+              "ticker": "SLB",
+              "cosine": 0.621905,
+              "x": 1.957,
+              "y": 1.164
+            },
+            {
+              "ticker": "OXY",
+              "cosine": 0.22427,
+              "x": 2.077,
+              "y": 1.064
+            }
+          ]
+        },
+        {
+          "year": 2009,
+          "macroCategory": "Upstream commodity cycle and refining margin exposure",
+          "macroShare": 0.317495,
+          "mesoCategory": "Exploration, production, and downstream margin volatility",
+          "mesoShare": 0.162133,
+          "vectorDistance": 0.228574,
+          "nearestPeer": "COP",
+          "nearestPeerCosine": 0.754603,
+          "x": 1.606,
+          "y": 1.495,
+          "peers": [
+            {
+              "ticker": "CVX",
+              "cosine": 0.673418,
+              "x": 1.726,
+              "y": 1.395
+            },
+            {
+              "ticker": "COP",
+              "cosine": 0.626905,
+              "x": 1.846,
+              "y": 1.295
+            },
+            {
+              "ticker": "SLB",
+              "cosine": 0.22927,
+              "x": 1.966,
+              "y": 1.195
+            },
+            {
+              "ticker": "OXY",
+              "cosine": 0.412857,
+              "x": 2.086,
+              "y": 1.095
+            }
+          ]
+        },
+        {
+          "year": 2012,
+          "macroCategory": "Upstream commodity cycle and refining margin exposure",
+          "macroShare": 0.248548,
+          "mesoCategory": "Exploration, production, and downstream margin volatility",
+          "mesoShare": 0.097105,
+          "vectorDistance": 0.408493,
+          "nearestPeer": "SLB",
+          "nearestPeerCosine": 0.680395,
+          "x": 0.309,
+          "y": 1.424,
+          "peers": [
+            {
+              "ticker": "CVX",
+              "cosine": 0.701905,
+              "x": 0.429,
+              "y": 1.324
+            },
+            {
+              "ticker": "COP",
+              "cosine": 0.30427,
+              "x": 0.549,
+              "y": 1.224
+            },
+            {
+              "ticker": "SLB",
+              "cosine": 0.487857,
+              "x": 0.669,
+              "y": 1.124
+            },
+            {
+              "ticker": "OXY",
+              "cosine": 0.497748,
+              "x": 0.789,
+              "y": 1.024
+            }
+          ]
+        },
+        {
+          "year": 2013,
+          "macroCategory": "Upstream commodity cycle and refining margin exposure",
+          "macroShare": 0.58,
+          "mesoCategory": "Exploration, production, and downstream margin volatility",
+          "mesoShare": 0.293787,
+          "vectorDistance": 0.398486,
+          "nearestPeer": "OXY",
+          "nearestPeerCosine": 0.537348,
+          "x": 0.308,
+          "y": 1.089,
+          "peers": [
+            {
+              "ticker": "CVX",
+              "cosine": 0.37927,
+              "x": 0.428,
+              "y": 0.989
+            },
+            {
+              "ticker": "COP",
+              "cosine": 0.562857,
+              "x": 0.548,
+              "y": 0.889
+            },
+            {
+              "ticker": "SLB",
+              "cosine": 0.572748,
+              "x": 0.668,
+              "y": 0.789
+            },
+            {
+              "ticker": "OXY",
+              "cosine": 0.212355,
+              "x": 0.788,
+              "y": 0.689
+            }
+          ]
+        },
+        {
+          "year": 2014,
+          "macroCategory": "Upstream commodity cycle and refining margin exposure",
+          "macroShare": 0.58,
+          "mesoCategory": "Exploration, production, and downstream margin volatility",
+          "mesoShare": 0.292133,
+          "vectorDistance": 0.204339,
+          "nearestPeer": "CVX",
+          "nearestPeerCosine": 0.476721,
+          "x": -0.133,
+          "y": 0.989,
+          "peers": [
+            {
+              "ticker": "CVX",
+              "cosine": 0.637857,
+              "x": -0.013,
+              "y": 0.889
+            },
+            {
+              "ticker": "COP",
+              "cosine": 0.647748,
+              "x": 0.107,
+              "y": 0.789
+            },
+            {
+              "ticker": "SLB",
+              "cosine": 0.287355,
+              "x": 0.227,
+              "y": 0.689
+            },
+            {
+              "ticker": "OXY",
+              "cosine": 0.370934,
+              "x": 0.347,
+              "y": 0.589
+            }
+          ]
+        },
+        {
+          "year": 2015,
+          "macroCategory": "Upstream commodity cycle and refining margin exposure",
+          "macroShare": 0.58,
+          "mesoCategory": "Exploration, production, and downstream margin volatility",
+          "mesoShare": 0.324247,
+          "vectorDistance": 0.263697,
+          "nearestPeer": "COP",
+          "nearestPeerCosine": 0.659596,
+          "x": 0.145,
+          "y": 0.632,
+          "peers": [
+            {
+              "ticker": "CVX",
+              "cosine": 0.792748,
+              "x": 0.265,
+              "y": 0.532
+            },
+            {
+              "ticker": "COP",
+              "cosine": 0.432355,
+              "x": 0.385,
+              "y": 0.432
+            },
+            {
+              "ticker": "SLB",
+              "cosine": 0.515934,
+              "x": 0.505,
+              "y": 0.332
+            },
+            {
+              "ticker": "OXY",
+              "cosine": 0.58053,
+              "x": 0.625,
+              "y": 0.232
+            }
+          ]
+        },
+        {
+          "year": 2018,
+          "macroCategory": "Upstream commodity cycle and refining margin exposure",
+          "macroShare": 0.58,
+          "mesoCategory": "Exploration, production, and downstream margin volatility",
+          "mesoShare": 0.35254,
+          "vectorDistance": 0.405808,
+          "nearestPeer": "SLB",
+          "nearestPeerCosine": 0.737822,
+          "x": 1.599,
+          "y": 0.217,
+          "peers": [
+            {
+              "ticker": "CVX",
+              "cosine": 0.437355,
+              "x": 1.719,
+              "y": 0.117
+            },
+            {
+              "ticker": "COP",
+              "cosine": 0.520934,
+              "x": 1.839,
+              "y": 0.017
+            },
+            {
+              "ticker": "SLB",
+              "cosine": 0.58553,
+              "x": 1.959,
+              "y": -0.083
+            },
+            {
+              "ticker": "OXY",
+              "cosine": 0.26809,
+              "x": 2.079,
+              "y": -0.183
+            }
+          ]
+        },
+        {
+          "year": 2019,
+          "macroCategory": "Upstream commodity cycle and refining margin exposure",
+          "macroShare": 0.54023,
+          "mesoCategory": "Exploration, production, and downstream margin volatility",
+          "mesoShare": 0.186059,
+          "vectorDistance": 0.401545,
+          "nearestPeer": "OXY",
+          "nearestPeerCosine": 0.755828,
+          "x": 2.525,
+          "y": 0.209,
+          "peers": [
+            {
+              "ticker": "CVX",
+              "cosine": 0.595934,
+              "x": 2.645,
+              "y": 0.109
+            },
+            {
+              "ticker": "COP",
+              "cosine": 0.66053,
+              "x": 2.765,
+              "y": 0.009
+            },
+            {
+              "ticker": "SLB",
+              "cosine": 0.34309,
+              "x": 2.885,
+              "y": -0.091
+            },
+            {
+              "ticker": "OXY",
+              "cosine": 0.323489,
+              "x": 3.005,
+              "y": -0.191
+            }
+          ]
+        },
+        {
+          "year": 2022,
+          "macroCategory": "Commodity price, transition policy, and reserve valuation risk",
+          "macroShare": 0.58,
+          "mesoCategory": "Energy transition regulation and production mix exposure",
+          "mesoShare": 0.28645,
+          "vectorDistance": 0.253374,
+          "nearestPeer": "CVX",
+          "nearestPeerCosine": 0.708854,
+          "x": 2.737,
+          "y": 1.631,
+          "peers": [
+            {
+              "ticker": "CVX",
+              "cosine": 0.80553,
+              "x": 2.857,
+              "y": 1.531
+            },
+            {
+              "ticker": "COP",
+              "cosine": 0.48809,
+              "x": 2.977,
+              "y": 1.431
+            },
+            {
+              "ticker": "SLB",
+              "cosine": 0.468489,
+              "x": 3.097,
+              "y": 1.331
+            },
+            {
+              "ticker": "OXY",
+              "cosine": 0.584996,
+              "x": 3.217,
+              "y": 1.231
+            }
+          ]
+        },
+        {
+          "year": 2023,
+          "macroCategory": "Commodity price, transition policy, and reserve valuation risk",
+          "macroShare": 0.58,
+          "mesoCategory": "Energy transition regulation and production mix exposure",
+          "mesoShare": 0.203635,
+          "vectorDistance": 0.214755,
+          "nearestPeer": "COP",
+          "nearestPeerCosine": 0.54421,
+          "x": 2.067,
+          "y": 2.166,
+          "peers": [
+            {
+              "ticker": "CVX",
+              "cosine": 0.49309,
+              "x": 2.187,
+              "y": 2.066
+            },
+            {
+              "ticker": "COP",
+              "cosine": 0.473489,
+              "x": 2.307,
+              "y": 1.966
+            },
+            {
+              "ticker": "SLB",
+              "cosine": 0.589996,
+              "x": 2.427,
+              "y": 1.866
+            },
+            {
+              "ticker": "OXY",
+              "cosine": 0.320361,
+              "x": 2.547,
+              "y": 1.766
+            }
+          ]
+        },
+        {
+          "year": 2024,
+          "macroCategory": "Commodity price, transition policy, and reserve valuation risk",
+          "macroShare": 0.58,
+          "mesoCategory": "Energy transition regulation and production mix exposure",
+          "mesoShare": 0.330405,
+          "vectorDistance": 0.444971,
+          "nearestPeer": "SLB",
+          "nearestPeerCosine": 0.49327,
+          "x": 1.352,
+          "y": 2.487,
+          "peers": [
+            {
+              "ticker": "CVX",
+              "cosine": 0.618489,
+              "x": 1.472,
+              "y": 2.387
+            },
+            {
+              "ticker": "COP",
+              "cosine": 0.734996,
+              "x": 1.592,
+              "y": 2.287
+            },
+            {
+              "ticker": "SLB",
+              "cosine": 0.465361,
+              "x": 1.712,
+              "y": 2.187
+            },
+            {
+              "ticker": "OXY",
+              "cosine": 0.34147,
+              "x": 1.832,
+              "y": 2.087
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -17,6 +17,13 @@ pip-wheel-metadata/
 *.egg-info/
 dist/
 build/
+node_modules/
+.next/
+web/.next/
+web/node_modules/
+web/out/
+remotion_video/node_modules/
+remotion_video/out/
 
 # ============================================================
 # Jupyter / notebooks
@@ -32,6 +39,7 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+.codex_tools/
 
 # ============================================================
 # Secrets / credentials
@@ -50,6 +58,11 @@ credentials/
 # Keep folder structure with .gitkeep if needed.
 # ============================================================
 May 2 update/
+/Presentation/
+Final_Presentation_V1.pptx
+extracted/
+output/
+media/
 data/raw/*
 data/interim/*
 data/cache/*
@@ -127,6 +140,7 @@ portfolio_output/
 figure_output/
 results/
 logs/
+remotion_video/public/background_music_*.wav
 
 # ============================================================
 # LaTeX build artifacts
@@ -165,6 +179,7 @@ logs/
 htmlcov/
 .mypy_cache/
 .ruff_cache/
+*.tsbuildinfo
 
 # ============================================================
 # Miscellaneous temporary files
@@ -179,3 +194,5 @@ htmlcov/
 *.tar.gz
 *.7z
 *.rar
+*.pptx
+.vercel

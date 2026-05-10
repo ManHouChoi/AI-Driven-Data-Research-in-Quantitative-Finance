@@ -28,6 +28,14 @@ The research pipeline consists of six major components:
 6. **Econometric and portfolio validation**<br>
    Validate the text-derived signals using DAV/EGARCH-X volatility models, Fama-MacBeth regressions, risk-contagion network analysis, and dynamic portfolio backtesting.
 
+## Demo and Overview Media
+
+[![ST-GAT semantic peer network demo](docs/assets/overview/st-gat-demo.png)](https://web-2vkfru0n5-marco-choi-s-projects.vercel.app/)
+
+- **Live demo:** [Interactive research dashboard](https://web-2vkfru0n5-marco-choi-s-projects.vercel.app/).
+- **Video overview:** [Project overview MP4](docs/assets/overview/project-overview.mp4).
+- **Static previews:** reusable README/report screenshots are stored in `docs/assets/overview/`.
+
 ## Repository Structure
 
 ```text
@@ -37,6 +45,7 @@ IEDA4920_FYP/
 ├── configs/
 │   └── default.yaml
 ├── docs/
+│   ├── assets/overview/       # README demo preview image and MP4 overview
 │   ├── data_dictionary.md
 │   ├── experiment_manifest.md
 │   ├── final_submission_changelog.md
@@ -47,9 +56,11 @@ IEDA4920_FYP/
 ├── .gitattributes
 ├── report/
 │   ├── figures/              # Report-local figures generated from output CSVs
-│   ├── IEDA4920_Final_Presentation.pptx
 │   ├── Research_Report.pdf
 │   └── Research_Report.tex
+├── web/                       # Next.js interactive research demo
+├── backend/                   # Optional FastAPI classifier service
+├── remotion_video/            # Remotion source for the video overview
 ├── data/
 │   ├── raw/                  # Raw data files; usually excluded from Git
 │   ├── interim/              # Intermediate extracted/cleaned files
@@ -153,7 +164,8 @@ Recommended commit policy:
 
 - Commit source code, README, requirements, lightweight configuration files, and the final report PDF.
 - Do not commit raw SEC HTML files, large CSV extracts, model checkpoints, API keys, or local cache files.
-- Commit selected final figures and tables only if they are used directly in the report or README.
+- Commit selected final figures, screenshots, and tables only if they are used directly in the report or README.
+- Do not commit local deployment metadata, environment files, rendered video intermediates, or generated QR codes that encode non-public URLs.
 
 ## GitHub Upload Readiness
 
@@ -279,7 +291,6 @@ The final research report should be placed under:
 
 ```text
 report/Research_Report.pdf
-report/IEDA4920_Final_Presentation.pptx
 ```
 
 Report-local figures that are generated from current CSV outputs can be
@@ -289,7 +300,7 @@ refreshed with:
 PYTHON=.venv/bin/python bash scripts/run_pipeline.sh report-figures
 ```
 
-The final presentation deck can be regenerated with:
+If a local presentation deck is needed outside the GitHub package, it can be regenerated with:
 
 ```bash
 .venv/bin/python scripts/generate_final_presentation.py
@@ -335,8 +346,8 @@ The report documents the full methodology, including dynamic taxonomy constructi
 
 ## Authors
 
-- CHAN Ho Lam hlmchan@connect.ust.hk
-- CHOI Man Hou mhchoiaf@connect.ust.hk
-- TSOI Ching Yi cytsoiaa@connect.ust.hk
+- CHAN Ho Lam
+- CHOI Man Hou
+- TSOI Ching Yi
 
 Dual Degree Program in Technology and Management, HKUST.

@@ -13,7 +13,10 @@ Generated for the IEDA4920 FYP final review package.
 - `docs/project_readiness_report.md`
 - `report/Research_Report.tex`
 - `report/Research_Report.pdf`
-- `report/IEDA4920_Presentation_Deck_0301.pdf`
+- `docs/assets/overview/project-overview.mp4`
+- `web/`
+- `backend/`
+- `remotion_video/`
 - `report/figures/`
 - `outputs/figures/`
 - `outputs/gat/`
@@ -27,7 +30,7 @@ Generated for the IEDA4920 FYP final review package.
 
 - `report/Research_Report.tex`
 - `report/Research_Report.pdf`
-- `report/IEDA4920_Final_Presentation.pptx`
+- `docs/assets/overview/project-overview.mp4`
 - `report/Research_Report_backup_before_finalization.tex`
 - `report/Research_Report_backup_before_finalization.pdf`
 - `docs/final_submission_validation_report.md`
@@ -47,43 +50,26 @@ Compilation status:
 - No undefined references or undefined citations were found in the final log scan.
 - Remaining LaTeX typography warnings are minor underfull boxes plus one harmless 1.72443 pt overfull box on the title page.
 
-## Presentation Generation Status
+## Repository Overview Media Status
 
-The final presentation was generated with:
+The GitHub overview keeps the report PDF, demo, and video rather than the generated presentation deck.
 
-```bash
-.venv/bin/python scripts/generate_final_presentation.py
-```
+Media status:
 
-Presentation status:
+- The live dashboard is linked from `README.md`.
+- The compact overview video is committed at `docs/assets/overview/project-overview.mp4`.
+- The generated PowerPoint deck is omitted from GitHub and ignored as a local/generated artifact.
 
-- PowerPoint generated successfully at `report/IEDA4920_Final_Presentation.pptx`.
-- The deck contains 28 slides after adding a fuller data-pipeline sequence from the research report.
-- `unzip -t report/IEDA4920_Final_Presentation.pptx` returned no package errors.
-- Slide XML was scanned for WIP markers; no matches remained.
-- Quick Look generated a cover thumbnail at `data/tmp/final_deck_preview/IEDA4920_Final_Presentation.pptx.png`. Full multi-slide rendering was not available through the headless tooling without launching a presentation application, so the deck was also checked by PPTX package inspection and text extraction.
+## Local Presentation Workflow
 
-## Reference Deck Style Extraction
-
-The additional style reference `report/IEDA4000E_Presentation_Deck_1126.pptx` was inspected with `python-pptx` and Quick Look thumbnail rendering. The deck contains 27 widescreen slides and uses:
-
-- full-bleed finance imagery on the cover;
-- Times New Roman typography;
-- dark navy, muted gold, and occasional red accents;
-- top-left title/subtitle hierarchy;
-- objective/evidence/takeaway slide rhythm;
-- figure-led layouts and concise explanatory text.
-
-The final IEDA4920 deck was regenerated to follow that rhythm more closely. The old repeated navigation/footer treatment was replaced with cleaner section labels, assertion-style slide titles, evidence-led charts/tables, and a bottom takeaway line on most content slides. A dark cover background was generated from the current portfolio return series rather than borrowing unrelated imagery from the reference deck.
+The presentation-generation workflow remains available locally, but generated PowerPoint files are not part of the GitHub review package.
 
 ## Validation Commands Run
 
 ```bash
 PYTHON=.venv/bin/python FYP_AS_OF_DATE=2026-05-03 bash scripts/run_pipeline.sh validate
 PYTHON=.venv/bin/python bash scripts/run_pipeline.sh github-check
-.venv/bin/python -m compileall -q src scripts
 git diff --check
-unzip -t report/IEDA4920_Final_Presentation.pptx
 ```
 
 Validation results:
@@ -92,7 +78,6 @@ Validation results:
 - GitHub readiness check: passed; 91 upload candidate files checked after repository cleanup.
 - Python compile check: passed.
 - Git whitespace check: passed.
-- PPTX package check: passed.
 
 The validation warnings are retained transparently:
 
@@ -101,7 +86,7 @@ The validation warnings are retained transparently:
 
 ## Claims Rewritten As Limitations Or Deferred Validation
 
-The final report and deck no longer use unsupported claims as headline findings. The following items were reframed:
+The final report and repository overview no longer use unsupported claims as headline findings. The following items were reframed:
 
 - unsupported taxonomy coverage percentages from the old conceptual figure;
 - unsupported single-firm migration claims without generated case-study source tables, now replaced by LVS dynamic taxonomy EDA artifacts;
@@ -113,7 +98,7 @@ These topics are now described as conceptual diagnostics, methodology extensions
 
 ## Verified Or Review-Accepted Headline Results
 
-The final report and deck retain the verified/review-accepted results supported by current artifacts:
+The final report and repository overview retain the verified/review-accepted results supported by current artifacts:
 
 - Default Meso ST-GAT improves return MAE and return rank, but not averaged OOS RMSE.
 - Full-window `theta040` Meso sensitivity improves averaged RMSE from 0.3523 to 0.3176 relative to its identity baseline.
