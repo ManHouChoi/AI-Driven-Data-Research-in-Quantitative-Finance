@@ -31,13 +31,13 @@ The research pipeline consists of six major components:
 [![ST-GAT semantic peer network demo](docs/assets/overview/st-gat-demo.png)](https://web-git-codex-research-taxonomy-upgrade-marco-choi-s-projects.vercel.app/)
 
 - **Live demo:** [Interactive research dashboard](https://web-git-codex-research-taxonomy-upgrade-marco-choi-s-projects.vercel.app/).
-- **Video overview:** [Project overview MP4](docs/assets/overview/project-overview.mp4).
+- **Video overview:** [3-minute project overview MP4](docs/assets/overview/project-overview.mp4).
 - **Static previews:** reusable README/report screenshots are stored in `docs/assets/overview/`.
 
 ## Repository Structure
 
 ```text
-IEDA4920_FYP/
+AI-Driven-Data-Research-in-Quantitative-Finance/
 ├── README.md
 ├── requirements.txt
 ├── configs/

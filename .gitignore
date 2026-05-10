@@ -141,6 +141,7 @@ figure_output/
 results/
 logs/
 remotion_video/public/background_music_*.wav
+Overview_Video.mp4
 
 # ============================================================
 # LaTeX build artifacts

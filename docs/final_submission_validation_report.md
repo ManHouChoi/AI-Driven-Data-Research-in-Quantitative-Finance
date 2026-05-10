@@ -57,7 +57,7 @@ The GitHub overview keeps the report PDF, demo, and video rather than the genera
 Media status:
 
 - The live dashboard is linked from `README.md`.
-- The compact overview video is committed at `docs/assets/overview/project-overview.mp4`.
+- The compressed three-minute overview video is committed at `docs/assets/overview/project-overview.mp4`.
 - The generated PowerPoint deck is omitted from GitHub and ignored as a local/generated artifact.
 
 ## Local Presentation Workflow

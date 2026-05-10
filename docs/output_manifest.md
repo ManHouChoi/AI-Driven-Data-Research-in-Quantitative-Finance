@@ -53,7 +53,7 @@ regenerated.
 | `docs/dav_peak_analysis_summary.md` | `scripts/summarize_dav_peak_analysis.py` | Committed Markdown audit summary for DAV peak diagnostics | Derived from the local figure set so the report's DAV peak numbers remain traceable even though large PNG outputs are ignored. |
 | `outputs/econometrics/fmb_risk_premiums.png` | `src/econometrics/plot_fmb.py` | Fama-MacBeth visualization | Figure present; source CSV trace should be confirmed in Phase 8/9. |
 | `outputs/econometrics/network_evolution/*` | `src/econometrics/network_evolution_analysis.py` | Network topology/drift diagnostics | Current output directory may need regeneration because the runner now points to a canonical path. |
-| `docs/assets/overview/project-overview.mp4` | Generated from committed overview/report figures | GitHub README video overview | Compact 16-second MP4 used in the repository overview instead of committing the presentation deck. |
+| `docs/assets/overview/project-overview.mp4` | Compressed from local `Overview_Video.mp4` | GitHub README video overview | Three-minute MP4 used in the repository overview instead of committing the presentation deck. |
 | `docs/final_submission_validation_report.md` | Manual finalization audit | Final submission validation record | Records files inspected, validation commands, report status, and remaining review risks. |
 | `docs/final_submission_changelog.md` | Manual finalization audit | Final submission changelog | Summarizes final report edits, claim-safety changes, repository cleanup, and limitations. |
 

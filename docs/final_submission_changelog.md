@@ -44,7 +44,7 @@
 
 ## Repository Overview Media
 
-- Added `docs/assets/overview/project-overview.mp4` as the compact GitHub README video overview.
+- Replaced `docs/assets/overview/project-overview.mp4` with the compressed three-minute GitHub README video overview.
 - Added `docs/assets/overview/st-gat-demo.png`, `docs/assets/overview/st-gat-network.png`, and `docs/assets/overview/taxonomy-demo.png` as static repository overview previews.
 - Linked the deployed interactive dashboard from `README.md`.
 - Removed the generated presentation deck from the GitHub commit surface; the final public package keeps the report PDF, video overview, and demo instead.

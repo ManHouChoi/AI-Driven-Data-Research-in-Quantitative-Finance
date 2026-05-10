@@ -6,6 +6,8 @@
 *.jpg binary
 *.jpeg binary
 *.gif binary
+*.mp4 binary
+*.m4v binary
 
 # Binary model/data artifacts should normally be ignored, but mark them binary
 # in case a small fixture is intentionally committed later.
